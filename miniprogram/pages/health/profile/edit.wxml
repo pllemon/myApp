@@ -1,0 +1,149 @@
+<wxs module="u">
+function contains(arr, key) {
+  if (!arr) return false;
+  for (var i = 0; i < arr.length; i++) {
+    if (arr[i] === key) return true;
+  }
+  return false;
+}
+module.exports = { contains: contains };
+</wxs>
+
+<view class="container m-edit-page">
+  <view class="avatar-section">
+    <view class="avatar-circle" bindtap="toggleAvatars">
+      <text class="avatar-big">{{avatar}}</text>
+    </view>
+    <view class="avatar-hint">点击更换头像</view>
+  </view>
+
+  <view wx:if="{{showAvatars}}" class="avatar-picker">
+    <view 
+      wx:for="{{avatarPresets}}" 
+      wx:key="*this"
+      class="avatar-item {{avatar === item ? 'active' : ''}}"
+      data-icon="{{item}}"
+      bindtap="selectAvatar"
+    >{{item}}</view>
+  </view>
+
+  <view class="m-form-card">
+    <view class="m-form-title">📝 基础信息</view>
+
+    <m-field label="姓名">
+      <input class="m-form-input" placeholder="请输入姓名" value="{{name}}" bindinput="onNameInput" maxlength="12" />
+    </m-field>
+
+    <m-option-picker label="性别" options="{{genders}}" currentValue="{{gender}}" bind:change="onGenderChange">
+      {{gender === 'female' ? '👩 女' : '👨 男'}}
+    </m-option-picker>
+
+    <m-field label="出生年月">
+      <picker mode="date" value="{{birthDate}}" bindchange="onBirthDateChange">
+        <view class="m-form-picker-value">{{birthDate || '请选择'}}</view>
+      </picker>
+    </m-field>
+
+    <view class="m-form-row">
+      <view class="m-form-item-half">
+        <text class="m-form-key">身高 (cm)</text>
+        <input class="m-form-input" type="digit" placeholder="例如 170" value="{{height}}" bindinput="onHeightInput" />
+      </view>
+      <view class="m-form-item-half">
+        <text class="m-form-key">体重 (kg)</text>
+        <input class="m-form-input" type="digit" placeholder="例如 65" value="{{weight}}" bindinput="onWeightInput" />
+      </view>
+    </view>
+
+    <view wx:if="{{_bmiValue}}" class="bmi-bar">
+      <text class="bmi-label">BMI</text>
+      <text class="bmi-value">{{_bmiValue}}</text>
+      <text class="bmi-status">{{_bmiStatus}}</text>
+      <text wx:if="{{_age}}" class="bmi-age"> · {{_age}}岁</text>
+    </view>
+
+    <m-option-picker label="血型" options="{{bloodTypes}}" currentValue="{{bloodType}}" bind:change="onBloodTypeChange">
+      {{bloodType}}
+    </m-option-picker>
+  </view>
+
+  <view class="m-form-card">
+    <view class="m-form-title">📋 健康状况</view>
+
+    <view class="m-form-item-full">
+      <text class="m-form-key">过敏史</text>
+      <textarea 
+        class="m-form-textarea" 
+        placeholder="对哪些食物或药物过敏？（选填）" 
+        value="{{allergies}}"
+        bindinput="onAllergiesInput"
+        auto-height
+        maxlength="200"
+      />
+    </view>
+
+    <view class="m-form-item-full">
+      <text class="m-form-key">既往病史</text>
+      <textarea 
+        class="m-form-textarea" 
+        placeholder="曾经患过什么疾病？（选填）" 
+        value="{{medicalHistory}}"
+        bindinput="onHistoryInput"
+        auto-height
+        maxlength="300"
+      />
+    </view>
+
+    <view class="m-form-item-full">
+      <text class="m-form-key">备注</text>
+      <textarea 
+        class="m-form-textarea" 
+        placeholder="其他需要记录的信息（选填）" 
+        value="{{notes}}"
+        bindinput="onNotesInput"
+        auto-height
+        maxlength="300"
+      />
+    </view>
+  </view>
+
+  <view class="m-form-card">
+    <view class="m-form-title">⚙️ 显示指标配置</view>
+    <view class="m-form-hint">勾选要在健康总览显示的指标（概览始终显示），已选 {{enabledTabs.length}} 项</view>
+    <view class="tab-pick-grid">
+      <view
+        wx:for="{{tabOptions}}"
+        wx:key="key"
+        class="tab-pick-item {{u.contains(enabledTabs, item.key) ? 'on' : ''}}"
+        data-key="{{item.key}}"
+        bindtap="toggleTab"
+      >
+        <text class="tp-ico">{{item.icon}}</text>
+        <text class="tp-label">{{item.label}}</text>
+        <text wx:if="{{u.contains(enabledTabs, item.key)}}" class="tp-check">✓</text>
+      </view>
+    </view>
+  </view>
+
+  <view wx:if="{{showPeriodSection}}" class="m-form-card">
+    <view class="m-form-title">🌸 生理期设置</view>
+    <view class="m-form-hint">记录生理期信息可自动推算周期</view>
+
+    <m-field label="上次开始">
+      <picker mode="date" value="{{lastPeriodStart}}" bindchange="onLastPeriodChange">
+        <view class="m-form-picker-value">{{lastPeriodStart || '请选择日期'}}</view>
+      </picker>
+    </m-field>
+
+    <m-field label="周期天数">
+      <view class="cycle-adjuster">
+        <view class="cycle-btn" data-v="{{cycleLength - 1}}" catchtap="onCycleLengthInput">－</view>
+        <input class="cycle-input" type="number" value="{{cycleLength}}" bindinput="onCycleLengthInput" />
+        <view class="cycle-btn" data-v="{{cycleLength + 1}}" catchtap="onCycleLengthInput">＋</view>
+        <text class="cycle-unit">天</text>
+      </view>
+    </m-field>
+  </view>
+
+  <m-save-bar save-text="{{isEdit ? '保存修改' : '创建档案'}}" bind:save="save" />
+</view>

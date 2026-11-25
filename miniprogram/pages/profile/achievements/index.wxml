@@ -1,0 +1,24 @@
+<view class="container" style="{{themeStyle}}">
+  <view class="progress-header">
+    <view class="progress-title">已解锁 {{unlockedCount}} / {{totalCount}}</view>
+    <view class="progress-bar">
+      <view class="progress-fill" style="width: {{totalCount > 0 ? (unlockedCount / totalCount * 100) : 0}}%"></view>
+    </view>
+  </view>
+
+  <view class="badge-grid">
+    <view
+      wx:for="{{badges}}"
+      wx:key="key"
+      class="badge-card {{item.unlocked ? 'badge-unlocked' : 'badge-locked'}}"
+    >
+      <view class="badge-icon">{{item.icon}}</view>
+      <view class="badge-title">{{item.title}}</view>
+      <view class="badge-desc">{{item.desc}}</view>
+      <view class="badge-progress-track">
+        <view class="badge-progress-fill" style="width: {{item.pct}}%"></view>
+      </view>
+      <view class="badge-progress-text">{{item.display}}</view>
+    </view>
+  </view>
+</view>

@@ -1,0 +1,81 @@
+<view class="container tabbar-page">
+  <view class="page-title">数据洞察 · {{monthLabel}}</view>
+
+  <view class="overview-grid">
+    <view class="overview-card">
+      <view class="ov-label">本月支出</view>
+      <view class="ov-value expense">¥{{overview.monthExpense}}</view>
+    </view>
+    <view class="overview-card">
+      <view class="ov-label">本月收入</view>
+      <view class="ov-value income">¥{{overview.monthIncome}}</view>
+    </view>
+    <view class="overview-card">
+      <view class="ov-label">本月结余</view>
+      <view class="ov-value {{overview.monthBalance >= 0 ? 'income' : 'expense'}}">¥{{overview.monthBalance}}</view>
+    </view>
+    <view class="overview-card">
+      <view class="ov-label">本月日记</view>
+      <view class="ov-value">{{overview.diaryMonth}}<text class="ov-unit">篇</text></view>
+    </view>
+  </view>
+
+  <view class="card">
+    <view class="card-title">近 7 天支出</view>
+    <view class="chart">
+      <view class="bar-col" wx:for="{{bars}}" wx:key="label">
+        <view class="bar-value">{{item.value}}</view>
+        <view class="bar-track">
+          <view class="bar-fill" style="height: {{item.pct}}%"></view>
+        </view>
+        <view class="bar-label">{{item.label}}</view>
+      </view>
+    </view>
+  </view>
+
+  <view class="card">
+    <view class="card-title">打卡统计</view>
+    <view class="stat-grid">
+      <view class="stat-cell">
+        <view class="stat-num">{{checkinStats.habitCount}}</view>
+        <view class="stat-cap">习惯数</view>
+      </view>
+      <view class="stat-cell">
+        <view class="stat-num">{{checkinStats.todayDone}}</view>
+        <view class="stat-cap">今日打卡</view>
+      </view>
+      <view class="stat-cell">
+        <view class="stat-num">{{checkinStats.totalCheckins}}</view>
+        <view class="stat-cap">累计打卡</view>
+      </view>
+      <view class="stat-cell">
+        <view class="stat-num accent">{{checkinStats.currentStreak}}</view>
+        <view class="stat-cap">当前连续</view>
+      </view>
+      <view class="stat-cell">
+        <view class="stat-num">{{checkinStats.longestStreak}}</view>
+        <view class="stat-cap">最长连续</view>
+      </view>
+    </view>
+  </view>
+
+  <view class="card">
+    <view class="card-title">待办完成率</view>
+    <view class="todo-summary">
+      <view class="todo-ring" style="background: conic-gradient(var(--primary) {{overview.todoRate}}%, var(--divider) 0deg)">
+        <view class="todo-ring-inner">
+          <view class="todo-rate">{{overview.todoRate}}%</view>
+          <view class="todo-rate-sub">{{overview.todoDone}}/{{overview.todoTotal}}</view>
+        </view>
+      </view>
+      <view class="todo-recent">
+        <view wx:if="{{recentTodos.length === 0}}" class="recent-empty">暂无待办</view>
+        <view wx:for="{{recentTodos}}" wx:key="title" class="recent-item {{item.completed ? 'recent-done' : ''}}">
+          <text class="recent-dot">{{item.completed ? '✓' : '○'}}</text>
+          <text class="recent-text">{{item.title}}</text>
+        </view>
+      </view>
+    </view>
+  </view>
+</view>
+<m-tab-bar id="tabbar" />

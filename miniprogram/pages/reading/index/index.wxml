@@ -1,0 +1,81 @@
+<view class="container">
+  <view class="m-summary">
+    <view class="m-summary-row">
+      <view class="m-summary-item">
+        <view class="m-summary-num">{{summary.finished}}<text class="m-summary-total">/{{summary.total}}</text></view>
+        <view class="m-summary-label">已读完</view>
+      </view>
+      <view class="m-summary-divider"></view>
+      <view class="m-summary-item">
+        <view class="m-summary-num">{{summary.reading}}</view>
+        <view class="m-summary-label">在读</view>
+      </view>
+      <view class="m-summary-divider"></view>
+      <view class="m-summary-item">
+        <view class="m-summary-num">{{summary.plan}}</view>
+        <view class="m-summary-label">想读</view>
+      </view>
+      <view class="m-summary-divider"></view>
+      <view class="m-summary-item">
+        <view class="m-summary-num">{{summary.avgRating}}</view>
+        <view class="m-summary-label">平均评分</view>
+      </view>
+    </view>
+  </view>
+
+  <scroll-view class="m-filter" scroll-x enable-flex>
+    <view
+      wx:for="{{filters}}"
+      wx:key="key"
+      class="m-filter-item {{activeFilter === item.key ? 'm-filter-active' : ''}}"
+      data-key="{{item.key}}"
+      bindtap="switchFilter"
+    >{{item.label}}</view>
+  </scroll-view>
+
+  <m-empty wx:if="{{showEmpty}}" icon="📚" title="暂无书籍" desc="点击右下角 + 添加你的书架" />
+
+  <view wx:else class="m-card-list reading-list">
+    <view
+      wx:for="{{list}}"
+      wx:key="_id"
+      class="reading-card"
+      data-id="{{item._id}}"
+      bindtap="goEdit"
+    >
+      <view class="book-cover" style="{{item.images && item.images.length > 0 ? '' : 'background:' + item.categoryTile + ';color:' + item.categoryColor}}">
+        <image wx:if="{{item.images && item.images.length > 0}}" class="cover-img" src="{{item.images[0]}}" mode="aspectFill" />
+        <text wx:else class="cover-emoji">{{item.categoryIcon}}</text>
+      </view>
+      <view class="reading-body">
+        <view class="reading-title">{{item.title}}</view>
+        <view class="reading-meta">
+          <text wx:if="{{item.author}}" class="reading-author">{{item.author}}</text>
+          <text wx:if="{{item.author && item.publisher}}" class="reading-sep">·</text>
+          <text wx:if="{{item.publisher}}" class="reading-publisher">{{item.publisher}}</text>
+        </view>
+        <view class="reading-tags">
+          <view class="reading-tag" style="color:{{item.categoryColor}};background:{{item.categorySoft}}">{{item.categoryLabel}}</view>
+          <view class="reading-tag reading-status" style="color:{{item.statusColor}};background:{{item.statusSoft}}"
+            data-id="{{item._id}}" catchtap="toggleStatus">⏱ {{item.statusLabel}}</view>
+        </view>
+
+        <view wx:if="{{item.status !== 'plan'}}" class="reading-progress-row">
+          <view class="reading-progress-track">
+            <view class="reading-progress-fill" style="width:{{item.progress}}%;background:{{item.status === 'finished' ? '#27AE60' : item.categoryColor}}"></view>
+          </view>
+          <text class="reading-progress-text">{{item.progress}}%</text>
+        </view>
+
+        <view wx:if="{{item.status === 'finished'}}" class="reading-rating">
+          <view class="stars">
+            <text wx:for="{{[1,2,3,4,5]}}" wx:for-item="s" wx:key="*this" class="star {{s <= item.rating ? 'star-on' : ''}}">★</text>
+          </view>
+          <text wx:if="{{item.finishDate}}" class="reading-date">读完于 {{item.finishDate}}</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <view class="m-fab" bindtap="goNew">+</view>
+</view>

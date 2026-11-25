@@ -1,0 +1,55 @@
+.m-save-bar {
+  padding: 20rpx 28rpx 40rpx;
+  display: flex;
+  gap: 20rpx;
+  background: transparent;
+}
+
+.m-save-bar-fixed {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding-bottom: calc(env(safe-area-inset-bottom) + 20rpx);
+  padding-top: 16rpx;
+  background: rgba(255,255,255,0.95);
+  backdrop-filter: blur(10px);
+  z-index: 999;
+  border-top: 1rpx solid rgba(0,0,0,0.06);
+}
+
+.m-save-bar-save {
+  flex: 1;
+  background: linear-gradient(135deg, var(--primary, #4A90D9) 0%, var(--primary-dark, #357ABD) 100%);
+  color: #fff;
+  text-align: center;
+  padding: 24rpx 0;
+  border-radius: 48rpx;
+  font-size: 30rpx;
+  font-weight: 600;
+  box-shadow: 0 8rpx 20rpx rgba(74,144,217,0.3);
+}
+
+.m-save-bar-save:active {
+  opacity: 0.85;
+  transform: scale(0.98);
+}
+
+.m-save-bar-delete {
+  background: #fff;
+  border: 1rpx solid #ff6b6b;
+  padding: 0 32rpx;
+  border-radius: 48rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.m-save-bar-delete:active {
+  background: #fff1f0;
+}
+
+.m-save-bar-delete-text {
+  color: #ff6b6b;
+  font-size: 28rpx;
+}

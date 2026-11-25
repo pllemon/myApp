@@ -1,0 +1,6 @@
+<view class="m-field {{click ? 'm-field-click' : ''}} {{block ? 'm-field-block' : ''}} {{half ? 'm-field-half' : ''}}" bindtap="onTap">
+  <view class="m-field-label">{{label}}</view>
+  <view class="m-field-content">
+    <slot></slot>
+  </view>
+</view>

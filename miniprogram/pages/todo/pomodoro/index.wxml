@@ -1,0 +1,35 @@
+<view class="container pomo-page">
+  <view wx:if="{{hasTodo}}" class="todo-link">
+    <text class="todo-link-icon">📌</text>
+    <text class="todo-link-text">{{todoTitle}}</text>
+  </view>
+
+  <view class="mode-bar">
+    <view
+      wx:for="{{modes}}"
+      wx:key="key"
+      class="mode-item {{mode === item.key ? 'mode-active' : ''}}"
+      data-key="{{item.key}}"
+      bindtap="selectMode"
+    >{{item.label}}</view>
+  </view>
+
+  <view class="ring-wrap">
+    <view class="ring" style="background: conic-gradient({{ringColor}} {{progress * 100}}%, #EEEEEE 0deg)">
+      <view class="ring-inner">
+        <view class="ring-time">{{display}}</view>
+        <view class="ring-status">{{status === 'running' ? '专注中' : (status === 'paused' ? '已暂停' : (status === 'finished' ? '已完成' : '准备开始'))}}</view>
+      </view>
+    </view>
+  </view>
+
+  <view class="control-row">
+    <view wx:if="{{status !== 'running'}}" class="control-btn control-primary" bindtap="start">
+      {{status === 'paused' ? '继续' : '开始'}}
+    </view>
+    <view wx:else class="control-btn control-pause" bindtap="pause">暂停</view>
+    <view class="control-btn control-ghost" bindtap="reset">重置</view>
+  </view>
+
+  <view class="count-info">今日已完成 {{completedCount}} 个番茄</view>
+</view>

@@ -1,0 +1,36 @@
+.pain-row {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+}
+
+.pain-label {
+  font-size: 24rpx;
+  color: var(--text-secondary);
+  width: 60rpx;
+  text-align: center;
+}
+
+.pain-slider {
+  flex: 1;
+}
+
+.pain-emoji {
+  text-align: center;
+  font-size: 28rpx;
+  color: var(--text);
+  margin-top: 12rpx;
+}
+
+
+
+.bmi-badge {
+  font-size: 32rpx;
+  font-weight: 700;
+  margin-right: 12rpx;
+}
+
+.bmi-status-thin { color: #3498DB; font-size: 24rpx; }
+.bmi-status-normal { color: #27AE60; font-size: 24rpx; }
+.bmi-status-fat { color: #F39C12; font-size: 24rpx; }
+.bmi-status-obese { color: #E74C3C; font-size: 24rpx; }

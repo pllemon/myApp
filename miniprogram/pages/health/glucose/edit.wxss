@@ -1,0 +1,18 @@
+@import "../period/edit.wxss";
+
+.glucose-preview {
+  margin-top: 8rpx;
+  padding: 16rpx 20rpx;
+  background: linear-gradient(135deg, #FFF8F0 0%, #FFF0E8 100%);
+  border-radius: 12rpx;
+}
+
+.glucose-preview-value {
+  font-size: 36rpx;
+  font-weight: 700;
+}
+
+.glucose-preview-label {
+  font-size: 26rpx;
+  margin-top: 4rpx;
+}

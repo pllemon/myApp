@@ -1,0 +1,109 @@
+<view class="container">
+  <view class="type-switch">
+    <view 
+      class="type-btn {{type === 'expense' ? 'expense active' : ''}}"
+      data-type="expense"
+      bindtap="switchType"
+    >支出</view>
+    <view 
+      class="type-btn {{type === 'income' ? 'income active' : ''}}"
+      data-type="income"
+      bindtap="switchType"
+    >收入</view>
+  </view>
+
+  <view class="amount-section">
+    <view class="currency">¥</view>
+    <input 
+      class="amount-input" 
+      type="digit" 
+      placeholder="0.00" 
+      value="{{amount}}"
+      bindinput="onAmountInput"
+      focus="{{!isEdit}}"
+    />
+  </view>
+
+  <view class="section-header">
+    <view class="section-title">选择分类</view>
+    <view class="manage-btn" bindtap="goManageCategory">管理 ›</view>
+  </view>
+
+  <scroll-view class="parent-tabs" scroll-x scroll-with-animation>
+    <view 
+      wx:for="{{parents}}" 
+      wx:key="_id"
+      class="parent-tab {{currentParentId === item._id ? 'active' : ''}}"
+      data-id="{{item._id}}"
+      bindtap="selectParent"
+    >
+      <text class="parent-icon">{{item.icon}}</text>
+      <text class="parent-name">{{item.name}}</text>
+    </view>
+  </scroll-view>
+
+  <view class="child-grid">
+    <view 
+      wx:for="{{currentChildren}}" 
+      wx:key="_id"
+      class="child-item {{selectedChild === item._id ? 'active' : ''}}"
+      data-id="{{item._id}}"
+      data-parentid="{{currentParentId}}"
+      bindtap="selectChild"
+    >
+      <view class="child-icon">{{item.icon}}</view>
+      <view class="child-name">{{item.name}}</view>
+    </view>
+    <view class="child-item add-child" bindtap="goManageCategory">
+      <view class="child-icon">+</view>
+      <view class="child-name">添加</view>
+    </view>
+  </view>
+
+  <view class="m-form-card">
+    <m-field label="日期">
+      <picker mode="date" value="{{dateStr}}" bindchange="onDateChange">
+        <view class="m-form-picker-value">{{dateStr}} ›</view>
+      </picker>
+    </m-field>
+    <m-field label="备注">
+      <input class="m-field-input" 
+        placeholder="记点什么..." 
+        value="{{note}}"
+        bindinput="onNoteInput"
+        maxlength="50"
+      />
+    </m-field>
+  </view>
+
+  <view class="image-section">
+    <view class="section-title">小票图片（非必填）</view>
+    <view class="image-grid">
+      <view 
+        wx:for="{{images}}" 
+        wx:key="*this" 
+        class="image-item"
+      >
+        <image 
+          src="{{item}}" 
+          mode="aspectFill" 
+          class="image-thumb"
+          data-index="{{index}}"
+          bindtap="previewImage"
+        />
+        <view class="image-remove" data-index="{{index}}" catchtap="removeImage">×</view>
+      </view>
+      <view wx:if="{{images.length < 3}}" class="image-add" bindtap="chooseImage">
+        <view class="add-icon">+</view>
+        <view class="add-text">添加图片</view>
+      </view>
+    </view>
+  </view>
+
+  <view class="m-footer">
+    <view class="m-save-btn {{type === 'expense' ? 'expense-bg' : 'income-bg'}}" bindtap="save">
+      {{isEdit ? '保存修改' : '保存记录'}}
+    </view>
+    <view wx:if="{{isEdit}}" class="m-delete-btn" bindtap="deleteRecord">删除此记录</view>
+  </view>
+</view>

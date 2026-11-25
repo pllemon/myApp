@@ -1,0 +1,75 @@
+<view class="container tabbar-page">
+  <view class="header">
+    <view class="greeting-row">
+      <view class="greeting">{{greeting}}</view>
+      <view class="today">{{today}}</view>
+    </view>
+    <view class="progress-card">
+      <view class="progress-info">
+        <text class="progress-text">今日已打卡</text>
+        <text class="progress-num">{{checkedCount}}/{{totalCount}}</text>
+      </view>
+      <view class="progress-bar">
+        <view class="progress-fill" style="width: {{totalCount > 0 ? (checkedCount / totalCount * 100) : 0}}%;"></view>
+      </view>
+      <view wx:if="{{totalCount > 0 && checkedCount === totalCount}}" class="all-done">
+        🎉 今天全部完成，太棒了！
+      </view>
+    </view>
+  </view>
+
+  <view class="section-header">
+    <view class="section-title">我的习惯</view>
+    <view class="section-action" bindtap="goCalendar">📅 日历</view>
+  </view>
+
+  <m-empty wx:if="{{habits.length === 0}}" icon="✨" title="还没有习惯" desc="点击下方 + 添加你想养成的好习惯吧" />
+
+  <view 
+    wx:for="{{habits}}" 
+    wx:key="_id" 
+    class="habit-card {{item._checkedToday ? 'checked' : ''}}"
+    style="border-left-color: {{item.color}};"
+  >
+    <view 
+      class="check-btn {{item._checkedToday ? 'checked' : ''}}"
+      style="background-color: {{item._checkedToday ? item.color : '#fff'}}; border-color: {{item.color}};"
+      data-id="{{item._id}}"
+      data-name="{{item.name}}"
+      bindtap="toggleCheckin"
+    >
+      <text wx:if="{{item._checkedToday}}">✓</text>
+      <text wx:else class="check-plus">+</text>
+    </view>
+
+    <view class="habit-main" data-id="{{item._id}}" bindlongpress="goEdit">
+      <view class="habit-name-row">
+        <text class="habit-icon">{{item.icon}}</text>
+        <text class="habit-name">{{item.name}}</text>
+      </view>
+      <view class="habit-meta">
+        <view class="streak-row">
+          <text wx:if="{{item._streaks.current > 0}}" class="streak">🔥 连续 {{item._streaks.current}} 天</text>
+          <text class="longest">🏆 最长 {{item._streaks.longest}} 天</text>
+          <text class="total">累计 {{item._totalDays}} 天</text>
+        </view>
+        <view wx:if="{{item.targetDays}}" class="target-row">
+          <view class="target-bar">
+            <view class="target-fill" style="width: {{item._progress}}%; background-color: {{item.color}};"></view>
+          </view>
+          <text class="target-text">{{item._progress}}% / {{item.targetDays}}天目标</text>
+        </view>
+      </view>
+    </view>
+
+    <view class="habit-actions">
+      <view class="act-btn" data-id="{{item._id}}" bindtap="goCalendar">📅</view>
+      <view class="act-btn" data-id="{{item._id}}" data-name="{{item.name}}" catchtap="deleteHabit">🗑️</view>
+    </view>
+  </view>
+
+  <view class="bottom-space"></view>
+</view>
+
+<view class="m-fab" bindtap="goCreate">+</view>
+<m-tab-bar id="tabbar" />

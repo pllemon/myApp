@@ -1,0 +1,50 @@
+<view class="container">
+  <view class="sleep-summary">
+    <view class="ss-item">
+      <text class="ss-label">平均时长</text>
+      <text class="ss-value">{{durationStats.avg || '--'}}<text class="ss-unit">h</text></text>
+    </view>
+    <view class="ss-divider"></view>
+    <view class="ss-item">
+      <text class="ss-label">理想率</text>
+      <text class="ss-value">{{idealRate}}<text class="ss-unit">%</text></text>
+    </view>
+    <view class="ss-divider"></view>
+    <view class="ss-item">
+      <text class="ss-label">平均质量</text>
+      <text class="ss-value">{{avgQuality || '--'}}</text>
+    </view>
+  </view>
+
+  <view class="chart-card">
+    <view class="chart-header">
+      <text class="chart-title">睡眠趋势</text>
+      <picker mode="selector" range="{{ranges}}" range-key="label" value="{{chartRangeIdx}}" bindchange="onRangeChange">
+        <view class="chart-range">{{ranges[chartRangeIdx].label}}</view>
+      </picker>
+    </view>
+    <canvas canvas-id="sleepChart" class="chart-canvas"></canvas>
+    <view wx:if="{{durationStats.count > 0}}" class="chart-summary">
+      <text class="cs-item">最长 {{durationStats.max}}h</text>
+      <text class="cs-item">最短 {{durationStats.min}}h</text>
+      <text class="cs-item">共 {{durationStats.count}} 次</text>
+    </view>
+  </view>
+
+  <view class="section-title">睡眠记录</view>
+  <m-empty compact wx:if="{{records.length === 0}}" title="暂无睡眠记录" />
+  <view wx:else class="record-list">
+    <view class="sleep-item" wx:for="{{records}}" wx:key="_id" bindtap="goEdit" data-id="{{item._id}}" bindlongpress="deleteItem">
+      <view class="si-left">
+        <view class="si-duration {{item._isEnough ? 'good' : 'warn'}}">{{item._durationStr}}</view>
+        <view class="si-datetime">{{item.date}} {{item.sleepTime}} - {{item.wakeTime}}</view>
+      </view>
+      <view class="si-right">
+        <view class="si-quality">{{item._qualityLabel}}</view>
+        <view wx:if="{{item.deepSleep}}" class="si-deep">深睡 {{item.deepSleep}}h</view>
+      </view>
+    </view>
+  </view>
+
+  <view class="m-fab" bindtap="goNew">+</view>
+</view>

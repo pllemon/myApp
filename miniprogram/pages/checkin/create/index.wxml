@@ -1,0 +1,99 @@
+<view class="container">
+  <view class="preview-card" style="border-left-color: {{color}};">
+    <view class="preview-icon" style="background-color: {{color}}20;">{{icon}}</view>
+    <view class="preview-info">
+      <view class="preview-name">{{name || '习惯名称'}}</view>
+      <view class="preview-target">目标 {{targetDays}} 天</view>
+    </view>
+  </view>
+
+  <view class="m-form-card">
+    <m-field label="快捷模板" block>
+      <view class="preset-trigger" bindtap="togglePresets">
+        {{showPresets ? '收起' : '选择模板'}} ›
+      </view>
+      <view wx:if="{{showPresets}}" class="preset-grid">
+        <view 
+          wx:for="{{12}}" 
+          wx:for-item="idx"
+          wx:key="*this"
+          class="preset-item {{presetIndex === idx ? 'active' : ''}}"
+          style="border-color: {{idx >= 0 && idx < presetList.length ? presetList[idx].color : '#ccc'}};"
+          data-index="{{idx}}"
+          bindtap="selectPreset"
+        >
+          <view wx:if="{{idx < 12}}" class="preset-icon">{{presetList[idx].icon}}</view>
+          <view wx:if="{{idx < 12}}" class="preset-name">{{presetList[idx].name}}</view>
+        </view>
+      </view>
+    </m-field>
+  </view>
+
+  <view class="m-form-card">
+    <m-field label="习惯名称" block>
+      <input class="m-form-input" 
+        placeholder="例如：每日喝水" 
+        value="{{name}}"
+        bindinput="onNameInput"
+        maxlength="12"
+      />
+    </m-field>
+  </view>
+
+  <view class="m-form-card">
+    <m-field label="图标" click bind:fieldtap="toggleIcons">
+      <view class="m-form-picker-value">
+        <text class="current-icon">{{icon}}</text>
+        <text class="m-picker-arrow">{{showIcons ? '▲' : '▼'}}</text>
+      </view>
+    </m-field>
+    <view wx:if="{{showIcons}}" class="icon-grid">
+      <view 
+        wx:for="{{iconOptions}}" 
+        wx:key="*this"
+        class="icon-item {{icon === item ? 'active' : ''}}"
+        data-icon="{{item}}"
+        bindtap="selectIcon"
+      >{{item}}</view>
+    </view>
+  </view>
+
+  <view class="m-form-card">
+    <m-field label="主题色" click bind:fieldtap="toggleColors">
+      <view class="m-form-picker-value">
+        <view class="current-color" style="background-color: {{color}}; width:40rpx; height:40rpx; border-radius:50%;"></view>
+        <text class="m-picker-arrow">{{showColors ? '▲' : '▼'}}</text>
+      </view>
+    </m-field>
+    <view wx:if="{{showColors}}" class="color-grid">
+      <view 
+        wx:for="{{colorOptions}}" 
+        wx:key="*this"
+        class="color-item {{color === item ? 'active' : ''}}"
+        style="background-color: {{item}};"
+        data-color="{{item}}"
+        bindtap="selectColor"
+      >
+        <text wx:if="{{color === item}}" class="color-check">✓</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="m-form-card">
+    <m-field label="目标天数" block>
+      <input class="m-form-input" 
+        type="number"
+        placeholder="30" 
+        value="{{targetDays}}"
+        bindinput="onTargetInput"
+      />
+      <view class="target-hint">常见目标：21 天养成习惯，30 天巩固，100 天坚持。</view>
+    </m-field>
+  </view>
+
+  <m-save-bar
+    save-text="{{isEdit ? '保存修改' : '创建习惯'}}"
+    show-delete="{{isEdit}}"
+    bind:save="save"
+  />
+</view>

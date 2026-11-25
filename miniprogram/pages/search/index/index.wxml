@@ -1,0 +1,51 @@
+<view class="container" style="{{themeStyle}}">
+  <view class="search-bar">
+    <view class="search-icon">🔍</view>
+    <input
+      class="search-input"
+      placeholder="搜索记账、日记、书籍、影片..."
+      value="{{keyword}}"
+      focus="{{true}}"
+      bindinput="onInput"
+      confirm-type="search"
+    />
+    <view wx:if="{{keyword}}" class="search-clear" bindtap="clearKeyword">×</view>
+  </view>
+
+  <view wx:if="{{!searched}}" class="suggestions">
+    <view class="sugg-title">搜索建议</view>
+    <view class="sugg-row">
+      <view
+        wx:for="{{suggestions}}"
+        wx:key="*this"
+        class="sugg-chip"
+        data-kw="{{item}}"
+        bindtap="useSuggestion"
+      >{{item}}</view>
+    </view>
+  </view>
+
+  <m-empty wx:if="{{searched && showEmpty}}" icon="🔎" title="没有找到「{{keyword}}」" desc="换个关键词试试吧" />
+
+  <view wx:if="{{searched && !showEmpty}}" class="result-meta">找到 {{results.length}} 条相关记录</view>
+
+  <view class="result-list">
+    <view
+      wx:for="{{results}}"
+      wx:key="_id"
+      class="result-item"
+      data-path="{{item.targetPath}}"
+      bindtap="goItem"
+    >
+      <view class="ri-icon" style="background:{{item.moduleColor}};color:#fff">{{item.moduleIcon}}</view>
+      <view class="ri-body">
+        <view class="ri-title">{{item.title}}</view>
+        <view wx:if="{{item.subtitle}}" class="ri-sub">{{item.subtitle}}</view>
+        <view class="ri-footer">
+          <text class="ri-module" style="color:{{item.moduleColor}}">{{item.moduleLabel}}</text>
+          <text wx:if="{{item.amount}}" class="ri-amount" style="color:{{item.moduleColor}}">{{item.amount}}</text>
+        </view>
+      </view>
+    </view>
+  </view>
+</view>

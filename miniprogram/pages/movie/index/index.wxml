@@ -1,0 +1,77 @@
+<view class="container">
+  <view class="m-summary">
+    <view class="m-summary-row">
+      <view class="m-summary-item">
+        <view class="m-summary-num">{{summary.watched}}<text class="m-summary-total">/{{summary.total}}</text></view>
+        <view class="m-summary-label">已看过</view>
+      </view>
+      <view class="m-summary-divider"></view>
+      <view class="m-summary-item">
+        <view class="m-summary-num">{{summary.watching}}</view>
+        <view class="m-summary-label">观看中</view>
+      </view>
+      <view class="m-summary-divider"></view>
+      <view class="m-summary-item">
+        <view class="m-summary-num">{{summary.plan}}</view>
+        <view class="m-summary-label">想看</view>
+      </view>
+      <view class="m-summary-divider"></view>
+      <view class="m-summary-item">
+        <view class="m-summary-num">{{summary.avgRating}}</view>
+        <view class="m-summary-label">平均评分</view>
+      </view>
+    </view>
+  </view>
+
+  <scroll-view class="m-filter" scroll-x enable-flex>
+    <view
+      wx:for="{{filters}}"
+      wx:key="key"
+      class="m-filter-item {{activeFilter === item.key ? 'm-filter-active' : ''}}"
+      data-key="{{item.key}}"
+      bindtap="switchFilter"
+    >{{item.label}}</view>
+  </scroll-view>
+
+  <m-empty wx:if="{{showEmpty}}" icon="🎬" title="暂无影片" desc="点击右下角 + 添加你想看的电影或剧" />
+
+  <view wx:else class="m-card-list movie-list">
+    <view
+      wx:for="{{list}}"
+      wx:key="_id"
+      class="movie-card"
+      data-id="{{item._id}}"
+      bindtap="goEdit"
+    >
+      <view class="movie-poster" style="{{item.images && item.images.length > 0 ? '' : 'background:' + item.categoryTile + ';color:' + item.categoryColor}}">
+        <image wx:if="{{item.images && item.images.length > 0}}" class="poster-img" src="{{item.images[0]}}" mode="aspectFill" />
+        <block wx:else>
+          <text class="poster-emoji">{{item.categoryIcon}}</text>
+          <text class="poster-year" wx:if="{{item.releaseYear}}">{{item.releaseYear}}</text>
+        </block>
+      </view>
+      <view class="movie-body">
+        <view class="movie-title">{{item.title}}</view>
+        <view class="movie-meta">
+          <text wx:if="{{item.director}}" class="movie-director">导演 · {{item.director}}</text>
+          <text wx:if="{{item.director && item.actors}}" class="movie-sep">·</text>
+          <text wx:if="{{item.actors}}" class="movie-actors">{{item.actors}}</text>
+        </view>
+        <view class="movie-tags">
+          <view class="movie-tag" style="color:{{item.categoryColor}};background:{{item.categorySoft}}">{{item.categoryLabel}}</view>
+          <view class="movie-tag movie-status" style="color:{{item.statusColor}};background:{{item.statusSoft}}"
+            data-id="{{item._id}}" catchtap="toggleStatus">⏱ {{item.statusLabel}}</view>
+          <text wx:if="{{item.duration}}" class="movie-duration">{{item.duration}}</text>
+        </view>
+        <view wx:if="{{item.status === 'watched'}}" class="movie-rating">
+          <view class="stars">
+            <text wx:for="{{[1,2,3,4,5]}}" wx:for-item="s" wx:key="*this" class="star {{s <= item.rating ? 'star-on' : ''}}">★</text>
+          </view>
+          <text wx:if="{{item.watchedDate}}" class="movie-date">看于 {{item.watchedDate}}</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <view class="m-fab" bindtap="goNew">+</view>
+</view>

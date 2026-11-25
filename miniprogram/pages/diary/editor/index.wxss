@@ -1,0 +1,274 @@
+.editor-card {
+  background-color: #FFFFFF;
+  border-radius: 20rpx;
+  padding: 28rpx 24rpx;
+  margin-bottom: 20rpx;
+  box-shadow: 0 2rpx 16rpx rgba(0, 0, 0, 0.04);
+}
+
+.title-row {
+  margin-bottom: 20rpx;
+  border-bottom: 1rpx solid #F0F0F0;
+  padding-bottom: 16rpx;
+}
+
+
+.content-row {
+  position: relative;
+}
+
+.content-input {
+  width: 100%;
+  min-height: 300rpx;
+  font-size: 30rpx;
+  color: var(--text);
+  line-height: 1.7;
+  padding: 12rpx 0 48rpx;
+  box-sizing: border-box;
+}
+
+.content-counter {
+  position: absolute;
+  right: 8rpx;
+  bottom: 12rpx;
+  font-size: 22rpx;
+  color: var(--text-secondary);
+}
+
+.meta-card, .tags-card {
+  background-color: #FFFFFF;
+  border-radius: 20rpx;
+  padding: 20rpx 24rpx;
+  margin-bottom: 20rpx;
+  box-shadow: 0 2rpx 16rpx rgba(0, 0, 0, 0.04);
+}
+
+.meta-label, .meta-label-row {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 16rpx;
+  padding-top: 8rpx;
+}
+
+.meta-label-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.tag-toggle {
+  font-size: 26rpx;
+  color: var(--primary);
+  font-weight: normal;
+}
+
+.meta-item {
+  display: flex;
+  align-items: center;
+  padding: 20rpx 0;
+  border-bottom: 1rpx solid #F5F5F5;
+}
+
+.meta-item-location {
+  display: flex;
+  align-items: center;
+  padding: 20rpx 0;
+}
+
+.meta-icon {
+  font-size: 36rpx;
+  margin-right: 16rpx;
+  width: 48rpx;
+  text-align: center;
+}
+
+.meta-content {
+  flex: 1;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.meta-key {
+  font-size: 28rpx;
+  color: var(--text-secondary);
+}
+
+.meta-value {
+  font-size: 28rpx;
+  color: var(--text);
+  font-weight: 500;
+}
+
+.meta-arrow {
+  font-size: 22rpx;
+  color: var(--text-secondary);
+  margin-left: 8rpx;
+}
+
+.date-picker {
+  font-size: 28rpx;
+  color: var(--text);
+  padding: 4rpx 16rpx;
+  background-color: #F5F5F5;
+  border-radius: 8rpx;
+}
+
+.location-input {
+  flex: 1;
+  font-size: 28rpx;
+  color: var(--text);
+}
+
+.mood-picker, .weather-picker {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16rpx;
+  padding: 16rpx 0 8rpx;
+  border-bottom: 1rpx solid #F5F5F5;
+}
+
+.mood-item {
+  width: calc(20% - 13rpx);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20rpx 0;
+  border-radius: 16rpx;
+  border: 3rpx solid transparent;
+}
+
+.mood-item.active {
+  border-color: var(--primary);
+}
+
+.mood-emoji {
+  font-size: 48rpx;
+  margin-bottom: 6rpx;
+}
+
+.mood-label {
+  font-size: 22rpx;
+  color: var(--text-secondary);
+}
+
+.weather-item {
+  width: calc(25% - 12rpx);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 16rpx 0;
+  border-radius: 12rpx;
+  background-color: #FAFAFA;
+  border: 2rpx solid transparent;
+}
+
+.weather-item.active {
+  border-color: var(--primary);
+  background-color: rgba(74, 144, 217, 0.08);
+}
+
+.weather-icon {
+  font-size: 40rpx;
+  margin-bottom: 4rpx;
+}
+
+.weather-label {
+  font-size: 22rpx;
+  color: var(--text-secondary);
+}
+
+.weather-clear {
+  width: 100%;
+  text-align: center;
+  font-size: 26rpx;
+  color: var(--danger);
+  padding: 12rpx 0;
+  margin-top: 8rpx;
+}
+
+.tag-manager {
+  padding: 8rpx 0;
+}
+
+.tag-section {
+  margin-bottom: 20rpx;
+}
+
+.tag-section-title {
+  font-size: 24rpx;
+  color: var(--text-secondary);
+  margin-bottom: 12rpx;
+}
+
+.tag-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16rpx;
+}
+
+.tag-item {
+  font-size: 26rpx;
+  padding: 12rpx 20rpx;
+  border-radius: 24rpx;
+  background-color: #F5F5F5;
+  color: var(--text-secondary);
+  border: 2rpx solid transparent;
+  position: relative;
+}
+
+.tag-item.active {
+  background-color: var(--primary-light);
+  color: var(--primary);
+  border-color: var(--primary);
+}
+
+.tag-item.custom .tag-remove {
+  margin-left: 8rpx;
+  color: var(--danger);
+  font-weight: 700;
+}
+
+.add-tag-row {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  margin-top: 12rpx;
+}
+
+.tag-input {
+  flex: 1;
+  background-color: #F5F5F5;
+  border-radius: 24rpx;
+  padding: 12rpx 24rpx;
+  font-size: 26rpx;
+}
+
+.add-tag-btn {
+  font-size: 26rpx;
+  color: #FFFFFF;
+  background: linear-gradient(135deg, var(--primary) 0%, #357ABD 100%);
+  padding: 12rpx 28rpx;
+  border-radius: 24rpx;
+}
+
+.selected-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12rpx;
+}
+
+.selected-tag {
+  font-size: 24rpx;
+  padding: 8rpx 16rpx;
+  border-radius: 16rpx;
+  background-color: var(--primary-light);
+  color: var(--primary);
+}
+
+.no-tags {
+  font-size: 26rpx;
+  color: var(--text-secondary);
+  padding: 8rpx 0;
+}

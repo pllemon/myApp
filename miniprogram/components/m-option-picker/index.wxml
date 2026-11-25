@@ -1,0 +1,18 @@
+<view class="m-option-picker">
+  <view class="m-form-item click" bindtap="toggle">
+    <text class="m-form-key">{{label}}</text>
+    <view class="m-form-picker-value">
+      <slot></slot>
+      <text class="m-picker-arrow">{{show ? '▲' : '▼'}}</text>
+    </view>
+  </view>
+  <view wx:if="{{show}}" class="option-row">
+    <view 
+      wx:for="{{options}}" 
+      wx:key="*this"
+      class="option-item {{_activeFlags[index] ? 'active' : ''}}"
+      data-index="{{index}}"
+      bindtap="select"
+    >{{item.label || item}}</view>
+  </view>
+</view>

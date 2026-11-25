@@ -1,0 +1,73 @@
+<view class="container tabbar-page">
+  <view class="profile-header">
+    <view class="avatar">👤</view>
+    <view class="profile-info">
+      <view class="nickname" bindtap="editNickname">{{nickname}} ✎</view>
+      <view class="uid">ID: {{openIdTail}}{{openIdTail ? ' · ' : ''}}📦 本地模式</view>
+    </view>
+  </view>
+
+  <view class="month-card">
+    <view class="mc-title">本月数据</view>
+    <view class="mc-grid">
+      <view class="mc-cell">
+        <view class="mc-value expense">-¥{{monthSummary.expense}}</view>
+        <view class="mc-label">支出</view>
+      </view>
+      <view class="mc-cell">
+        <view class="mc-value income">+¥{{monthSummary.income}}</view>
+        <view class="mc-label">收入</view>
+      </view>
+      <view class="mc-cell">
+        <view class="mc-value">{{monthSummary.diary}}</view>
+        <view class="mc-label">日记</view>
+      </view>
+      <view class="mc-cell">
+        <view class="mc-value">{{monthSummary.checkin}}</view>
+        <view class="mc-label">打卡</view>
+      </view>
+    </view>
+  </view>
+
+  <view class="summary-grid">
+    <view class="summary-cell">
+      <view class="sum-num">{{summary.accounting}}</view>
+      <view class="sum-label">记账</view>
+    </view>
+    <view class="summary-cell">
+      <view class="sum-num">{{summary.diary}}</view>
+      <view class="sum-label">日记</view>
+    </view>
+    <view class="summary-cell">
+      <view class="sum-num">{{summary.checkin}}</view>
+      <view class="sum-label">打卡</view>
+    </view>
+    <view class="summary-cell">
+      <view class="sum-num">{{summary.todoDone}}</view>
+      <view class="sum-label">待办完成</view>
+    </view>
+    <view class="summary-cell">
+      <view class="sum-num">{{summary.movie}}</view>
+      <view class="sum-label">观影</view>
+    </view>
+    <view class="summary-cell">
+      <view class="sum-num">{{summary.reading}}</view>
+      <view class="sum-label">阅读</view>
+    </view>
+  </view>
+
+  <view class="menu-list">
+    <view
+      class="menu-item"
+      wx:for="{{menus}}"
+      wx:key="id"
+      data-path="{{item.path}}"
+      catchtap="goMenu"
+    >
+      <view class="menu-icon">{{item.icon}}</view>
+      <view class="menu-title">{{item.title}}</view>
+      <view class="menu-arrow">›</view>
+    </view>
+  </view>
+</view>
+<m-tab-bar id="tabbar" />

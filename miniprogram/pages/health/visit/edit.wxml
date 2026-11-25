@@ -1,0 +1,77 @@
+<view class="container m-edit-page">
+  <view class="m-form-card">
+    <view class="m-form-title">🏥 基本信息</view>
+
+    <m-field label="就诊日期">
+      <picker mode="date" value="{{date}}" bindchange="onDateChange">
+        <view class="m-form-picker-value">{{date}}</view>
+      </picker>
+    </m-field>
+
+    <m-option-picker label="就诊类型" options="{{visitTypes}}" currentValue="{{visitType}}" bind:change="onTypeChange">
+      {{visitType}}
+    </m-option-picker>
+
+    <m-field label="标题">
+      <input class="m-form-input" placeholder="自动或自定义" value="{{title}}" bindinput="onTitleInput" maxlength="30" />
+    </m-field>
+
+    <m-field label="医院">
+      <input class="m-form-input" placeholder="请输入医院名称" value="{{hospital}}" bindinput="onHospitalInput" maxlength="30" />
+    </m-field>
+
+    <m-field label="科室">
+      <input class="m-form-input" placeholder="例如 内科" value="{{department}}" bindinput="onDeptInput" maxlength="20" />
+    </m-field>
+
+    <m-field label="医生">
+      <input class="m-form-input" placeholder="医生姓名" value="{{doctor}}" bindinput="onDoctorInput" maxlength="20" />
+    </m-field>
+
+    <m-field label="费用 (元)">
+      <input class="m-form-input" type="digit" placeholder="选填" value="{{cost}}" bindinput="onCostInput" />
+    </m-field>
+  </view>
+
+  <view class="m-form-card">
+    <view class="m-form-title">📋 诊疗详情</view>
+
+    <view class="m-form-item-full">
+      <text class="m-form-key-block">诊断结果</text>
+      <textarea 
+        class="m-form-textarea" 
+        placeholder="医生诊断的内容" 
+        value="{{diagnosis}}"
+        bindinput="onDiagnosisInput"
+        auto-height
+        maxlength="300"
+      />
+    </view>
+
+    <view class="m-form-item-full">
+      <text class="m-form-key-block">治疗方案</text>
+      <textarea 
+        class="m-form-textarea" 
+        placeholder="治疗、用药、复查等建议" 
+        value="{{treatment}}"
+        bindinput="onTreatmentInput"
+        auto-height
+        maxlength="500"
+      />
+    </view>
+
+    <view class="m-form-item-full">
+      <text class="m-form-key-block">备注</text>
+      <textarea 
+        class="m-form-textarea" 
+        placeholder="其他需要记录的内容（选填）" 
+        value="{{notes}}"
+        bindinput="onNotesInput"
+        auto-height
+        maxlength="300"
+      />
+    </view>
+  </view>
+
+  <m-save-bar save-text="{{isEdit ? '保存修改' : '保存记录'}}" bind:save="save" />
+</view>

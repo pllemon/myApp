@@ -1,0 +1,164 @@
+<view class="container">
+  <view class="editor-card">
+    <view class="title-row">
+      <input class="m-title-input" 
+        placeholder="今天的标题..." 
+        value="{{title}}"
+        bindinput="onTitleInput"
+        maxlength="30"
+      />
+    </view>
+
+    <view class="content-row">
+      <textarea 
+        class="content-input" 
+        placeholder="今天发生了什么？记录下你的想法和感受吧~ 试试#标签# 可以添加标签"
+        value="{{content}}"
+        bindinput="onContentInput"
+        auto-height
+        maxlength="2000"
+      />
+      <view class="content-counter">{{contentLen}}/2000</view>
+    </view>
+  </view>
+
+  <view class="img-grid">
+    <view wx:for="{{images}}" wx:key="*this" class="img-item">
+      <image class="img-thumb" src="{{item}}" mode="aspectFill" data-index="{{index}}" bindtap="previewImage" />
+      <view class="img-remove" data-index="{{index}}" catchtap="removeImage">×</view>
+    </view>
+    <view wx:if="{{images.length < 9}}" class="img-add" bindtap="chooseImages">
+      <text class="img-add-icon">+</text>
+      <text class="img-add-text">添加图片</text>
+    </view>
+  </view>
+
+  <view class="meta-card">
+    <view class="meta-label">日记信息</view>
+    
+    <view class="meta-item" bindtap="toggleMoodPicker">
+      <view class="meta-icon">😊</view>
+      <view class="meta-content">
+        <text class="meta-key">心情</text>
+        <text class="meta-value">{{mood}}</text>
+      </view>
+      <text class="meta-arrow">{{showMoodPicker ? '▲' : '▼'}}</text>
+    </view>
+
+    <view wx:if="{{showMoodPicker}}" class="mood-picker">
+      <view 
+        wx:for="{{moodOptions}}" 
+        wx:key="emoji"
+        class="mood-item {{mood === item.emoji ? 'active' : ''}}"
+        style="background-color: {{item.color}}30;"
+        data-emoji="{{item.emoji}}"
+        bindtap="selectMood"
+      >
+        <text class="mood-emoji">{{item.emoji}}</text>
+        <text class="mood-label">{{item.label}}</text>
+      </view>
+    </view>
+
+    <view class="meta-item" bindtap="toggleWeatherPicker">
+      <view class="meta-icon">🌤️</view>
+      <view class="meta-content">
+        <text class="meta-key">天气</text>
+        <text class="meta-value">{{weather || '未选择'}}</text>
+      </view>
+      <text class="meta-arrow">{{showWeatherPicker ? '▲' : '▼'}}</text>
+    </view>
+
+    <view wx:if="{{showWeatherPicker}}" class="weather-picker">
+      <view 
+        wx:for="{{weatherOptions}}" 
+        wx:key="label"
+        class="weather-item {{weather === item.label ? 'active' : ''}}"
+        data-label="{{item.label}}"
+        bindtap="selectWeather"
+      >
+        <text class="weather-icon">{{item.icon}}</text>
+        <text class="weather-label">{{item.label}}</text>
+      </view>
+      <view wx:if="{{weather}}" class="weather-clear" bindtap="clearWeather">清除</view>
+    </view>
+
+    <view class="meta-item">
+      <view class="meta-icon">📅</view>
+      <view class="meta-content">
+        <text class="meta-key">日期</text>
+      </view>
+      <picker mode="date" value="{{date}}" bindchange="onDateChange">
+        <view class="date-picker">{{date}}</view>
+      </picker>
+    </view>
+
+    <view class="meta-item-location">
+      <view class="meta-icon">📍</view>
+      <input 
+        class="location-input" 
+        placeholder="地点（可选）" 
+        value="{{location}}"
+        bindinput="onLocationInput"
+      />
+    </view>
+  </view>
+
+  <view class="tags-card">
+    <view class="meta-label-row">
+      <text class="meta-label">标签</text>
+      <text class="tag-toggle" bindtap="toggleTagManager">{{showTagManager ? '收起' : '管理'}} ›</text>
+    </view>
+
+    <view wx:if="{{showTagManager}}" class="tag-manager">
+      <view class="tag-section">
+        <view class="tag-section-title">预设标签</view>
+        <view class="tag-grid">
+          <view 
+            wx:for="{{presetTags}}" 
+            wx:key="*this"
+            class="tag-item {{tags.indexOf(item) >= 0 ? 'active' : ''}}"
+            data-tag="{{item}}"
+            bindtap="toggleTag"
+          >#{{item}}</view>
+        </view>
+      </view>
+
+      <view class="tag-section" wx:if="{{customTags.length > 0}}">
+        <view class="tag-section-title">自定义标签</view>
+        <view class="tag-grid">
+          <view 
+            wx:for="{{customTags}}" 
+            wx:key="*this"
+            class="tag-item custom {{tags.indexOf(item) >= 0 ? 'active' : ''}}"
+            data-tag="{{item}}"
+            bindtap="toggleTag"
+          >
+            #{{item}}
+            <text class="tag-remove" data-tag="{{item}}" catchtap="removeCustomTag">×</text>
+          </view>
+        </view>
+      </view>
+
+      <view class="add-tag-row">
+        <input 
+          class="tag-input" 
+          placeholder="添加自定义标签"
+          value="{{newTag}}"
+          bindinput="onNewTagInput"
+          maxlength="10"
+        />
+        <view class="add-tag-btn" bindtap="addCustomTag">添加</view>
+      </view>
+    </view>
+
+    <view class="selected-tags" wx:if="{{tags.length > 0}}">
+      <view wx:for="{{tags}}" wx:key="*this" class="selected-tag">#{{item}}</view>
+    </view>
+    <view wx:if="{{tags.length === 0 && !showTagManager}}" class="no-tags">点击管理添加标签</view>
+  </view>
+
+  <m-save-bar
+    save-text="{{isEdit ? '保存修改' : '保存日记'}}"
+    bind:save="save"
+  />
+</view>

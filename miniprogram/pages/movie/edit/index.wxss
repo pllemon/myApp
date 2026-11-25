@@ -1,0 +1,16 @@
+.m-form-label:first-child { margin-top: 0; }
+
+
+
+
+.chip {
+  padding: 14rpx 28rpx;
+  font-size: 26rpx;
+  border-radius: 40rpx;
+  border: 2rpx solid var(--divider);
+  color: var(--text-secondary);
+  background: var(--bg-card);
+}
+
+
+.m-rating-star.star-on { color: #F5A623; }

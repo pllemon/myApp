@@ -1,0 +1,40 @@
+<view class="container m-edit-page">
+  <view class="m-form-card">
+    <view class="m-form-title">🍬 血糖记录</view>
+
+    <m-field label="日期">
+      <picker mode="date" value="{{date}}" bindchange="onDateChange">
+        <view class="m-form-picker-value">{{date}}</view>
+      </picker>
+    </m-field>
+
+    <m-field label="时间">
+      <picker mode="time" value="{{time}}" bindchange="onTimeChange">
+        <view class="m-form-picker-value">{{time}}</view>
+      </picker>
+    </m-field>
+
+    <m-field label="血糖值 (mmol/L)">
+      <input class="m-form-input" type="digit" value="{{value}}" placeholder="例如 5.6" bindinput="onValueInput" />
+    </m-field>
+
+    <m-option-picker label="测量时机" options="{{typeOptions}}" currentValue="{{type}}" bind:change="onTypeChange">
+      {{typeLabel}}
+    </m-option-picker>
+
+    <m-field wx:if="{{preview}}" label="状态预览">
+      <view class="m-form-picker-value">
+        <m-status-badge text="{{preview.label}}" color="{{preview.color}}" />
+      </view>
+    </m-field>
+  </view>
+
+  <view class="m-form-card">
+    <view class="m-form-title">📝 备注</view>
+    <m-field block>
+      <textarea class="m-form-textarea" placeholder="选填" value="{{notes}}" bindinput="onNotesInput" auto-height maxlength="200" />
+    </m-field>
+  </view>
+
+  <m-save-bar save-text="{{isEdit ? '保存修改' : '保存记录'}}" bind:save="save" />
+</view>

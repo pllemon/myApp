@@ -1,0 +1,69 @@
+<view class="container m-edit-page">
+  <view class="m-form-card">
+    <m-field label="账本名称">
+      <input 
+        class="m-form-input" 
+        placeholder="如：家庭账本" 
+        value="{{name}}"
+        bindinput="onNameInput"
+        maxlength="20"
+      />
+    </m-field>
+
+    <m-field label="备注（可选）">
+      <input 
+        class="m-form-input" 
+        placeholder="账本说明" 
+        value="{{note}}"
+        bindinput="onNoteInput"
+        maxlength="50"
+      />
+    </m-field>
+  </view>
+
+  <view class="m-form-card">
+    <view class="m-form-title">选择图标</view>
+    <view class="icon-grid">
+      <view 
+        wx:for="{{iconChoices}}" 
+        wx:key="*this" 
+        class="icon-item {{item === icon ? 'active' : ''}}"
+        data-icon="{{item}}"
+        bindtap="selectIcon"
+      >
+        <text>{{item}}</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="m-form-card">
+    <view class="m-form-title">选择颜色</view>
+    <view class="color-grid">
+      <view 
+        wx:for="{{colorChoices}}" 
+        wx:key="value" 
+        class="color-item {{item.value === color ? 'active' : ''}}"
+        style="background: {{item.value}};"
+        data-value="{{item.value}}"
+        bindtap="selectColor"
+      >
+        <view class="color-check" wx:if="{{item.value === color}}">✓</view>
+      </view>
+    </view>
+  </view>
+
+  <view class="preview-section">
+    <view class="m-form-title">预览</view>
+    <view class="preview-card" style="background: {{color}}15; border-color: {{color}};">
+      <view class="preview-icon" style="background: {{color}}20;">
+        <text>{{icon}}</text>
+      </view>
+      <view class="preview-info">
+        <view class="preview-name" style="color: {{color}};">{{name || '账本名称'}}</view>
+        <view class="preview-note" wx:if="{{note}}">{{note}}</view>
+      </view>
+    </view>
+  </view>
+
+  <m-save-bar save-text="保存" bind:save="save" />
+</view>

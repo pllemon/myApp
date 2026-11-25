@@ -1,0 +1,69 @@
+<view class="container">
+  <view class="m-summary wish-summary">
+    <view class="wish-summary-left">
+      <view class="wish-summary-num">{{summary.achieved}}<text class="wish-summary-total">/{{summary.total}}</text></view>
+      <view class="wish-summary-label">已实现愿望</view>
+    </view>
+    <view class="wish-summary-progress">
+      <view class="m-progress-bar">
+        <view class="m-progress-fill" style="width: {{summary.rate}}%;background:#FFFFFF"></view>
+      </view>
+    </view>
+    <view class="wish-summary-meta">
+      <text>进行中 {{summary.active}}</text>
+      <text>完成率 {{summary.rate}}%</text>
+    </view>
+  </view>
+
+  <scroll-view class="m-filter" scroll-x enable-flex>
+    <view
+      wx:for="{{filters}}"
+      wx:key="key"
+      class="m-filter-item {{activeFilter === item.key ? 'm-filter-active' : ''}}"
+      data-key="{{item.key}}"
+      bindtap="switchFilter"
+    >{{item.label}}</view>
+  </scroll-view>
+
+  <m-empty wx:if="{{showEmpty}}" icon="🌟" title="暂无愿望" desc="点击右下角 + 许个愿吧" />
+
+  <view wx:else class="m-card-list wish-list">
+    <view
+      wx:for="{{list}}"
+      wx:key="_id"
+      class="wish-card {{item.achieved ? 'wish-done' : ''}}"
+      data-id="{{item._id}}"
+      bindtap="goEdit"
+    >
+      <view
+        class="wish-check {{item.achieved ? 'wish-check-done' : ''}}"
+        data-id="{{item._id}}"
+        catchtap="toggleAchieved"
+      >
+        <text wx:if="{{item.achieved}}" class="wish-check-icon">✓</text>
+      </view>
+      <view class="wish-icon" style="{{item.images && item.images.length > 0 ? '' : 'background:' + item.categoryTile + ';color:' + item.categoryColor}}">
+        <image wx:if="{{item.images && item.images.length > 0}}" class="wish-icon-img" src="{{item.images[0]}}" mode="aspectFill" />
+        <text wx:else>{{item.icon || item.categoryIcon}}</text>
+      </view>
+      <view class="wish-body">
+        <view class="wish-title-row">
+          <text class="wish-title">{{item.title}}</text>
+        </view>
+        <view class="wish-meta">
+          <view class="wish-tag" style="color:{{item.categoryColor}};background:{{item.categorySoft}}">{{item.categoryLabel}}</view>
+          <text wx:if="{{item.budget}}" class="wish-budget">预算 ¥{{item.budget}}</text>
+          <text wx:if="{{item.dueLabel}}" class="wish-due {{item.overdue ? 'wish-overdue' : ''}}">⏰ {{item.dueLabel}}</text>
+        </view>
+        <view class="wish-progress">
+          <view class="m-progress-bar wish-progress-track">
+            <view class="m-progress-fill wish-progress-fill" style="width:{{item.progress}}%;background:{{item.achieved ? 'var(--success)' : item.categoryColor}}"></view>
+          </view>
+          <text class="wish-progress-text">{{item.progress}}%</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <view class="m-fab" bindtap="goNew">+</view>
+</view>

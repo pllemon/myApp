@@ -1,0 +1,55 @@
+<view class="container" wx:if="{{diary}}">
+  <view class="detail-card">
+    <view class="detail-header">
+      <view class="detail-date-row">
+        <text class="detail-date">{{diary.date}}</text>
+        <text class="detail-date-label">{{dateLabel}}</text>
+      </view>
+      <view class="detail-info-row">
+        <text wx:if="{{diary.mood}}" class="info-item">{{diary.mood}}</text>
+        <text wx:if="{{diary.weather}}" class="info-item">{{diary.weather}}</text>
+        <text wx:if="{{diary.location}}" class="info-item">📍 {{diary.location}}</text>
+      </view>
+    </view>
+
+    <view wx:if="{{diary.title}}" class="detail-title">{{diary.title}}</view>
+
+    <view class="detail-content">
+      <text>{{diary.content}}</text>
+    </view>
+
+    <view wx:if="{{diary.images && diary.images.length > 0}}" class="img-grid">
+      <view wx:for="{{diary.images}}" wx:key="*this" class="img-item">
+        <image class="img-thumb" src="{{item}}" mode="aspectFill" data-index="{{index}}" bindtap="previewImage" />
+      </view>
+    </view>
+
+    <view wx:if="{{diary.tags.length > 0}}" class="detail-tags">
+      <view wx:for="{{diary.tags}}" wx:key="*this" class="detail-tag">#{{item}}</view>
+    </view>
+
+    <view class="detail-stats">
+      <text class="stat-item">共 {{diary.wordCount || diary.content.length}} 字</text>
+      <text class="stat-item">{{updatedAtLabel ? '编辑于 ' + updatedAtLabel : '发布于 ' + createdAtLabel}}</text>
+    </view>
+  </view>
+
+  <view class="action-bar">
+    <view class="action-btn edit" bindtap="goEdit">
+      <text class="action-icon">✏️</text>
+      <text class="action-text">编辑</text>
+    </view>
+    <view class="action-btn copy" bindtap="copyContent">
+      <text class="action-icon">📋</text>
+      <text class="action-text">复制</text>
+    </view>
+    <view class="action-btn share" open-type="share">
+      <text class="action-icon">📤</text>
+      <text class="action-text">分享</text>
+    </view>
+    <view class="action-btn delete" bindtap="deleteDiary">
+      <text class="action-icon">🗑️</text>
+      <text class="action-text">删除</text>
+    </view>
+  </view>
+</view>

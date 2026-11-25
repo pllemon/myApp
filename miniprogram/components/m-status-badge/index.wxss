@@ -1,0 +1,7 @@
+.m-status-badge {
+  display: inline-block;
+  font-size: 22rpx;
+  padding: 4rpx 14rpx;
+  border-radius: 14rpx;
+  line-height: 1.4;
+}

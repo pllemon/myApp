@@ -1,0 +1,62 @@
+<view class="container">
+  <view wx:if="{{nearest}}" class="hero-card" style="background: linear-gradient(135deg, {{nearest.color}} 0%, {{nearest.colorTranslucent}} 100%);">
+    <view class="hero-top">
+      <view class="hero-icon">{{nearest.icon}}</view>
+      <view class="hero-title">{{nearest.title}}</view>
+    </view>
+    <view class="hero-days">
+      <block wx:if="{{nearest.daysUntil > 0}}">
+        <text class="hero-num">{{nearest.daysUntil}}</text>
+        <text class="hero-unit">天后</text>
+      </block>
+      <block wx:elif="{{nearest.daysUntil === 0}}">
+        <text class="hero-num">0</text>
+        <text class="hero-unit">就是今天 🎉</text>
+      </block>
+      <block wx:else>
+        <text class="hero-num">{{nearest.daysUntil}}</text>
+        <text class="hero-unit">天前</text>
+      </block>
+    </view>
+    <view class="hero-sub">{{nearest.sub}}</view>
+  </view>
+  <view wx:else class="hero-card hero-empty">
+    <view class="hero-icon">🎈</view>
+    <view class="hero-title">还没有纪念日</view>
+    <view class="hero-sub">点击右下角，记录每一个值得纪念的日子</view>
+  </view>
+
+  <scroll-view class="m-filter" scroll-x enable-flex>
+    <view
+      wx:for="{{filters}}"
+      wx:key="key"
+      class="m-filter-item {{activeFilter === item.key ? 'm-filter-active' : ''}}"
+      data-key="{{item.key}}"
+      bindtap="switchFilter"
+    >{{item.label}}</view>
+  </scroll-view>
+
+  <m-empty wx:if="{{showEmpty}}" icon="📅" title="暂无纪念日" desc="点击右下角 + 添加一个值得纪念的日子" />
+
+  <view wx:else class="m-card-list anni-list">
+    <view
+      wx:for="{{list}}"
+      wx:key="_id"
+      class="anni-card"
+      data-id="{{item._id}}"
+      bindtap="goEdit"
+    >
+      <view class="anni-icon" style="{{item.images && item.images.length > 0 ? '' : 'background:' + item.colorSoft + ';color:' + item.color}}">
+        <image wx:if="{{item.images && item.images.length > 0}}" class="anni-icon-img" src="{{item.images[0]}}" mode="aspectFill" />
+        <text wx:else>{{item.icon}}</text>
+      </view>
+      <view class="anni-body">
+        <view class="anni-title">{{item.title}}</view>
+        <view class="anni-sub">{{item.sub}}</view>
+      </view>
+      <view class="anni-countdown {{item.daysUntil === 0 ? 'anni-today' : (item.daysUntil < 0 ? 'anni-past' : '')}}">{{item.countdownLabel}}</view>
+    </view>
+  </view>
+
+  <view class="m-fab" bindtap="goNew">+</view>
+</view>

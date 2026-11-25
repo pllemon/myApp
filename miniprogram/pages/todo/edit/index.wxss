@@ -1,0 +1,41 @@
+.m-form-label:first-child { margin-top: 0; }
+
+.priority-row { display: flex; gap: 20rpx; margin-bottom: 8rpx; }
+.priority-chip { flex: 1; text-align: center; padding: 16rpx 0; font-size: 28rpx; border-radius: 40rpx; border: 2rpx solid var(--divider); color: var(--text-secondary); }
+.priority-active { font-weight: 600; }
+
+.list-picker { display: flex; align-items: center; justify-content: space-between; padding: 20rpx 0; border-bottom: 1rpx solid var(--divider); }
+.list-picker-value { font-size: 30rpx; color: var(--text); }
+.list-picker-arrow { font-size: 36rpx; color: var(--text-tertiary); }
+
+.switch-row { display: flex; align-items: center; justify-content: space-between; padding: 16rpx 0; border-bottom: 1rpx solid var(--divider); }
+.switch-label { font-size: 28rpx; color: var(--text); }
+
+.tag-section { padding: 12rpx 0; border-bottom: 1rpx solid var(--divider); }
+.tag-chips { display: flex; flex-wrap: wrap; gap: 12rpx; margin-bottom: 14rpx; }
+.tag-chip { display: inline-flex; align-items: center; font-size: 24rpx; padding: 8rpx 16rpx; border-radius: 24rpx; background: var(--bg, #F7F8FA); color: var(--text-secondary); }
+.tag-chip-active { background: var(--primary-light, #E6F0FA); color: var(--primary); }
+.tag-close { margin-left: 8rpx; font-size: 24rpx; opacity: 0.6; }
+.tag-input-row { display: flex; gap: 12rpx; }
+.tag-input { flex: 1; font-size: 26rpx; padding: 14rpx 20rpx; background: var(--bg, #F7F8FA); border-radius: 12rpx; }
+.tag-add-btn { font-size: 26rpx; padding: 0 24rpx; background: var(--primary); color: #fff; border-radius: 12rpx; display: flex; align-items: center; }
+
+.subtask-list { padding: 8rpx 0; border-bottom: 1rpx solid var(--divider); }
+.subtask-item { display: flex; align-items: center; margin-bottom: 12rpx; }
+.subtask-input { flex: 1; font-size: 28rpx; color: var(--text); margin: 0 14rpx; padding: 10rpx 0; border-bottom: 1rpx solid var(--divider); }
+.subtask-done { text-decoration: line-through; color: var(--text-secondary); }
+.subtask-del { font-size: 36rpx; color: var(--text-tertiary); padding: 0 8rpx; }
+.subtask-add-row { display: flex; align-items: center; gap: 12rpx; padding: 12rpx 0 16rpx; }
+.subtask-add-input { flex: 1; font-size: 28rpx; padding: 12rpx 20rpx; background: var(--bg, #F7F8FA); border-radius: 12rpx; }
+.subtask-add-btn { width: 56rpx; height: 56rpx; background: var(--primary); color: #fff; font-size: 36rpx; border-radius: 12rpx; display: flex; align-items: center; justify-content: center; line-height: 1; }
+
+.modal-mask { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 999; display: flex; align-items: flex-end; }
+.modal-panel { width: 100%; background: var(--bg-card, #fff); border-radius: 32rpx 32rpx 0 0; padding-bottom: calc(32rpx + env(safe-area-inset-bottom)); }
+.modal-header { display: flex; align-items: center; justify-content: space-between; padding: 32rpx 32rpx 8rpx; }
+.modal-title { font-size: 32rpx; font-weight: 600; color: var(--text); }
+.modal-close { font-size: 48rpx; color: var(--text-tertiary); padding: 0 8rpx; line-height: 1; }
+.list-picker-body { padding: 16rpx 32rpx 32rpx; max-height: 70vh; overflow-y: auto; }
+.list-option { display: flex; align-items: center; padding: 24rpx 16rpx; border-radius: 16rpx; margin-bottom: 8rpx; }
+.list-option-active { background: var(--primary-light, #E6F0FA); }
+.list-option-icon { width: 64rpx; height: 64rpx; border-radius: 16rpx; display: flex; align-items: center; justify-content: center; font-size: 32rpx; margin-right: 20rpx; }
+.list-option-name { font-size: 30rpx; color: var(--text); }

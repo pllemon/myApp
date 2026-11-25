@@ -1,0 +1,48 @@
+<view class="container" style="{{themeStyle}}">
+  <view class="filter-bar">
+    <view
+      wx:for="{{filters}}"
+      wx:key="key"
+      class="filter-item {{item.active ? 'filter-active' : ''}}"
+      data-key="{{item.key}}"
+      bindtap="switchFilter"
+    >{{item.label}}</view>
+  </view>
+
+  <view wx:if="{{showEmpty}}" class="empty-state">
+    <view class="empty-emoji">🌱</view>
+    <view class="empty-text">还没有记录，去各模块添加一些吧</view>
+  </view>
+
+  <view wx:else class="timeline">
+    <block wx:for="{{groups}}" wx:for-item="group" wx:key="dayKey">
+      <view class="day-header">
+        <view class="day-dot"></view>
+        <view class="day-label">{{group.dayLabel}}</view>
+        <view class="day-count">{{group.items.length}} 条</view>
+      </view>
+
+      <view class="day-items">
+        <view
+          wx:for="{{group.items}}"
+          wx:for-item="item"
+          wx:key="_id"
+          class="tl-item"
+          data-path="{{item.targetPath}}"
+          bindtap="goItem"
+        >
+          <view class="tl-time">{{item.timeLabel}}</view>
+          <view class="tl-icon" style="background:{{item.moduleColor}};color:#fff">{{item.moduleIcon}}</view>
+          <view class="tl-body">
+            <view class="tl-title-row">
+              <text class="tl-title">{{item.title}}</text>
+              <text wx:if="{{item.amount}}" class="tl-amount" style="color:{{item.amount[0] === '-' ? 'var(--danger)' : (item.amount[0] === '+' ? 'var(--success)' : item.moduleColor)}}">{{item.amount}}</text>
+            </view>
+            <view wx:if="{{item.subtitle}}" class="tl-sub">{{item.subtitle}}</view>
+            <view class="tl-module" style="color:{{item.moduleColor}}">{{item.moduleLabel}}</view>
+          </view>
+        </view>
+      </view>
+    </block>
+  </view>
+</view>

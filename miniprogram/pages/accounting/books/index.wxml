@@ -1,0 +1,32 @@
+<view class="container">
+  <view class="hint">点击切换账本，长按或点击右侧按钮管理</view>
+
+  <view class="book-list">
+    <view 
+      wx:for="{{books}}" 
+      wx:key="_id" 
+      class="book-card {{item._id === currentId ? 'active' : ''}}"
+      data-id="{{item._id}}"
+      bindtap="switchBook"
+    >
+      <view class="book-left">
+        <view class="book-icon" style="background: {{item.color || '#4A90D9'}}20;">
+          <text>{{item.icon || '💰'}}</text>
+        </view>
+        <view class="book-info">
+          <view class="book-name">
+            {{item.name}}
+            <text wx:if="{{item._id === currentId}}" class="current-tag">当前</text>
+          </view>
+          <view class="book-note" wx:if="{{item.note}}">{{item.note}}</view>
+        </view>
+      </view>
+      <view class="book-actions">
+        <view class="action-btn" catchtap="goToEdit" data-id="{{item._id}}">编辑</view>
+        <view class="action-btn danger" catchtap="deleteBook" data-id="{{item._id}}">删除</view>
+      </view>
+    </view>
+  </view>
+
+  <view class="add-btn" bindtap="goToAdd">+ 新建账本</view>
+</view>

@@ -1,0 +1,106 @@
+.m-summary {
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+  color: #FFFFFF;
+}
+.m-summary .m-summary-num { color: #FFFFFF; }
+.m-summary .m-summary-total { color: rgba(255, 255, 255, 0.7); }
+.m-summary .m-summary-label { color: rgba(255, 255, 255, 0.8); }
+.m-summary .m-summary-divider { background: rgba(255, 255, 255, 0.25); }
+
+.reading-list { padding-bottom: 180rpx; }
+.reading-card {
+  display: flex;
+  background: var(--bg-card);
+  border-radius: 16rpx;
+  padding: 24rpx;
+  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.04);
+}
+.book-cover {
+  width: 110rpx;
+  height: 160rpx;
+  border-radius: 10rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-right: 24rpx;
+  overflow: hidden;
+  background: #F0F0F0;
+}
+.cover-img {
+  width: 100%;
+  height: 100%;
+}
+.cover-emoji { font-size: 48rpx; }
+.reading-body { flex: 1; min-width: 0; }
+.reading-title {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 6rpx;
+  word-break: break-all;
+}
+.reading-meta {
+  font-size: 24rpx;
+  color: var(--text-secondary);
+  margin-bottom: 10rpx;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.reading-sep { margin: 0 8rpx; }
+.reading-tags {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-bottom: 10rpx;
+}
+.reading-tag {
+  font-size: 22rpx;
+  padding: 4rpx 14rpx;
+  border-radius: 20rpx;
+  margin-right: 12rpx;
+}
+.reading-status { cursor: pointer; }
+
+.reading-progress-row {
+  display: flex;
+  align-items: center;
+  margin-top: 4rpx;
+}
+.reading-progress-track {
+  flex: 1;
+  height: 8rpx;
+  background: var(--divider);
+  border-radius: 4rpx;
+  overflow: hidden;
+}
+.reading-progress-fill {
+  height: 100%;
+  border-radius: 4rpx;
+  transition: width 0.3s;
+}
+.reading-progress-text {
+  font-size: 22rpx;
+  color: var(--text-secondary);
+  margin-left: 12rpx;
+  flex-shrink: 0;
+}
+
+.reading-rating {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 8rpx;
+}
+.stars { display: flex; }
+.star {
+  font-size: 28rpx;
+  color: var(--divider);
+  margin-right: 2rpx;
+}
+.star-on { color: #F5A623; }
+.reading-date {
+  font-size: 22rpx;
+  color: var(--text-secondary);
+}

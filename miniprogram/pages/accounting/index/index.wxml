@@ -1,0 +1,86 @@
+<view class="container tabbar-page">
+  <view class="book-switcher" wx:if="{{books.length > 0}}">
+    <scroll-view class="book-scroll" scroll-x="{{true}}" enhanced="{{true}}" show-scrollbar="{{false}}">
+      <view 
+        wx:for="{{books}}" 
+        wx:key="_id" 
+        class="book-chip {{item._id === activeBookId ? 'active' : ''}}"
+        data-id="{{item._id}}"
+        bindtap="switchBook"
+      >
+        <text class="book-icon">{{item.icon || '💰'}}</text>
+        <text class="book-name">{{item.name}}</text>
+      </view>
+      <view class="book-chip add" bindtap="goToBooks">+</view>
+    </scroll-view>
+  </view>
+
+  <view class="month-header">
+    <view class="mh-row">
+      <view class="mh-nav {{hasPrev ? '' : 'disabled'}}" bindtap="prevMonth">‹</view>
+      <view class="month-label">{{monthLabel}}</view>
+      <view class="mh-nav {{hasNext ? '' : 'disabled'}}" bindtap="nextMonth">›</view>
+    </view>
+    <view class="mh-sub-row">
+      <view class="mh-stats-btn" bindtap="goToStats">📊 统计</view>
+    </view>
+    <view class="month-stats">
+      <view class="month-stat">
+        <text class="ms-label">支出</text>
+        <text class="ms-value expense">-¥{{monthExpense}}</text>
+      </view>
+      <view class="month-divider"></view>
+      <view class="month-stat">
+        <text class="ms-label">收入</text>
+        <text class="ms-value income">+¥{{monthIncome}}</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="filter-bar">
+    <view class="filter-title" bindtap="goToAll">📋 全部记录 ›</view>
+    <view class="filter-btn" bindtap="toggleFilter">
+      {{typeFilter === 'all' ? '全部' : typeFilter === 'expense' ? '支出' : '收入'}} ▾
+    </view>
+  </view>
+
+  <view class="filter-dropdown" wx:if="{{showTypeFilter}}">
+    <view class="filter-option {{typeFilter === 'all' ? 'active' : ''}}" data-type="all" bindtap="setFilter">全部</view>
+    <view class="filter-option {{typeFilter === 'expense' ? 'active' : ''}}" data-type="expense" bindtap="setFilter">支出</view>
+    <view class="filter-option {{typeFilter === 'income' ? 'active' : ''}}" data-type="income" bindtap="setFilter">收入</view>
+  </view>
+
+  <m-empty wx:if="{{groupedByDay.length === 0}}" icon="📒" title="还没有记账记录" desc="点击右下角 + 开始记录" />
+
+  <view wx:for="{{groupedByDay}}" wx:key="date" class="day-group">
+    <view class="day-header">
+      <text class="day-label">{{item.label}}</text>
+      <text class="day-summary">
+        <text wx:if="{{item.dayExpense > 0}}" class="expense">-¥{{item.dayExpense}}</text>
+        <text wx:if="{{item.dayExpense > 0 && item.dayIncome > 0}}" class="sep"> / </text>
+        <text wx:if="{{item.dayIncome > 0}}" class="income">+¥{{item.dayIncome}}</text>
+      </text>
+    </view>
+    <view 
+      wx:for="{{item.items}}" 
+      wx:for-item="record" 
+      wx:key="_id" 
+      class="record-item"
+      data-id="{{record._id}}"
+      bindtap="goToEdit"
+      bindlongpress="deleteRecord"
+    >
+      <view class="record-icon">{{record.categoryIcon || (categoryMap[record.categoryId] ? categoryMap[record.categoryId].icon : '📌')}}</view>
+      <view class="record-info">
+        <view class="record-category">{{record.category || (categoryMap[record.categoryId] ? categoryMap[record.categoryId].name : '未分类')}}</view>
+        <view class="record-note" wx:if="{{record.note}}">{{record.note}}</view>
+      </view>
+      <view class="record-amount {{record.type === 'expense' ? 'expense' : 'income'}}">
+        {{record.type === 'expense' ? '-' : '+'}}¥{{record.amount}}
+      </view>
+    </view>
+  </view>
+
+  <view class="m-fab" bindtap="goToAdd">+</view>
+</view>
+<m-tab-bar id="tabbar" />

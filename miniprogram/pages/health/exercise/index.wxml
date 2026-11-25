@@ -1,0 +1,32 @@
+<view class="container">
+  <view class="chart-card">
+    <view class="chart-header">
+      <text class="chart-title">运动趋势</text>
+      <picker mode="selector" range="{{ranges}}" range-key="label" value="{{chartRangeIdx}}" bindchange="onRangeChange">
+        <view class="chart-range">{{ranges[chartRangeIdx].label}}</view>
+      </picker>
+    </view>
+    <canvas canvas-id="exerciseChart" class="chart-canvas"></canvas>
+  </view>
+
+  <view class="section-title">运动记录</view>
+  <m-empty compact wx:if="{{records.length === 0}}" title="暂无运动记录" />
+  <view wx:else class="record-list">
+    <view class="ex-item" wx:for="{{records}}" wx:key="_id" bindtap="goEdit" data-id="{{item._id}}" bindlongpress="deleteItem">
+      <view class="ex-ico">🏃</view>
+      <view class="ex-info">
+        <view class="ex-title">
+          <text class="ex-type">{{item._typeLabel}}</text>
+          <text class="ex-duration">{{item._durationStr}}</text>
+        </view>
+        <view class="ex-meta">
+          <text class="ex-date">{{item.date}} {{item.time || ''}}</text>
+          <text wx:if="{{item._distanceStr}}" class="ex-distance">距离 {{item._distanceStr}}</text>
+        </view>
+      </view>
+      <view wx:if="{{item._caloriesStr}}" class="ex-calories">{{item._caloriesStr}}</view>
+    </view>
+  </view>
+
+  <view class="m-fab" bindtap="goNew">+</view>
+</view>

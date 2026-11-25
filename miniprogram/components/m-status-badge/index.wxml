@@ -1,0 +1,1 @@
+<view class="m-status-badge" style="background-color: {{color}}{{bgAlpha}}; color: {{color}};">{{text}}</view>

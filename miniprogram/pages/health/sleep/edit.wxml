@@ -1,0 +1,44 @@
+<view class="container m-edit-page">
+  <view class="m-form-card">
+    <view class="m-form-title">😴 睡眠记录</view>
+
+    <m-field label="日期">
+      <picker mode="date" value="{{date}}" bindchange="onDateChange">
+        <view class="m-form-picker-value">{{date}}</view>
+      </picker>
+    </m-field>
+
+    <m-field label="入睡时间">
+      <picker mode="time" value="{{sleepTime}}" bindchange="onSleepTimeChange">
+        <view class="m-form-picker-value">{{sleepTime || '选择时间'}}</view>
+      </picker>
+    </m-field>
+
+    <m-field label="起床时间">
+      <picker mode="time" value="{{wakeTime}}" bindchange="onWakeTimeChange">
+        <view class="m-form-picker-value">{{wakeTime || '选择时间'}}</view>
+      </picker>
+    </m-field>
+
+    <m-field label="总时长">
+      <view class="m-form-picker-value">{{duration || '自动计算'}}</view>
+    </m-field>
+
+    <m-field label="深睡时长 (小时)">
+      <input class="m-form-input" type="digit" value="{{deepSleep}}" placeholder="选填" bindinput="onDeepSleepInput" />
+    </m-field>
+
+    <m-option-picker label="睡眠质量" options="{{qualityOptions}}" currentValue="{{qualityIdx}}" activeBy="index" bind:change="onQualityChange">
+      {{qualityOptions[qualityIdx].label}}
+    </m-option-picker>
+  </view>
+
+  <view class="m-form-card">
+    <view class="m-form-title">📝 备注</view>
+    <m-field block>
+      <textarea class="m-form-textarea" placeholder="选填" value="{{note}}" bindinput="onNoteInput" auto-height maxlength="200" />
+    </m-field>
+  </view>
+
+  <m-save-bar save-text="{{isEdit ? '保存修改' : '保存记录'}}" bind:save="save" />
+</view>

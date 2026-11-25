@@ -1,0 +1,195 @@
+<view class="container" wx:if="{{profile}}">
+  <view class="profile-hero" style="background: linear-gradient(135deg, #FFE8EC 0%, #E8F0FA 100%);">
+    <view class="hero-avatar">
+      <text class="hero-avatar-emoji">{{profile.avatar || (profile.gender === 'female' ? '👩' : '👨')}}</text>
+    </view>
+    <view class="hero-info">
+      <view class="hero-name-row">
+        <text class="hero-name">{{profile.name}}</text>
+        <text class="hero-gender">{{genderLabel}}</text>
+        <text class="hero-age">{{age}}岁</text>
+      </view>
+      <view class="hero-basic">
+        <text class="hero-basic-item" wx:if="{{profile.height}}">{{profile.height}}cm</text>
+        <text class="hero-basic-item" wx:if="{{profile.weight}}">{{profile.weight}}kg</text>
+        <text class="hero-basic-item" wx:if="{{bmiValue}}">BMI {{bmiValue}} ({{bmiStatus}})</text>
+        <text class="hero-basic-item" wx:if="{{profile.bloodType && profile.bloodType !== '未知'}}">血型 {{profile.bloodType}}</text>
+      </view>
+      <view class="hero-actions">
+        <view class="hero-action" bindtap="goEditProfile">✏️ 编辑档案</view>
+      </view>
+    </view>
+  </view>
+
+  <view class="tab-bar">
+    <view 
+      wx:for="{{tabs}}" 
+      wx:key="key"
+      class="tab-item {{activeTab === item.key ? 'active' : ''}}"
+      data-key="{{item.key}}"
+      bindtap="switchTab"
+    >
+      <text class="tab-icon">{{item.icon}}</text>
+      <text class="tab-label">{{item.label}}</text>
+    </view>
+  </view>
+
+  <view wx:if="{{activeTab === 'overview'}}" class="tab-content">
+    <view class="info-card">
+      <view class="info-card-title">📝 基础情况</view>
+      <view class="info-row">
+        <text class="info-key">姓名</text>
+        <text class="info-val">{{profile.name}}</text>
+      </view>
+      <view class="info-row">
+        <text class="info-key">性别</text>
+        <text class="info-val">{{genderLabel}}</text>
+      </view>
+      <view class="info-row">
+        <text class="info-key">出生年月</text>
+        <text class="info-val">{{profile.birthDate || '--'}} ({{age}}岁)</text>
+      </view>
+      <view class="info-row">
+        <text class="info-key">身高 / 体重</text>
+        <text class="info-val">{{profile.height || '--'}}cm / {{profile.weight || '--'}}kg</text>
+      </view>
+      <view class="info-row">
+        <text class="info-key">BMI</text>
+        <text class="info-val">{{bmiValue || '--'}} {{bmiStatus ? '(' + bmiStatus + ')' : ''}}</text>
+      </view>
+      <view class="info-row">
+        <text class="info-key">血型</text>
+        <text class="info-val">{{profile.bloodType || '未知'}}</text>
+      </view>
+    </view>
+
+    <view wx:if="{{profile.allergies}}" class="info-card">
+      <view class="info-card-title">⚠️ 过敏史</view>
+      <view class="info-text">{{profile.allergies}}</view>
+    </view>
+
+    <view wx:if="{{profile.medicalHistory}}" class="info-card">
+      <view class="info-card-title">📋 既往病史</view>
+      <view class="info-text">{{profile.medicalHistory}}</view>
+    </view>
+
+    <view wx:if="{{profile.notes}}" class="info-card">
+      <view class="info-card-title">📌 备注</view>
+      <view class="info-text">{{profile.notes}}</view>
+    </view>
+
+    <view class="stats-row">
+      <view class="stat-tile" bindtap="switchTab" data-key="medication">
+        <text class="stat-num">{{medCount}}</text>
+        <text class="stat-lbl">用药记录</text>
+      </view>
+      <view class="stat-tile" bindtap="switchTab" data-key="visit">
+        <text class="stat-num">{{visitCount}}</text>
+        <text class="stat-lbl">看诊记录</text>
+      </view>
+      <view wx:if="{{isFemale}}" class="stat-tile" bindtap="switchTab" data-key="period">
+        <text class="stat-num">{{periodCount}}</text>
+        <text class="stat-lbl">生理期</text>
+      </view>
+    </view>
+
+    <view wx:if="{{isFemale && cycleInfo}}" class="cycle-card">
+      <view class="cycle-title">🌸 周期概况</view>
+      <view class="cycle-main">
+        <view class="cycle-ring">
+          <text class="cycle-day">第 {{cycleInfo.dayInCycle}} 天</text>
+          <text class="cycle-total">共 {{cycleInfo.totalDays}} 天</text>
+        </view>
+        <view class="cycle-info">
+          <text class="cycle-stage {{cycleStageClass}}">{{cycleStageText}}</text>
+          <text class="cycle-next">下次生理期：{{cycleInfo.nextPeriod}}（还有{{cycleInfo.daysUntilNext}}天）</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <view wx:if="{{activeTab === 'medication'}}" class="tab-content">
+    <view class="section-header">
+      <text class="section-title">💊 用药记录 ({{medCount}})</text>
+      <view class="section-add" bindtap="addMed">＋ 新增</view>
+    </view>
+    <view wx:if="{{medCount === 0}}" class="section-empty">还没有用药记录</view>
+    <block wx:for="{{medGroups}}" wx:key="month" wx:for-item="group">
+      <view class="group-label">{{group.month}}</view>
+      <view class="record-list">
+        <view 
+          wx:for="{{group.items}}" 
+          wx:key="_id" 
+          class="record-card med"
+          data-id="{{item._id}}"
+          bindtap="editMed"
+        >
+          <view class="med-header">
+            <text class="med-name">{{item.name}}</text>
+            <text wx:if="{{item.dosage}}" class="med-dosage">{{item.dosage}}</text>
+          </view>
+          <view wx:if="{{item.frequency}}" class="med-frequency">频次：{{item.frequency}}</view>
+          <view class="med-date">{{item._dateRange}}</view>
+          <view wx:if="{{item.notes}}" class="med-notes">{{item.notes}}</view>
+          <view class="record-del" data-id="{{item._id}}" catchtap="deleteMed">🗑️</view>
+        </view>
+      </view>
+    </block>
+  </view>
+
+  <view wx:if="{{activeTab === 'visit'}}" class="tab-content">
+    <view class="section-header">
+      <text class="section-title">🏥 看诊记录 ({{visitCount}})</text>
+      <view class="section-add" bindtap="addVisit">＋ 新增</view>
+    </view>
+    <view wx:if="{{visitCount === 0}}" class="section-empty">还没有看诊记录</view>
+    <block wx:for="{{visitGroups}}" wx:key="month" wx:for-item="group">
+      <view class="group-label">{{group.month}}</view>
+      <view class="record-list">
+        <view 
+          wx:for="{{group.items}}" 
+          wx:key="_id" 
+          class="record-card visit"
+          data-id="{{item._id}}"
+          bindtap="editVisit"
+        >
+          <view class="visit-header">
+            <text class="visit-title">{{item.title || '就诊'}}</text>
+            <text class="visit-date">{{item.date}}</text>
+          </view>
+          <view wx:if="{{item.hospital}}" class="visit-meta">🏥 {{item.hospital}}</view>
+          <view wx:if="{{item.doctor}}" class="visit-meta">👨‍⚕️ {{item.doctor}}</view>
+          <view wx:if="{{item.diagnosis}}" class="visit-diagnosis">🔍 {{item.diagnosis}}</view>
+          <view wx:if="{{item.notes}}" class="visit-notes">{{item.notes}}</view>
+          <view class="record-del" data-id="{{item._id}}" catchtap="deleteVisit">🗑️</view>
+        </view>
+      </view>
+    </block>
+  </view>
+
+  <view wx:if="{{activeTab === 'period'}}" class="tab-content">
+    <view class="section-header">
+      <text class="section-title">🌸 生理期记录 ({{periodCount}})</text>
+      <view class="section-add" bindtap="addPeriod">＋ 新增</view>
+    </view>
+    <view wx:if="{{periodCount === 0}}" class="section-empty">还没有生理期记录</view>
+    <view class="period-list">
+      <view 
+        wx:for="{{periods}}" 
+        wx:key="_id" 
+        class="period-card"
+        data-id="{{item._id}}"
+        bindtap="editPeriod"
+      >
+        <view class="period-date">{{item._dateRange}}</view>
+        <view class="period-duration">持续 {{item._duration || '--'}} 天</view>
+        <view class="period-meta">
+          <text wx:if="{{item.flow}}" class="period-chip">{{item.flow}}</text>
+          <text wx:if="{{item.symptom}}" class="period-chip">{{item.symptom}}</text>
+        </view>
+        <view wx:if="{{item.notes}}" class="period-notes">{{item.notes}}</view>
+        <view class="record-del" data-id="{{item._id}}" catchtap="deletePeriod">🗑️</view>
+      </view>
+    </view>
+  </view>
+</view>

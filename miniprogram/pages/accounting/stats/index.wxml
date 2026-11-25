@@ -1,0 +1,98 @@
+<view class="container">
+  <view class="summary-card">
+    <view class="summary-title">累计统计</view>
+    <view class="summary-main">
+      <view class="main-label">结余</view>
+      <view class="main-amount {{total.balance >= 0 ? 'pos' : 'neg'}}">¥{{total.balance}}</view>
+    </view>
+    <view class="summary-row">
+      <view class="sum-item">
+        <view class="sum-label">支出</view>
+        <view class="sum-value neg">¥{{total.expense}}</view>
+      </view>
+      <view class="sum-divider"></view>
+      <view class="sum-item">
+        <view class="sum-label">收入</view>
+        <view class="sum-value pos">¥{{total.income}}</view>
+      </view>
+    </view>
+  </view>
+
+  <view wx:if="{{chartsReady && chartData.pieData.length > 0}}" class="chart-card">
+    <view class="chart-title">本月支出分类</view>
+    <view class="chart-wrap-pie">
+      <canvas canvas-id="pieChart" class="canvas-pie" disable-scroll="true"></canvas>
+    </view>
+    <view class="chart-legend">
+      <view wx:for="{{categoryLegend}}" wx:key="name" class="legend-item">
+        <view class="legend-dot" style="background:{{item.color}}"></view>
+        <view class="legend-name">{{item.name}}</view>
+        <view class="legend-val">¥{{item.value.toFixed(0)}}</view>
+      </view>
+    </view>
+  </view>
+
+  <view wx:if="{{chartsReady && chartData.barData.length > 0}}" class="chart-card">
+    <view class="chart-title">近6月收支对比</view>
+    <view class="chart-legend-inline">
+      <view class="legend-inline-item"><view class="legend-inline-dot" style="background:#FF4D4F"></view>支出</view>
+      <view class="legend-inline-item"><view class="legend-inline-dot" style="background:#7ED321"></view>收入</view>
+    </view>
+    <view class="chart-wrap">
+      <canvas canvas-id="barChart" class="canvas-bar" disable-scroll="true"></canvas>
+    </view>
+  </view>
+
+  <view wx:if="{{chartsReady && chartData.trendData.length > 0}}" class="chart-card">
+    <view class="chart-title">近6月结余走势</view>
+    <view class="chart-wrap">
+      <canvas canvas-id="trendChart" class="canvas-bar" disable-scroll="true"></canvas>
+    </view>
+  </view>
+
+  <view wx:if="{{years.length === 0 && !loading}}" class="empty">
+    <view class="empty-icon">📊</view>
+    <view class="empty-text">还没有统计数据</view>
+    <view class="empty-hint">先去记一笔账吧</view>
+  </view>
+
+  <view wx:for="{{years}}" wx:key="year" class="year-card">
+    <view class="year-header" data-index="{{index}}" bindtap="toggleYear">
+      <view class="year-left">
+        <view class="year-label">{{item.year}}年</view>
+        <view class="year-meta">
+          支出 <text class="neg">¥{{item.expenseStr}}</text>
+          <text class="sep">·</text>
+          收入 <text class="pos">¥{{item.incomeStr}}</text>
+          <text class="sep">·</text>
+          结余 <text class="{{item.balanceStr >= 0 ? 'pos' : 'neg'}}">¥{{item.balanceStr}}</text>
+        </view>
+      </view>
+      <view class="year-arrow {{item.expanded ? 'up' : ''}}">›</view>
+    </view>
+
+    <view wx:if="{{item.expanded}}" class="month-list">
+      <view 
+        class="month-item" 
+        wx:for="{{item.months}}" 
+        wx:for-item="m" 
+        wx:key="month"
+        data-year="{{item.year}}"
+        data-month="{{m.month}}"
+        bindtap="goMonthDetail"
+      >
+        <view class="month-name">{{item.year}}年{{m.month}}月</view>
+        <view class="month-meta">
+          支出 <text class="neg">¥{{m.expenseStr}}</text>
+          <text class="sep">·</text>
+          收入 <text class="pos">¥{{m.incomeStr}}</text>
+          <text class="sep">·</text>
+          结余 <text class="{{m.balanceStr >= 0 ? 'pos' : 'neg'}}">¥{{m.balanceStr}}</text>
+        </view>
+        <view class="month-arrow">›</view>
+      </view>
+
+      <view wx:if="{{item.months.length === 0}}" class="no-month">暂无月份数据</view>
+    </view>
+  </view>
+</view>

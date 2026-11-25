@@ -1,0 +1,105 @@
+<view class="container">
+  <view class="m-summary todo-summary">
+    <view class="todo-summary-left">
+      <view class="todo-summary-num">{{todayDone}}<text class="todo-summary-total">/{{todayTotal}}</text></view>
+      <view class="todo-summary-label">今日待办完成</view>
+    </view>
+    <view class="todo-summary-progress">
+      <view class="m-progress-bar">
+        <view class="m-progress-fill" style="width: {{todayTotal > 0 ? (todayDone / todayTotal * 100) : 0}}%;background:#FFFFFF"></view>
+      </view>
+    </view>
+  </view>
+
+  <scroll-view class="todo-list-tabs" scroll-x enable-flex>
+    <view
+      class="todo-list-tab {{!listFilterId ? 'todo-list-tab-active' : ''}}"
+      data-id=""
+      data-name="全部"
+      bindtap="selectListTab"
+    >📦 全部</view>
+    <view
+      wx:for="{{lists}}"
+      wx:key="_id"
+      class="todo-list-tab {{listFilterId === item._id ? 'todo-list-tab-active' : ''}}"
+      data-id="{{item._id}}"
+      data-name="{{item.name}}"
+      bindtap="selectListTab"
+    >{{item.icon || '📋'}} {{item.name}}</view>
+  </scroll-view>
+
+  <view class="m-filter">
+    <view
+      wx:for="{{filters}}"
+      wx:key="key"
+      class="m-filter-item {{activeFilter === item.key ? 'm-filter-active' : ''}}"
+      data-key="{{item.key}}"
+      bindtap="switchFilter"
+    >{{item.label}}</view>
+  </view>
+
+  <scroll-view wx:if="{{availableTags.length > 0}}" class="todo-tag-bar" scroll-x enable-flex>
+    <view
+      wx:for="{{availableTags}}"
+      wx:key="*this"
+      class="todo-tag-chip {{tagFilter === item ? 'todo-tag-active' : ''}}"
+      data-tag="{{item}}"
+      bindtap="toggleTagFilter"
+    >#{{item}}</view>
+  </scroll-view>
+
+  <m-empty wx:if="{{showEmpty}}" icon="📋" title="暂无待办" desc="点击右下角 + 新建你的第一件事" />
+
+  <view wx:else class="m-card-list todo-list">
+    <view
+      wx:for="{{list}}"
+      wx:key="_id"
+      class="todo-card {{item.completed ? 'todo-done' : ''}} {{item.dueClass}}"
+      data-id="{{item._id}}"
+      bindtap="goEdit"
+    >
+      <view
+        class="todo-check {{item.completed ? 'todo-check-done' : ''}}"
+        style="{{item.completed ? '' : 'border-color:' + item.priorityColor}}"
+        data-id="{{item._id}}"
+        catchtap="toggleComplete"
+      >
+        <text wx:if="{{item.completed}}" class="todo-check-icon">✓</text>
+      </view>
+      <view class="todo-body">
+        <view class="todo-title-row">
+          <text class="todo-title">{{item.title}}</text>
+          <text wx:if="{{item.soon}}" class="todo-soon-badge">即将到期</text>
+        </view>
+        <view class="todo-meta">
+          <view class="todo-tag" style="color:{{item.priorityColor}};background:{{item.priorityBg}}">{{item.priorityLabel}}优先</view>
+          <text wx:if="{{item.listName}}" class="todo-listname">📋 {{item.listName}}</text>
+          <text wx:if="{{item.dueLabel}}" class="todo-due {{item.overdue ? 'todo-overdue' : ''}}">⏰ {{item.dueLabel}}</text>
+        </view>
+        <view wx:if="{{item.tags && item.tags.length > 0}}" class="todo-tags">
+          <text wx:for="{{item.tags}}" wx:for-item="tg" wx:key="*this" class="todo-tagitem">#{{tg}}</text>
+        </view>
+        <view wx:if="{{item.subtaskTotal > 0}}" class="todo-subtasks-preview" catchtap="">
+          <view wx:for="{{item.subtasks}}" wx:for-item="sub" wx:for-index="sidx" wx:key="sidx" class="sub-row">
+            <switch
+              checked="{{sub.done}}"
+              color="var(--primary)"
+              size="mini"
+              data-id="{{item._id}}"
+              data-subidx="{{sidx}}"
+              catchchange="toggleSubtask"
+            />
+            <text class="sub-text {{sub.done ? 'sub-done' : ''}}">{{sub.title}}</text>
+          </view>
+          <view class="todo-sub-progress">
+            <view class="todo-sub-progress-fill" style="width: {{item.subtaskProgressWidth}}"></view>
+          </view>
+        </view>
+      </view>
+      <image wx:if="{{item.images && item.images.length > 0}}" class="list-thumb todo-thumb" src="{{item.images[0]}}" mode="aspectFill" />
+    </view>
+  </view>
+
+  <view class="m-fab" bindtap="goNew">+</view>
+</view>
+<m-tab-bar id="tabbar" />

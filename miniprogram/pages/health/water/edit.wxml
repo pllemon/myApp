@@ -1,0 +1,34 @@
+<view class="container m-edit-page">
+  <view class="m-form-card">
+    <view class="m-form-title">💧 饮水记录</view>
+
+    <m-field label="日期">
+      <picker mode="date" value="{{date}}" bindchange="onDateChange">
+        <view class="m-form-picker-value">{{date}}</view>
+      </picker>
+    </m-field>
+
+    <m-field label="时间">
+      <picker mode="time" value="{{time}}" bindchange="onTimeChange">
+        <view class="m-form-picker-value">{{time}}</view>
+      </picker>
+    </m-field>
+
+    <m-field label="饮水量 (ml)">
+      <input class="m-form-input" type="number" value="{{amount}}" placeholder="例如 250" bindinput="onAmountInput" />
+    </m-field>
+
+    <view class="quick-chip-row">
+      <view wx:for="{{quickAmounts}}" wx:key="*this" class="quick-chip" data-amount="{{item}}" bindtap="selectQuick">{{item}}ml</view>
+    </view>
+  </view>
+
+  <view class="m-form-card">
+    <view class="m-form-title">📝 备注</view>
+    <m-field block>
+      <textarea class="m-form-textarea" placeholder="选填" value="{{note}}" bindinput="onNoteInput" auto-height maxlength="200" />
+    </m-field>
+  </view>
+
+  <m-save-bar save-text="{{isEdit ? '保存修改' : '保存记录'}}" bind:save="save" />
+</view>

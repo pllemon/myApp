@@ -1,0 +1,18 @@
+@import "../period/edit.wxss";
+
+.bp-preview {
+  margin-top: 8rpx;
+  padding: 16rpx 20rpx;
+  background: linear-gradient(135deg, #FFF5F5 0%, #FFF0F0 100%);
+  border-radius: 12rpx;
+}
+
+.bp-preview-value {
+  font-size: 36rpx;
+  font-weight: 700;
+}
+
+.bp-preview-label {
+  font-size: 26rpx;
+  margin-top: 4rpx;
+}

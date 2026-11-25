@@ -1,0 +1,138 @@
+<view class="container">
+  <view class="view-tabs">
+    <view 
+      class="tab {{viewType === 'month' ? 'active' : ''}}"
+      data-view="month"
+      bindtap="onSwitchView"
+    >月视图</view>
+    <view 
+      class="tab {{viewType === 'year' ? 'active' : ''}}"
+      data-view="year"
+      bindtap="onSwitchView"
+    >年度热力图</view>
+  </view>
+
+  <view wx:if="{{habitName}}" class="habit-badge" style="background-color: {{habitColor}}20; color: {{habitColor}};">
+    🎯 {{habitName}}
+  </view>
+
+  <view wx:if="{{viewType === 'month'}}">
+    <view class="month-header">
+      <view class="nav-btn" bindtap="prevMonth">‹</view>
+      <view class="month-label">{{monthLabel}}</view>
+      <view class="nav-btn" bindtap="nextMonth">›</view>
+    </view>
+
+    <view class="weekday-row">
+      <view wx:for="{{weekdayLabels}}" wx:key="*this" class="weekday">{{item}}</view>
+    </view>
+
+    <view class="month-grid">
+      <view 
+        wx:for="{{cells}}" 
+        wx:key="*this"
+        class="day-cell {{item.empty ? 'empty' : ''}} {{item.checked ? 'checked' : ''}} {{item.isToday ? 'today' : ''}} {{item.isFuture ? 'future' : ''}}"
+        style="{{item.checked ? 'background-color: ' + habitColor + ';' : ''}}"
+        data-date="{{item.date}}"
+        bindtap="toggleDay"
+      >
+        <text wx:if="{{!item.empty && item.day}}">{{item.day}}</text>
+      </view>
+    </view>
+
+    <view class="month-stats">
+      <view class="stat-item">
+        <view class="stat-num">{{monthStats.checkedDays}}</view>
+        <view class="stat-label">本月已打卡</view>
+      </view>
+      <view class="stat-divider"></view>
+      <view class="stat-item">
+        <view class="stat-num">{{monthStats.recordsCount}}</view>
+        <view class="stat-label">累计打卡次数</view>
+      </view>
+      <view class="stat-divider"></view>
+      <view class="stat-item">
+        <view class="stat-num">{{monthStats.totalDays}}</view>
+        <view class="stat-label">本月天数</view>
+      </view>
+    </view>
+
+    <view class="calendar-tip" wx:if="{{habitId}}">
+      💡 点击今天或之前的日期可以补签
+    </view>
+  </view>
+
+  <view wx:if="{{viewType === 'year'}}">
+    <view wx:if="{{yearStats}}" class="year-summary">
+      <view class="year-main">
+        <text class="year-num">{{yearStats.year}}</text>
+        <text class="year-label">年度</text>
+      </view>
+      <view class="year-stats">
+        <view class="year-stat">
+          <text class="yr-num">{{yearStats.activeDays}}</text>
+          <text class="yr-label">活跃天数</text>
+        </view>
+        <view class="year-stat">
+          <text class="yr-num">{{yearStats.totalCount}}</text>
+          <text class="yr-label">总打卡次数</text>
+        </view>
+      </view>
+      <view class="best-month">🏆 {{yearStats.bestMonth}}</view>
+    </view>
+
+    <view class="heatmap-section">
+      <view class="heatmap-title">{{habitName || '全部习惯'}} 年度热力图</view>
+      <view class="heatmap-body">
+        <view class="hm-row" wx:for="{{heatmap}}" wx:for-item="month" wx:key="label">
+          <view class="hm-month-label">{{month.label}}</view>
+          <view class="hm-cells">
+            <view 
+              wx:for="{{month.cells}}" 
+              wx:for-item="cell"
+              wx:key="day"
+              class="hm-cell {{cell && cell.count > 0 ? 'active' : ''}} {{!cell ? 'empty' : ''}}"
+              style="{{cell && cell.count > 0 ? 'background-color: ' + (cell.count >= 4 ? habitColor : cell.count >= 2 ? habitColor + '80' : habitColor + '40') : ''}}"
+            ></view>
+          </view>
+        </view>
+      </view>
+      <view class="heatmap-legend">
+        <text class="legend-label">少</text>
+        <view class="legend-cells">
+          <view class="lg-cell" style="background-color: #EEEEEE;"></view>
+          <view class="lg-cell" style="background-color: {{habitColor}}40;"></view>
+          <view class="lg-cell" style="background-color: {{habitColor}}80;"></view>
+          <view class="lg-cell" style="background-color: {{habitColor}};"></view>
+        </view>
+        <text class="legend-label">多</text>
+      </view>
+    </view>
+  </view>
+
+  <view wx:if="{{showRecordDetail}}" class="modal-mask" bindtap="closeRecordDetail">
+    <view class="modal-panel" catchtap="">
+      <view class="modal-header">
+        <text class="modal-title">{{selectedRecord.habitName || '打卡'}} · {{selectedRecord.date}}</text>
+        <view class="modal-close" bindtap="closeRecordDetail">×</view>
+      </view>
+      <view class="modal-body">
+        <view class="m-form-label">打卡图片（{{selectedRecord.images.length || 0}}/9）</view>
+        <view class="img-grid">
+          <view wx:for="{{selectedRecord.images}}" wx:key="*this" class="img-item">
+            <image class="img-thumb" src="{{item}}" mode="aspectFill" data-index="{{index}}" catchtap="previewRecordImage" />
+            <view class="img-remove" data-index="{{index}}" catchtap="removeRecordImage">×</view>
+          </view>
+          <view wx:if="{{!selectedRecord.images || selectedRecord.images.length < 9}}" class="img-add" bindtap="addRecordImages">
+            <text class="img-add-icon">+</text>
+            <text class="img-add-text">添加图片</text>
+          </view>
+        </view>
+        <m-empty compact wx:if="{{!selectedRecord.images || selectedRecord.images.length === 0}}" title="还没图片，点上方添加按钮记录这一天吧 ✨" />
+      </view>
+      <view class="modal-footer">
+        <button class="btn-danger" bindtap="uncheckinDay">取消此日打卡</button>
+      </view>
+    </view>
+  </view>
+</view>

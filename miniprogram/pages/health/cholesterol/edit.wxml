@@ -1,0 +1,42 @@
+<view class="container m-edit-page">
+  <view class="m-form-card">
+    <view class="m-form-title">🧪 血脂数据</view>
+
+    <m-field label="日期">
+      <picker mode="date" value="{{date}}" bindchange="onDateChange">
+        <view class="m-form-picker-value">{{date}}</view>
+      </picker>
+    </m-field>
+
+    <m-field label="总胆固醇 (mmol/L)">
+      <input class="m-form-input" type="digit" value="{{total}}" placeholder="正常值 < 5.2" bindinput="onTotalInput" />
+    </m-field>
+
+    <m-field label="低密度脂蛋白 (mmol/L)">
+      <input class="m-form-input" type="digit" value="{{ldl}}" placeholder="正常值 < 3.4" bindinput="onLdlInput" />
+    </m-field>
+
+    <m-field label="高密度脂蛋白 (mmol/L)">
+      <input class="m-form-input" type="digit" value="{{hdl}}" placeholder="正常值 > 1.0" bindinput="onHdlInput" />
+    </m-field>
+
+    <m-field label="甘油三酯 (mmol/L)">
+      <input class="m-form-input" type="digit" value="{{tg}}" placeholder="选填" bindinput="onTgInput" />
+    </m-field>
+
+    <m-field wx:if="{{preview}}" label="状态预览">
+      <view class="m-form-picker-value">
+        <m-status-badge text="{{preview.label}}" color="{{preview.color}}" />
+      </view>
+    </m-field>
+  </view>
+
+  <view class="m-form-card">
+    <view class="m-form-title">📝 备注</view>
+    <m-field block>
+      <textarea class="m-form-textarea" placeholder="选填" value="{{notes}}" bindinput="onNotesInput" auto-height maxlength="200" />
+    </m-field>
+  </view>
+
+  <m-save-bar save-text="{{isEdit ? '保存修改' : '保存记录'}}" bind:save="save" />
+</view>

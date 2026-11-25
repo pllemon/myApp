@@ -1,0 +1,46 @@
+<view class="container m-edit-page">
+  <view class="m-form-card">
+    <view class="m-form-title">🩸 经期记录</view>
+
+    <view class="m-form-row">
+      <m-field label="开始日期" half>
+        <picker mode="date" value="{{startDate}}" bindchange="onStartDateChange">
+          <view class="m-form-picker-value">{{startDate || '选择'}}</view>
+        </picker>
+      </m-field>
+      <m-field label="结束日期" half>
+        <picker mode="date" value="{{endDate}}" bindchange="onEndDateChange">
+          <view class="m-form-picker-value">{{endDate || '选择'}}</view>
+        </picker>
+      </m-field>
+    </view>
+
+    <m-option-picker label="经量" options="{{flowOptions}}" currentValue="{{flow}}" bind:change="onFlowChange">
+      {{flow || '选择量'}}
+    </m-option-picker>
+
+    <m-option-picker label="症状" options="{{symptomOptions}}" currentValue="{{symptoms}}" multiple bind:change="onSymptomsChange">
+      {{symptoms.length > 0 ? symptoms.join('、') : '选填'}}
+    </m-option-picker>
+
+    <m-option-picker label="心情" options="{{moodOptions}}" currentValue="{{mood}}" closeOnSelect="{{false}}" bind:change="onMoodChange">
+      {{mood || '选填'}}
+    </m-option-picker>
+
+    <m-field label="腹痛程度">
+      <view class="pain-slider-row">
+        <slider class="pain-slider" min="0" max="10" value="{{painLevel}}" activeColor="#E74C3C" block-size="20" bindchange="onPainChange" show-value="{{false}}" />
+        <view class="pain-text">{{painText}}</view>
+      </view>
+    </m-field>
+  </view>
+
+  <view class="m-form-card">
+    <view class="m-form-title">📝 备注</view>
+    <m-field block>
+      <textarea class="m-form-textarea" placeholder="选填" value="{{notes}}" bindinput="onNotesInput" auto-height maxlength="200" />
+    </m-field>
+  </view>
+
+  <m-save-bar save-text="{{isEdit ? '保存修改' : '保存记录'}}" bind:save="save" />
+</view>

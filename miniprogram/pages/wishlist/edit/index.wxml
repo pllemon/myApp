@@ -1,0 +1,109 @@
+<view class="container m-edit-page" style="{{themeStyle}}">
+  <view class="m-form-card">
+    <m-field label="愿望" block>
+      <input class="m-title-input"
+        placeholder="例如：去日本看樱花"
+        value="{{title}}"
+        maxlength="40"
+        bindinput="onTitleInput"
+        focus="{{!isEdit}}"
+      />
+    </m-field>
+
+    <m-field label="分类" block>
+      <view class="m-chip-row">
+        <view
+          wx:for="{{categoryOptions}}"
+          wx:key="key"
+          class="chip {{category === item.key ? 'chip-active' : ''}}"
+          style="{{category === item.key ? 'color:' + item.color + ';border-color:' + item.color + ';background:' + item.soft : ''}}"
+          data-key="{{item.key}}"
+          bindtap="selectCategory"
+        >{{item.label}}</view>
+      </view>
+    </m-field>
+
+    <m-field label="图标" block>
+      <view class="icon-grid">
+        <view
+          wx:for="{{icons}}"
+          wx:key="*this"
+          class="icon-cell {{icon === item ? 'icon-active' : ''}}"
+          data-icon="{{item}}"
+          bindtap="selectIcon"
+        >{{item}}</view>
+      </view>
+    </m-field>
+
+    <m-field label="目标日期">
+      <picker mode="date" value="{{targetDate}}" start="{{today}}" bindchange="onDateChange">
+        <view class="m-form-picker-value {{targetDate ? '' : 'date-placeholder'}}">
+          {{targetDate || '选择日期（可选）'}}
+        </view>
+      </picker>
+      <view wx:if="{{targetDate}}" class="date-clear" catchtap="clearDate">清除</view>
+    </m-field>
+
+    <m-field label="预算（可选）">
+      <view class="budget-row">
+        <text class="budget-prefix">¥</text>
+        <input
+          class="budget-input"
+          type="digit"
+          placeholder="例如：10000"
+          value="{{budget}}"
+          bindinput="onBudgetInput"
+        />
+      </view>
+    </m-field>
+
+    <m-field label="完成进度 {{progressDisplay}}%" block>
+      <slider
+        min="0"
+        max="100"
+        step="5"
+        value="{{progressDisplay}}"
+        activeColor="var(--primary)"
+        disabled="{{achieved}}"
+        bindchange="onProgressChange"
+      />
+    </m-field>
+
+    <m-field block>
+      <view class="switch-row">
+        <text class="switch-label">已实现</text>
+        <switch checked="{{achieved}}" color="var(--success)" bindchange="toggleAchieved" />
+      </view>
+    </m-field>
+
+    <m-field label="备注" block>
+      <textarea class="m-note-input"
+        placeholder="补充说明（可选）"
+        value="{{note}}"
+        maxlength="200"
+        bindinput="onNoteInput"
+        auto-height
+      />
+    </m-field>
+
+    <m-field label="愿望图片" block>
+      <view class="img-grid">
+        <view wx:for="{{images}}" wx:key="*this" class="img-item">
+          <image class="img-thumb" src="{{item}}" mode="aspectFill" data-index="{{index}}" bindtap="previewImage" />
+          <view class="img-remove" data-index="{{index}}" catchtap="removeImage">×</view>
+        </view>
+        <view wx:if="{{images.length < 9}}" class="img-add" bindtap="chooseImages">
+          <text class="img-add-icon">+</text>
+          <text class="img-add-text">添加图片</text>
+        </view>
+      </view>
+    </m-field>
+  </view>
+
+  <m-save-bar
+    save-text="保存"
+    show-delete="{{isEdit}}"
+    bind:save="save"
+    bind:delete="remove"
+  />
+</view>

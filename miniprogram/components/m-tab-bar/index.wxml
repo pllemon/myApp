@@ -1,0 +1,17 @@
+<view class="tab-bar" style="background: {{bgColor}}; border-top-color: {{borderColor}};">
+  <view 
+    wx:for="{{list}}" 
+    wx:key="pagePath"
+    class="tab-item {{selected === index ? 'active' : ''}}"
+    data-path="{{item.pagePath}}"
+    data-index="{{index}}"
+    bindtap="switchTab"
+  >
+    <view class="tab-icon-wrap">
+      <view class="tab-icon">{{item.icon}}</view>
+      <view class="tab-badge" wx:if="{{item.showBadge}}" style="background: #ff4d4f;">{{item.badgeCount > 99 ? '99+' : item.badgeCount}}</view>
+      <view class="tab-dot" wx:if="{{item.showDot}}"></view>
+    </view>
+    <view class="tab-text" style="color: {{selected === index ? selectedColor : color}};">{{item.text}}</view>
+  </view>
+</view>

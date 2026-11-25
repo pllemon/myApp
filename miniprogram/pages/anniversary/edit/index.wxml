@@ -1,0 +1,91 @@
+<view class="container m-edit-page" style="{{themeStyle}}">
+  <view class="preview" style="background: linear-gradient(135deg, {{color}} 0%, {{colorTranslucent}} 100%);">
+    <view class="preview-icon">{{icon}}</view>
+    <view class="preview-title">{{title || '纪念日名称'}}</view>
+  </view>
+
+  <view class="m-form-card">
+    <m-field label="名称" block>
+      <input class="m-title-input"
+        placeholder="例如：结婚纪念日"
+        value="{{title}}"
+        maxlength="30"
+        bindinput="onTitleInput"
+        focus="{{!isEdit}}"
+      />
+    </m-field>
+
+    <m-field label="图标" block>
+      <view class="icon-grid">
+        <view
+          wx:for="{{icons}}"
+          wx:key="*this"
+          class="icon-cell {{icon === item ? 'icon-active' : ''}}"
+          data-icon="{{item}}"
+          bindtap="selectIcon"
+        >{{item}}</view>
+      </view>
+    </m-field>
+
+    <m-field label="颜色" block>
+      <view class="color-row">
+        <view
+          wx:for="{{colors}}"
+          wx:key="*this"
+          class="color-cell {{color === item ? 'color-active' : ''}}"
+          style="background:{{item}}"
+          data-color="{{item}}"
+          bindtap="selectColor"
+        ><text wx:if="{{color === item}}" class="color-check">✓</text></view>
+      </view>
+    </m-field>
+
+    <m-field label="重复" block>
+      <view class="m-chip-row">
+        <view
+          wx:for="{{repeatOptions}}"
+          wx:key="key"
+          class="chip {{repeat === item.key ? 'chip-active' : ''}}"
+          data-key="{{item.key}}"
+          bindtap="selectRepeat"
+        >{{item.label}}</view>
+      </view>
+    </m-field>
+
+    <m-field label="日期">
+      <picker mode="date" value="{{date}}" bindchange="onDateChange">
+        <view class="m-form-picker-value">{{date || '选择日期'}} <text class="m-picker-arrow">›</text></view>
+      </picker>
+    </m-field>
+
+    <m-field label="备注" block>
+      <textarea class="m-note-input"
+        placeholder="补充说明（可选）"
+        value="{{note}}"
+        maxlength="200"
+        bindinput="onNoteInput"
+        auto-height
+      />
+    </m-field>
+
+    <m-field label="纪念图片" block>
+      <view class="img-grid">
+        <view wx:for="{{images}}" wx:key="*this" class="img-item">
+          <image class="img-thumb" src="{{item}}" mode="aspectFill" data-index="{{index}}" bindtap="previewImage" />
+          <view class="img-remove" data-index="{{index}}" catchtap="removeImage">×</view>
+        </view>
+        <view wx:if="{{images.length < 9}}" class="img-add" bindtap="chooseImages">
+          <text class="img-add-icon">+</text>
+          <text class="img-add-text">添加图片</text>
+        </view>
+      </view>
+    </m-field>
+  </view>
+
+  <m-save-bar
+    save-text="保存"
+    show-delete="{{isEdit}}"
+    bind:save="save"
+    bind:delete="remove"
+  />
+</view>

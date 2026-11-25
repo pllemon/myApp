@@ -1,0 +1,107 @@
+.todo-summary {
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+  color: #FFFFFF;
+}
+.todo-summary-left { display: flex; flex-direction: column; align-items: flex-start; }
+.todo-summary-num { font-size: 56rpx; font-weight: 600; line-height: 1.2; }
+.todo-summary-total { font-size: 32rpx; font-weight: 400; opacity: 0.8; }
+.todo-summary-label { font-size: 26rpx; opacity: 0.85; margin-top: 8rpx; }
+.todo-summary-progress { margin-top: 24rpx; }
+.todo-summary-progress .m-progress-bar {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+.todo-list-tabs {
+  white-space: nowrap;
+  margin-bottom: 16rpx;
+  padding-bottom: 8rpx;
+}
+.todo-list-tab {
+  display: inline-flex;
+  align-items: center;
+  padding: 12rpx 24rpx;
+  margin-right: 12rpx;
+  background: var(--bg-card);
+  border-radius: 32rpx;
+  font-size: 26rpx;
+  color: var(--text-secondary);
+  flex-shrink: 0;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.04);
+}
+.todo-list-tab-active {
+  background: var(--primary-light, #E6F0FA);
+  color: var(--primary);
+  font-weight: 600;
+}
+
+.todo-tag-bar { white-space: nowrap; margin-bottom: 16rpx; padding-bottom: 4rpx; }
+.todo-tag-chip {
+  display: inline-block;
+  padding: 8rpx 20rpx;
+  margin-right: 12rpx;
+  border-radius: 24rpx;
+  font-size: 24rpx;
+  color: var(--text-secondary);
+  background: var(--bg-card);
+  flex-shrink: 0;
+}
+.todo-tag-active {
+  background: var(--primary-light);
+  color: var(--primary);
+  font-weight: 500;
+}
+
+.todo-list { padding-bottom: 160rpx; }
+.todo-card {
+  display: flex;
+  align-items: flex-start;
+  background: var(--bg-card);
+  border-radius: 16rpx;
+  padding: 28rpx 24rpx;
+  margin-bottom: 16rpx;
+  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.04);
+  border-left: 6rpx solid transparent;
+}
+.todo-done .todo-title { text-decoration: line-through; color: var(--text-secondary); }
+.due-overdue { border-left-color: #FF4D4F; background: linear-gradient(90deg, #FFF0F0, var(--bg-card) 30%); }
+.due-today { border-left-color: #FAAD14; }
+.due-soon { border-left-color: #FAAD14; animation: pulse 1.5s ease-in-out infinite; }
+@keyframes pulse { 0%,100% { box-shadow: 0 2rpx 12rpx rgba(0,0,0,0.04); } 50% { box-shadow: 0 2rpx 20rpx rgba(250,173,20,0.4); } }
+
+.todo-check {
+  width: 44rpx;
+  height: 44rpx;
+  border-radius: 50%;
+  border: 3rpx solid var(--primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 20rpx;
+  flex-shrink: 0;
+  box-sizing: border-box;
+  margin-top: 4rpx;
+}
+.todo-check-done { background: var(--success); border-color: var(--success); }
+.todo-check-icon { color: #fff; font-size: 28rpx; font-weight: 600; }
+
+.todo-body { flex: 1; min-width: 0; }
+.todo-title-row { display: flex; align-items: center; }
+.todo-title { font-size: 30rpx; color: var(--text); font-weight: 500; word-break: break-all; flex: 1; }
+.todo-soon-badge { font-size: 20rpx; color: #fff; background: #FAAD14; padding: 2rpx 12rpx; border-radius: 20rpx; margin-left: 12rpx; font-weight: 500; }
+.todo-meta { display: flex; align-items: center; margin-top: 12rpx; flex-wrap: wrap; gap: 12rpx; }
+.todo-tag { font-size: 22rpx; padding: 4rpx 14rpx; border-radius: 20rpx; }
+.todo-listname { font-size: 22rpx; color: var(--text-tertiary); }
+.todo-due { font-size: 24rpx; color: var(--text-secondary); }
+.todo-overdue { color: #FF4D4F; font-weight: 500; }
+
+.todo-tags { display: flex; flex-wrap: wrap; gap: 10rpx; margin-top: 10rpx; }
+.todo-tagitem { font-size: 22rpx; color: var(--primary); background: var(--primary-light, #E6F0FA); padding: 4rpx 12rpx; border-radius: 16rpx; }
+
+.todo-subtasks-preview { margin-top: 14rpx; background: var(--bg, transparent); }
+.sub-row { display: flex; align-items: center; margin-bottom: 6rpx; }
+.sub-text { font-size: 26rpx; color: var(--text); margin-left: 10rpx; flex: 1; }
+.sub-done { text-decoration: line-through; color: var(--text-secondary); }
+.todo-sub-progress { height: 6rpx; background: rgba(0,0,0,0.06); border-radius: 3rpx; margin-top: 10rpx; overflow: hidden; }
+.todo-sub-progress-fill { height: 100%; background: var(--primary); border-radius: 3rpx; transition: width 0.3s; }
+
+.todo-thumb { margin-left: 16rpx; }

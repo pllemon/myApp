@@ -1,0 +1,105 @@
+.m-summary {
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+  color: #FFFFFF;
+}
+.m-summary .m-summary-num {
+  color: #FFFFFF;
+}
+.m-summary .m-summary-total {
+  color: rgba(255, 255, 255, 0.7);
+}
+.m-summary .m-summary-label {
+  color: rgba(255, 255, 255, 0.8);
+}
+.m-summary .m-summary-divider {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+.movie-list { padding-bottom: 180rpx; }
+.movie-card {
+  display: flex;
+  background: var(--bg-card);
+  border-radius: 16rpx;
+  padding: 24rpx;
+  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.04);
+}
+.movie-poster {
+  width: 140rpx;
+  height: 200rpx;
+  border-radius: 12rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-right: 24rpx;
+  overflow: hidden;
+  background: #F0F0F0;
+}
+.poster-img {
+  width: 100%;
+  height: 100%;
+}
+.poster-emoji {
+  font-size: 56rpx;
+}
+.poster-year {
+  font-size: 22rpx;
+  opacity: 0.7;
+  margin-top: 8rpx;
+}
+.movie-body { flex: 1; min-width: 0; }
+.movie-title {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 8rpx;
+  word-break: break-all;
+}
+.movie-meta {
+  font-size: 24rpx;
+  color: var(--text-secondary);
+  margin-bottom: 10rpx;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.movie-sep { margin: 0 8rpx; }
+.movie-tags {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-bottom: 8rpx;
+}
+.movie-tag {
+  font-size: 22rpx;
+  padding: 4rpx 14rpx;
+  border-radius: 20rpx;
+  margin-right: 12rpx;
+}
+.movie-status { cursor: pointer; }
+.movie-duration {
+  font-size: 22rpx;
+  color: var(--text-secondary);
+}
+.movie-rating {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 8rpx;
+}
+.stars {
+  display: flex;
+}
+.star {
+  font-size: 28rpx;
+  color: var(--divider);
+  margin-right: 2rpx;
+}
+.star-on {
+  color: #F5A623;
+}
+.movie-date {
+  font-size: 22rpx;
+  color: var(--text-secondary);
+}

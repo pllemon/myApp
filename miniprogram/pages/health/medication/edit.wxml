@@ -1,0 +1,55 @@
+<view class="container m-edit-page">
+  <view class="m-form-card">
+    <view class="m-form-title">💊 用药记录</view>
+
+    <m-field label="药品名称">
+      <input class="m-form-input" placeholder="例如：阿司匹林" value="{{name}}" bindinput="onNameInput" maxlength="30" />
+    </m-field>
+
+    <m-field label="剂量">
+      <input class="m-form-input" placeholder="例如：100mg" value="{{dosage}}" bindinput="onDosageInput" maxlength="20" />
+    </m-field>
+
+    <m-option-picker label="频次" options="{{frequencyOptions}}" currentValue="{{frequency}}" bind:change="onFrequencyChange">
+      {{frequency || '选择频次'}}
+    </m-option-picker>
+
+    <view class="m-form-row">
+      <m-field label="开始日期" half>
+        <picker mode="date" value="{{startDate}}" bindchange="onStartDateChange">
+          <view class="m-form-picker-value">{{startDate || '选择'}}</view>
+        </picker>
+      </m-field>
+      <m-field label="结束日期" half>
+        <picker mode="date" value="{{endDate}}" bindchange="onEndDateChange" disabled="{{isOngoing}}">
+          <view class="m-form-picker-value">{{isOngoing ? '进行中' : (endDate || '选择')}}</view>
+        </picker>
+      </m-field>
+    </view>
+
+    <view class="m-form-item switch">
+      <text class="m-form-key">长期用药</text>
+      <switch checked="{{isOngoing}}" bindchange="onOngoingToggle" color="#4A90D9" />
+    </view>
+  </view>
+
+  <view class="m-form-card">
+    <view class="m-form-title">⏰ 提醒设置</view>
+    <view class="m-form-item switch">
+      <text class="m-form-key">开启提醒</text>
+      <switch checked="{{reminderEnabled}}" bindchange="onReminderToggle" color="#4A90D9" />
+    </view>
+    <m-field wx:if="{{reminderEnabled}}" label="提醒时间">
+      <input class="m-form-input" placeholder="例如 08:00, 20:00" value="{{reminderInput}}" bindinput="onReminderInput" />
+    </m-field>
+  </view>
+
+  <view class="m-form-card">
+    <view class="m-form-title">📝 备注</view>
+    <m-field block>
+      <textarea class="m-form-textarea" placeholder="选填" value="{{notes}}" bindinput="onNotesInput" auto-height maxlength="200" />
+    </m-field>
+  </view>
+
+  <m-save-bar save-text="{{isEdit ? '保存修改' : '添加用药'}}" show-delete="{{isEdit}}" bind:save="save" bind:delete="delete" />
+</view>

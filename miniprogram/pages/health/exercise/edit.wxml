@@ -1,0 +1,44 @@
+<view class="container m-edit-page">
+  <view class="m-form-card">
+    <view class="m-form-title">🏃 运动记录</view>
+
+    <m-field label="日期">
+      <picker mode="date" value="{{date}}" bindchange="onDateChange">
+        <view class="m-form-picker-value">{{date}}</view>
+      </picker>
+    </m-field>
+
+    <m-field label="时间">
+      <picker mode="time" value="{{time}}" bindchange="onTimeChange">
+        <view class="m-form-picker-value">{{time}}</view>
+      </picker>
+    </m-field>
+
+    <m-field label="运动类型">
+      <picker mode="selector" range="{{typeOptions}}" range-key="label" value="{{typeIdx}}" bindchange="onTypeChange">
+        <view class="m-form-picker-value">{{typeOptions[typeIdx].label}}</view>
+      </picker>
+    </m-field>
+
+    <m-field label="时长 (分钟)">
+      <input class="m-form-input" type="number" value="{{duration}}" placeholder="请输入" bindinput="onDurationInput" />
+    </m-field>
+
+    <m-field label="距离 (km)">
+      <input class="m-form-input" type="digit" value="{{distance}}" placeholder="选填" bindinput="onDistanceInput" />
+    </m-field>
+
+    <m-field label="消耗卡路里 (kcal)">
+      <input class="m-form-input" type="number" value="{{calories}}" placeholder="自动估算" bindinput="onCaloriesInput" />
+    </m-field>
+  </view>
+
+  <view class="m-form-card">
+    <view class="m-form-title">📝 备注</view>
+    <m-field block>
+      <textarea class="m-form-textarea" placeholder="选填" value="{{note}}" bindinput="onNoteInput" auto-height maxlength="200" />
+    </m-field>
+  </view>
+
+  <m-save-bar save-text="{{isEdit ? '保存修改' : '保存记录'}}" bind:save="save" />
+</view>

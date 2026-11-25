@@ -1,0 +1,7 @@
+{
+  "navigationBarTitleText": "全部记录",
+  "navigationBarBackgroundColor": "#4A90D9",
+  "navigationBarTextStyle": "white",
+  "enablePullDownRefresh": true,
+  "backgroundTextStyle": "dark"
+}

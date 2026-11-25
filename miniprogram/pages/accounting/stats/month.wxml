@@ -1,0 +1,69 @@
+<view class="container">
+  <view class="month-summary">
+    <view class="ms-row">
+      <view class="ms-label">结余</view>
+      <view class="ms-main {{summary.balance >= 0 ? 'pos' : 'neg'}}">¥{{summary.balance}}</view>
+    </view>
+    <view class="ms-detail">
+      <view class="ms-item">
+        <text class="ms-item-label">支出</text>
+        <text class="neg">¥{{summary.expense}}</text>
+      </view>
+      <view class="ms-item-sep"></view>
+      <view class="ms-item">
+        <text class="ms-item-label">收入</text>
+        <text class="pos">¥{{summary.income}}</text>
+      </view>
+    </view>
+  </view>
+
+  <view wx:if="{{groupedByDay.length === 0}}" class="empty">
+    <view class="empty-icon">📭</view>
+    <view class="empty-text">该月无记录</view>
+  </view>
+
+  <view wx:for="{{groupedByDay}}" wx:key="date" class="day-group">
+    <view class="day-header">
+      <view class="day-left">
+        <text class="day-label">{{item.label}}</text>
+        <text class="day-weekday">{{item.weekday}}</text>
+      </view>
+      <view class="day-summary">
+        <text wx:if="{{item.dayExpense > 0}}" class="neg">-¥{{item.dayExpense.toFixed(2)}}</text>
+        <text wx:if="{{item.dayExpense > 0 && item.dayIncome > 0}}" class="sep"> / </text>
+        <text wx:if="{{item.dayIncome > 0}}" class="pos">+¥{{item.dayIncome.toFixed(2)}}</text>
+      </view>
+    </view>
+
+    <view 
+      wx:for="{{item.items}}" 
+      wx:for-item="record" 
+      wx:key="_id" 
+      class="record-item"
+      data-id="{{record._id}}"
+      bindtap="goToEdit"
+    >
+      <view class="record-icon">{{record.categoryIcon || '📌'}}</view>
+      <view class="record-info">
+        <view class="record-category">{{record.category || '未分类'}}</view>
+        <view class="record-note" wx:if="{{record.note}}">{{record.note}}</view>
+        <view class="record-imgs" wx:if="{{record.images && record.images.length}}">
+          <image 
+            wx:for="{{record.images}}" 
+            wx:for-item="img" 
+            wx:key="*this"
+            src="{{img}}" 
+            mode="aspectFill" 
+            class="record-img"
+            data-src="{{img}}"
+            data-urls="{{record.images}}"
+            catchtap="previewImage"
+          />
+        </view>
+      </view>
+      <view class="record-amount {{record.type === 'expense' ? 'neg' : 'pos'}}">
+        {{record.type === 'expense' ? '-' : '+'}}¥{{record.amount}}
+      </view>
+    </view>
+  </view>
+</view>

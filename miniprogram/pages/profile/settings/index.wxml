@@ -1,0 +1,50 @@
+<view class="container" style="{{themeStyle}}">
+  <view class="section">
+    <view class="section-label">外观</view>
+    <view class="card">
+      <view class="theme-grid">
+        <view
+          wx:for="{{themeList}}"
+          wx:key="id"
+          class="theme-item {{themeId === item.id ? 'theme-selected' : ''}}"
+          data-id="{{item.id}}"
+          bindtap="selectTheme"
+        >
+          <view class="theme-swatch" style="background: {{item.primary}}">
+            <text wx:if="{{themeId === item.id}}" class="theme-check">✓</text>
+          </view>
+          <view class="theme-name">{{item.name}}</view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <view class="section">
+    <view class="section-label">数据与存储</view>
+    <view class="card">
+      <view class="row-label">存储模式（当前：{{storageMode === 'cloud' ? '云端' : '本地'}}）</view>
+      <view class="mode-row">
+        <view class="mode-chip {{storageMode === 'local' ? 'mode-on' : ''}}" data-mode="local" bindtap="switchMode">📦 本地</view>
+        <view class="mode-chip {{storageMode === 'cloud' ? 'mode-on' : ''}}" data-mode="cloud" bindtap="switchMode">☁️ 云端</view>
+      </view>
+    </view>
+    <view class="card action-card" bindtap="exportData">
+      <view class="action-icon">📤</view>
+      <view class="action-text">导出全部数据（复制到剪贴板）</view>
+      <view class="action-arrow">›</view>
+    </view>
+    <view class="card action-card danger" bindtap="clearAllData">
+      <view class="action-icon">🗑️</view>
+      <view class="action-text">清除全部本地数据</view>
+      <view class="action-arrow">›</view>
+    </view>
+  </view>
+
+  <view class="section">
+    <view class="section-label">关于</view>
+    <view class="card about-card">
+      <view class="about-row"><text>版本</text><text>{{version}}</text></view>
+      <view class="about-row"><text>数据策略</text><text>本地优先</text></view>
+    </view>
+  </view>
+</view>

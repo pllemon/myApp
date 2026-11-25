@@ -1,0 +1,64 @@
+<view class="container tabbar-page">
+  <view class="stats-header">
+    <view class="stat-item">
+      <view class="stat-num">{{totalCount}}</view>
+      <view class="stat-label">篇日记</view>
+    </view>
+    <view class="stat-divider"></view>
+    <view class="stat-item">
+      <view class="stat-num">{{wordCount}}</view>
+      <view class="stat-label">字</view>
+    </view>
+  </view>
+
+  <view class="toolbar">
+    <view class="toolbar-title">我的日记</view>
+    <view class="toolbar-search" bindtap="toggleSearch">
+      {{showSearch ? '收起' : '🔍 搜索'}}
+    </view>
+  </view>
+
+  <view wx:if="{{showSearch}}" class="search-box">
+    <input 
+      class="search-input" 
+      placeholder="搜索标题、内容、标签..." 
+      value="{{keyword}}"
+      bindinput="onSearchInput"
+    />
+  </view>
+
+  <m-empty wx:if="{{groups.length === 0}}" icon="📔" title="还没有日记" desc="记录下今天的心情和想法吧" />
+
+  <block wx:for="{{groups}}" wx:key="date" wx:for-item="group">
+    <view class="date-group">
+      <view class="date-label">{{group.date}} · {{group.items[0]._dateLabel}}</view>
+      <view class="diary-list">
+        <view 
+          wx:for="{{group.items}}" 
+          wx:key="_id" 
+          class="diary-card {{item.images && item.images.length > 0 ? 'has-thumb' : ''}}"
+          data-id="{{item._id}}"
+          bindtap="goDetail"
+          bindlongpress="goEdit"
+        >
+          <view class="diary-main">
+            <view class="diary-mood-row">
+              <text class="diary-mood">{{item.mood || '📝'}}</text>
+              <text wx:if="{{item.weather}}" class="diary-weather">{{item.weather}}</text>
+            </view>
+            <view wx:if="{{item.title}}" class="diary-title">{{item.title}}</view>
+            <view class="diary-content">{{item._summary}}</view>
+            <view class="diary-meta">
+              <text class="diary-date">{{item.date}}</text>
+              <text wx:if="{{item._tagsStr}}" class="diary-tags">{{item._tagsStr}}</text>
+            </view>
+          </view>
+          <image wx:if="{{item.images && item.images.length > 0}}" class="diary-thumb" src="{{item.images[0]}}" mode="aspectFill" />
+        </view>
+      </view>
+    </view>
+  </block>
+</view>
+
+<view class="m-fab" bindtap="goEditor">✏️</view>
+<m-tab-bar id="tabbar" />

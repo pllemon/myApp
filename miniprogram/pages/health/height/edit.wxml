@@ -1,0 +1,24 @@
+<view class="container m-edit-page">
+  <view class="m-form-card">
+    <view class="m-form-title">📏 身高记录</view>
+
+    <m-field label="日期">
+      <picker mode="date" value="{{date}}" bindchange="onDateChange">
+        <view class="m-form-picker-value">{{date}}</view>
+      </picker>
+    </m-field>
+
+    <m-field label="身高 (cm)">
+      <input class="m-form-input" type="digit" value="{{height}}" placeholder="例如 170" bindinput="onHeightInput" />
+    </m-field>
+  </view>
+
+  <view class="m-form-card">
+    <view class="m-form-title">📝 备注</view>
+    <m-field block>
+      <textarea class="m-form-textarea" placeholder="选填" value="{{notes}}" bindinput="onNotesInput" auto-height maxlength="200" />
+    </m-field>
+  </view>
+
+  <m-save-bar save-text="{{isEdit ? '保存修改' : '保存记录'}}" bind:save="save" />
+</view>

@@ -1,0 +1,7 @@
+@import "../period/edit.wxss";
+
+.highlight {
+  color: #E91E63;
+  font-weight: 600;
+  font-size: 32rpx;
+}

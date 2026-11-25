@@ -1,0 +1,57 @@
+<view class="page">
+  <view class="section">
+    <view class="section-title">
+      🎯 TabBar 配置
+      <text class="section-desc">（3-5个，长按中间项可拖拽排序）</text>
+    </view>
+    <view class="list">
+      <view
+        class="tabbar-item {{item.selected ? 'selected' : ''}} {{item.fixed ? 'fixed' : ''}} {{draggingIdx === index ? 'dragging' : ''}}"
+        wx:for="{{items}}"
+        wx:key="_internalId"
+        data-idx="{{index}}"
+        bindtap="toggleSelect"
+        bindlongpress="onLongPress"
+        catchtouchmove="onTouchMove"
+        catchtouchend="onTouchEnd"
+      >
+        <view class="drag-handle" wx:if="{{!item.fixed && item.selected}}">⋮⋮</view>
+        <view class="drag-handle-placeholder" wx:else></view>
+        <view class="item-icon">{{item.icon}}</view>
+        <view class="item-text">{{item.text}}</view>
+        <view class="item-tag" wx:if="{{item.fixed === 'first'}}">固定首项</view>
+        <view class="item-tag" wx:elif="{{item.fixed === 'last'}}">固定末项</view>
+        <view class="check {{item.selected ? 'checked' : ''}} {{item.fixed ? 'disabled' : ''}}">
+          <text wx:if="{{item.selected}}">✓</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <view class="section">
+    <view class="section-title">
+      🧩 首页快捷入口
+      <text class="section-desc">（最多8个，TabBar未选的模块自动补入）</text>
+    </view>
+    <view class="shortcut-grid">
+      <view
+        class="shortcut-item {{item.selected ? 'selected' : ''}}"
+        wx:for="{{shortcutItems}}"
+        wx:key="id"
+        data-idx="{{index}}"
+        bindtap="toggleShortcut"
+      >
+        <view class="shortcut-icon">{{item.icon}}</view>
+        <view class="shortcut-text">{{item.text}}</view>
+        <view class="check {{item.selected ? 'checked' : ''}}">
+          <text wx:if="{{item.selected}}">✓</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <view class="footer">
+    <button class="btn btn-reset" bindtap="reset">重置</button>
+    <button class="btn btn-save" bindtap="save">保存</button>
+  </view>
+</view>
