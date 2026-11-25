@@ -1,8 +1,14 @@
 <view class="container">
   <view class="m-summary todo-summary">
-    <view class="todo-summary-left">
-      <view class="todo-summary-num">{{todayDone}}<text class="todo-summary-total">/{{todayTotal}}</text></view>
-      <view class="todo-summary-label">今日待办完成</view>
+    <view class="todo-summary-top">
+      <view class="todo-summary-left">
+        <view class="todo-summary-num">{{todayDone}}<text class="todo-summary-total">/{{todayTotal}}</text></view>
+        <view class="todo-summary-label">今日待办完成</view>
+      </view>
+      <view class="todo-pomodoro-entry" bindtap="goPomodoro">
+        <text class="todo-pomodoro-ico">⏱</text>
+        <text class="todo-pomodoro-label">番茄钟</text>
+      </view>
     </view>
     <view class="todo-summary-progress">
       <view class="m-progress-bar">

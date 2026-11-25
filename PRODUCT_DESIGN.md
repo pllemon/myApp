@@ -657,6 +657,14 @@ myApp/
 
 > 后续每次重要开发更新都在此记录，保持文档与代码同步。
 
+**2026-11-25（修复 5 个 P0 缺陷）**
+- `utils/db.js`：新增 `getAll` 兼容别名（内部转发 `adapter.query`），修复健康饮水/睡眠/运动三个列表页调用不存在方法导致的崩溃
+- `utils/tabbar-config.js`：新增 `updateTheme` 并让 `loadConfig` 读取持久化配色（`bgColor`→`backgroundColor` 兼容映射），修复设置页切主题报错且配色不生效
+- `pages/todo/index`：概览卡片新增「番茄钟」入口，接通原本不可达的 `pages/todo/pomodoro`
+- `pages/health/index`：概览档案头部新增「档案详情」入口，接通原本不可达的 `pages/health/profile/detail`
+- `pages/health/water/index`：目标数字支持弹窗编辑（`onGoalEdit`）；新增 4 个快捷加水按钮，`onAddQuick` 改为直接落库（此前为无绑定死代码）
+- 注：盘点报告曾称睡眠/运动页也有 `onAddQuick`，核对代码后为误读（实为 `goEdit`），未做改动
+
 **2026-11-24（对齐真实代码）**
 - 修正文档与实现的三处偏差：集合结构、金额单位、存储策略
 - 数据库章节重写：集合名对齐 `config.COLLECTIONS`（记账合并为 `accounting`、日记 `diary`、打卡 `checkin_habit`/`checkin_record`、待办 `todo`、健康拆分为 14 个 `health_*` 集合、新增 `stats_daily` 缓存集合）

@@ -1,11 +1,19 @@
 const db = require('../../../utils/db.js');
 const healthUtil = require('../../../utils/health.js');
 
+const QUICK_AMOUNTS = [100, 200, 300, 500];
+
+function nowTime() {
+  const d = new Date();
+  return String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');
+}
+
 Page({
   data: {
     profileId: '',
     profile: null,
     goal: 2000,
+    quickAmounts: QUICK_AMOUNTS,
     todayTotal: 0,
     todayRecords: [],
     monthGroups: [],
@@ -48,11 +56,51 @@ Page({
     });
   },
 
-  onAddQuick(e) {
-    const val = e.currentTarget.dataset.val;
-    wx.navigateTo({
-      url: `/pages/health/water/edit?profileId=${this.data.profileId}`
+  onGoalEdit() {
+    wx.showModal({
+      title: '每日饮水目标',
+      content: '当前 ' + this.data.goal + 'ml',
+      editable: true,
+      placeholderText: '输入目标毫升数',
+      success: async (res) => {
+        if (!res.confirm) return;
+        const n = parseInt(res.content, 10);
+        if (!n || n <= 0) {
+          wx.showToast({ title: '请输入有效数字', icon: 'none' });
+          return;
+        }
+        if (!this.data.profileId) {
+          wx.showToast({ title: '档案未加载', icon: 'none' });
+          return;
+        }
+        await db.update(db.COLLECTIONS.HEALTH_PROFILE, this.data.profileId, { waterGoal: n });
+        this.setData({ goal: n });
+        wx.showToast({ title: '目标已更新', icon: 'success' });
+      }
     });
+  },
+
+  async onAddQuick(e) {
+    const val = Number(e.currentTarget.dataset.val);
+    if (!val || !this.data.profileId) {
+      wx.showToast({ title: '档案未加载', icon: 'none' });
+      return;
+    }
+    const now = new Date();
+    const todayKey = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' + String(now.getDate()).padStart(2, '0');
+    try {
+      await db.add(db.COLLECTIONS.HEALTH_WATER, {
+        profileId: this.data.profileId,
+        date: todayKey,
+        time: nowTime(),
+        amount: val,
+        note: '快捷添加'
+      });
+      wx.showToast({ title: '+' + val + 'ml 已记录', icon: 'success' });
+      await this.loadData();
+    } catch (err) {
+      wx.showToast({ title: '记录失败', icon: 'none' });
+    }
   },
 
   goEdit(e) {

@@ -36,6 +36,7 @@ const COLORS = {
 };
 
 function loadConfig() {
+  loadThemeColors();
   const validIds = getSelectedIds().filter(id => CANDIDATES.find(x => x.id === id));
   const ids = validIds.length > 0 ? validIds : PRESETS[0].defaultIds;
   const list = buildListFromIds(ids);
@@ -74,6 +75,31 @@ function updateBadge(pagePath, count, showDot) {
 function saveConfig(config) {
   try {
     wx.setStorageSync(STORAGE_KEY, config);
+  } catch (e) {}
+}
+
+// 主题切换时由设置页调用，写入配色并持久化；loadConfig 会读取并覆盖默认 COLORS。
+// 设置页传 bgColor，COLORS 内部字段名为 backgroundColor，这里做兼容映射。
+function updateTheme(colors) {
+  if (!colors || typeof colors !== 'object') return;
+  const normalized = Object.assign({}, colors);
+  if (normalized.bgColor !== undefined && normalized.backgroundColor === undefined) {
+    normalized.backgroundColor = normalized.bgColor;
+  }
+  Object.keys(normalized).forEach(k => {
+    if (k in COLORS && typeof normalized[k] === 'string') COLORS[k] = normalized[k];
+  });
+  saveConfig({ colors: Object.assign({}, COLORS) });
+}
+
+function loadThemeColors() {
+  try {
+    const saved = wx.getStorageSync(STORAGE_KEY);
+    if (saved && saved.colors && typeof saved.colors === 'object') {
+      Object.keys(saved.colors).forEach(k => {
+        if (k in COLORS && typeof saved.colors[k] === 'string') COLORS[k] = saved.colors[k];
+      });
+    }
   } catch (e) {}
 }
 
@@ -155,5 +181,6 @@ module.exports = {
   findIdByPath,
   findPathById,
   buildListFromIds,
-  updateBadge
+  updateBadge,
+  updateTheme
 };

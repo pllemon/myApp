@@ -401,6 +401,14 @@ Page({
 
   goCreate() { wx.navigateTo({ url: '/pages/health/profile/edit' }); },
   goEditProfile() { wx.navigateTo({ url: `/pages/health/profile/edit?id=${this.data.activeProfileId}` }); },
+  goProfileDetail() {
+    const id = this.data.activeProfileId;
+    if (!id) {
+      wx.showToast({ title: '请先选择健康档案', icon: 'none' });
+      return;
+    }
+    wx.navigateTo({ url: `/pages/health/profile/detail?id=${id}` });
+  },
 
   addHeight() { wx.navigateTo({ url: `/pages/health/height/edit?profileId=${this.data.activeProfileId}` }); },
   editHeight(e) { wx.navigateTo({ url: `/pages/health/height/edit?profileId=${this.data.activeProfileId}&id=${e.currentTarget.dataset.id}` }); },

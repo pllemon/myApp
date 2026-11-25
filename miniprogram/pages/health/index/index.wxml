@@ -44,6 +44,7 @@ module.exports = { contains: contains };
           <view class="ph-info">
             <text class="ph-name">{{current.name}}</text>
             <text class="ph-meta">{{genderLabel}} · {{age}}岁</text>
+            <text bindtap="goProfileDetail" style="display:inline-block;margin-top:8rpx;font-size:22rpx;color:var(--primary);">档案详情 ›</text>
       </view>
         </view>
         <view class="ph-bmi" bindtap="goEditProfile">

@@ -14,6 +14,12 @@ function list(collection, sortBy) {
   return adapter.list(collection, sortBy);
 }
 
+// 按条件取全部记录。调用方（健康饮水/睡眠/运动列表）依赖此接口，
+// 语义等价于 query，保留 getAll 作为兼容别名。
+function getAll(collection, filter, sortBy) {
+  return adapter.query(collection, filter, sortBy);
+}
+
 function query(collection, filter, sortBy) {
   return adapter.query(collection, filter, sortBy);
 }
@@ -78,6 +84,7 @@ module.exports = {
   COLLECTIONS,
   add,
   list,
+  getAll,
   query,
   getById,
   update,

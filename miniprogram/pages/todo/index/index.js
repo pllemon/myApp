@@ -183,6 +183,10 @@ Page({
     wx.navigateTo({ url: '/pages/todo/edit/index' });
   },
 
+  goPomodoro() {
+    wx.navigateTo({ url: '/pages/todo/pomodoro/index' });
+  },
+
   toggleTagFilter(e) {
     const tag = e.currentTarget.dataset.tag;
     this.setData({ tagFilter: this.data.tagFilter === tag ? '' : tag });

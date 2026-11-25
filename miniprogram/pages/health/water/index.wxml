@@ -17,6 +17,10 @@
       <text wx:if="{{todayTotal >= goal}}">🎉 目标已达成！今日喝了 {{todayTotal}}ml</text>
       <text wx:else>还差 {{goal - todayTotal}}ml 加油！</text>
     </view>
+    <view class="quick-row">
+      <view class="quick-btn" wx:for="{{quickAmounts}}" wx:key="*this"
+            data-val="{{item}}" bindtap="onAddQuick">+{{item}}</view>
+    </view>
   </view>
 
   <view class="section-title">今日饮水</view>
