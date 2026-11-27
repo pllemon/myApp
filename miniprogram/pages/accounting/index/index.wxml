@@ -1,86 +1,98 @@
-<view class="container tabbar-page">
-  <view class="book-switcher" wx:if="{{books.length > 0}}">
-    <scroll-view class="book-scroll" scroll-x="{{true}}" enhanced="{{true}}" show-scrollbar="{{false}}">
-      <view 
-        wx:for="{{books}}" 
-        wx:key="_id" 
-        class="book-chip {{item._id === activeBookId ? 'active' : ''}}"
-        data-id="{{item._id}}"
-        bindtap="switchBook"
+<view class="m2-page with-tabbar" style="{{themeStyle}}">
+  <!-- 月份收支 Hero：单一视觉重心 + 预算细条 + 警告角标 -->
+  <view class="m2-hero">
+    <view class="m2-hero-head">
+      <view class="m2-hero-title">{{monthLabel}}</view>
+      <view class="hero-head-right">
+        <view class="hero-book-btn" bindtap="goToBooks"><m-icon name="bookline" size="32" /></view>
+        <view class="hero-nav-group">
+          <view class="hero-nav {{hasPrev ? '' : 'disabled'}}" bindtap="prevMonth">‹</view>
+          <view class="hero-nav {{hasNext ? '' : 'disabled'}}" bindtap="nextMonth">›</view>
+        </view>
+      </view>
+    </view>
+
+    <view class="m2-hero-value">-¥{{monthExpense}}</view>
+    <view class="m2-hero-note">收入 ¥{{monthIncome}} · 结余 {{balanceText}}</view>
+
+    <view class="hero-budget" wx:if="{{budgetStatus}}" bindtap="goToBudget">
+      <view class="m2-row-between">
+        <text class="hero-budget-label">{{budgetStatus.exceeded ? '已超预算' : '本月预算'}} ¥{{budgetStatus.limit}}</text>
+        <text class="hero-budget-percent">{{budgetStatus.percent}}% ›</text>
+      </view>
+      <view class="m-progress-bar hero-budget-track">
+        <view class="m-progress-fill hero-progress-fill {{budgetStatus.exceeded ? 'danger' : budgetStatus.warning ? 'warning' : ''}}" style="width: {{budgetStatus.fill}}%;"></view>
+      </view>
+    </view>
+
+    <view class="hero-warning" wx:if="{{budgetWarnings.length > 0}}" bindtap="goToBudget">
+      <m-icon name="warning" size="24" tone="system" />
+      <text class="hero-warning-text">{{budgetWarnings[0].short}}</text>
+    </view>
+  </view>
+
+  <!-- 工具条：搜索 / 筛选 -->
+  <view class="m2-wrap tool-bar">
+    <view class="tool-btn {{showSearch ? 'active' : ''}}" bindtap="onOpenSearch"><m-icon name="search" size="36" tone="system" /></view>
+    <view class="tool-btn {{showTypeFilter ? 'active' : ''}}" bindtap="onToggleFilter"><m-icon name="filter" size="36" tone="system" /></view>
+  </view>
+
+  <!-- 搜索面板（默认收起） -->
+  <view class="m2-searchbar" wx:if="{{showSearch}}">
+    <m-icon name="search" size="28" tone="system" />
+    <input class="m2-search-input" placeholder="搜索备注/金额" value="{{searchKey}}" bindinput="onSearchInput" confirm-type="search" />
+    <view wx:if="{{searchKey}}" bindtap="onSearchClear"><m-icon name="clear" size="28" tone="system" /></view>
+    <view class="m2-card-action search-cancel" bindtap="onCloseSearch">取消</view>
+  </view>
+
+  <!-- 筛选面板（默认收起） -->
+  <view class="m2-segment filter-segment" wx:if="{{showTypeFilter}}">
+    <view class="m2-seg-item {{typeFilter === 'all' ? 'active' : ''}}" data-type="all" bindtap="setFilter">全部</view>
+    <view class="m2-seg-item {{typeFilter === 'expense' ? 'active' : ''}}" data-type="expense" bindtap="setFilter">支出</view>
+    <view class="m2-seg-item {{typeFilter === 'income' ? 'active' : ''}}" data-type="income" bindtap="setFilter">收入</view>
+  </view>
+
+  <!-- 空态 -->
+  <m-empty
+    wx:if="{{filteredGroups.length === 0}}"
+    title="还没有记账记录"
+    desc="点击右下角 + 开始记录"
+    action="去记录"
+    bindaction="goToAdd"
+  />
+
+  <!-- 按日期分组的流水 -->
+  <m-day-group
+    class="day-group-wrap"
+    wx:for="{{filteredGroups}}"
+    wx:key="date"
+    label="{{item.label}}"
+    expense="{{item.dayExpense}}"
+    income="{{item.dayIncome}}"
+    sticky="{{true}}"
+  >
+    <view class="record-list">
+      <view
+        wx:for="{{item.items}}"
+        wx:for-item="record"
+        wx:key="_id"
+        class="m2-row"
+        data-id="{{record._id}}"
+        bindtap="goToEdit"
+        bindlongpress="onRecordLongPress"
       >
-        <text class="book-icon">{{item.icon || '💰'}}</text>
-        <text class="book-name">{{item.name}}</text>
-      </view>
-      <view class="book-chip add" bindtap="goToBooks">+</view>
-    </scroll-view>
-  </view>
-
-  <view class="month-header">
-    <view class="mh-row">
-      <view class="mh-nav {{hasPrev ? '' : 'disabled'}}" bindtap="prevMonth">‹</view>
-      <view class="month-label">{{monthLabel}}</view>
-      <view class="mh-nav {{hasNext ? '' : 'disabled'}}" bindtap="nextMonth">›</view>
-    </view>
-    <view class="mh-sub-row">
-      <view class="mh-stats-btn" bindtap="goToStats">📊 统计</view>
-    </view>
-    <view class="month-stats">
-      <view class="month-stat">
-        <text class="ms-label">支出</text>
-        <text class="ms-value expense">-¥{{monthExpense}}</text>
-      </view>
-      <view class="month-divider"></view>
-      <view class="month-stat">
-        <text class="ms-label">收入</text>
-        <text class="ms-value income">+¥{{monthIncome}}</text>
+        <view class="m2-row-icon"><m-icon value="{{(categoryMap[record.categoryId] ? categoryMap[record.categoryId].icon : record.categoryIcon) || record.categoryIcon || ''}}" flatKey="{{record.category}}" size="36" tone="flat" /></view>
+        <view class="m2-row-body">
+          <view class="m2-row-title">{{record.category || (categoryMap[record.categoryId] ? categoryMap[record.categoryId].name : '未分类')}}</view>
+          <view class="m2-row-sub" wx:if="{{record.note}}">{{record.note}}</view>
+        </view>
+        <view class="m2-row-value {{record.type === 'expense' ? 'm-text-danger' : 'm-text-success'}}">{{record.displayAmount}}</view>
       </view>
     </view>
-  </view>
+  </m-day-group>
 
-  <view class="filter-bar">
-    <view class="filter-title" bindtap="goToAll">📋 全部记录 ›</view>
-    <view class="filter-btn" bindtap="toggleFilter">
-      {{typeFilter === 'all' ? '全部' : typeFilter === 'expense' ? '支出' : '收入'}} ▾
-    </view>
-  </view>
+  <view class="m2-wrap count-bar" wx:if="{{filteredGroups.length > 0}}">本月共 {{records.length}} 笔</view>
 
-  <view class="filter-dropdown" wx:if="{{showTypeFilter}}">
-    <view class="filter-option {{typeFilter === 'all' ? 'active' : ''}}" data-type="all" bindtap="setFilter">全部</view>
-    <view class="filter-option {{typeFilter === 'expense' ? 'active' : ''}}" data-type="expense" bindtap="setFilter">支出</view>
-    <view class="filter-option {{typeFilter === 'income' ? 'active' : ''}}" data-type="income" bindtap="setFilter">收入</view>
-  </view>
-
-  <m-empty wx:if="{{groupedByDay.length === 0}}" icon="📒" title="还没有记账记录" desc="点击右下角 + 开始记录" />
-
-  <view wx:for="{{groupedByDay}}" wx:key="date" class="day-group">
-    <view class="day-header">
-      <text class="day-label">{{item.label}}</text>
-      <text class="day-summary">
-        <text wx:if="{{item.dayExpense > 0}}" class="expense">-¥{{item.dayExpense}}</text>
-        <text wx:if="{{item.dayExpense > 0 && item.dayIncome > 0}}" class="sep"> / </text>
-        <text wx:if="{{item.dayIncome > 0}}" class="income">+¥{{item.dayIncome}}</text>
-      </text>
-    </view>
-    <view 
-      wx:for="{{item.items}}" 
-      wx:for-item="record" 
-      wx:key="_id" 
-      class="record-item"
-      data-id="{{record._id}}"
-      bindtap="goToEdit"
-      bindlongpress="deleteRecord"
-    >
-      <view class="record-icon">{{record.categoryIcon || (categoryMap[record.categoryId] ? categoryMap[record.categoryId].icon : '📌')}}</view>
-      <view class="record-info">
-        <view class="record-category">{{record.category || (categoryMap[record.categoryId] ? categoryMap[record.categoryId].name : '未分类')}}</view>
-        <view class="record-note" wx:if="{{record.note}}">{{record.note}}</view>
-      </view>
-      <view class="record-amount {{record.type === 'expense' ? 'expense' : 'income'}}">
-        {{record.type === 'expense' ? '-' : '+'}}¥{{record.amount}}
-      </view>
-    </view>
-  </view>
-
-  <view class="m-fab" bindtap="goToAdd">+</view>
+  <view class="m2-fab" bindtap="goToAdd"><m-icon name="add" size="44" inline /></view>
 </view>
 <m-tab-bar id="tabbar" />

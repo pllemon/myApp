@@ -1,0 +1,4 @@
+<view wx:if="{{useChip}}" class="m-icon-chip" style="width:{{chipSize}}rpx;height:{{chipSize}}rpx;background:{{chipBg}}">
+  <image class="m-icon" src="{{src}}" style="width:{{boxSize}}rpx;height:{{boxSize}}rpx" />
+</view>
+<image wx:else class="m-icon {{inline ? 'm-icon-inline' : ''}}" src="{{src}}" style="width:{{boxSize}}rpx;height:{{boxSize}}rpx" />

@@ -1,11 +1,12 @@
 const db = require('../../../utils/db.js');
+const healthUtil = require('../../../utils/health.js');
 
 const QUALITY_OPTIONS = [
-  { value: 5, label: '😴 极好' },
-  { value: 4, label: '😊 不错' },
-  { value: 3, label: '😐 一般' },
-  { value: 2, label: '😕 较差' },
-  { value: 1, label: '😫 极差' }
+  { value: 5, label: '极好' },
+  { value: 4, label: '不错' },
+  { value: 3, label: '一般' },
+  { value: 2, label: '较差' },
+  { value: 1, label: '极差' }
 ];
 
 Page({
@@ -20,7 +21,7 @@ Page({
     qualityIdx: 2,
     qualityOptions: QUALITY_OPTIONS,
     deepSleep: '',
-    note: ''
+    notes: ''
   },
 
   onLoad(options) {
@@ -55,7 +56,7 @@ Page({
           duration: r.duration || '',
           qualityIdx: idx >= 0 ? idx : 2,
           deepSleep: r.deepSleep || '',
-          note: r.note || ''
+          notes: r.notes || r.note || ''
         });
       }
     } catch (err) {
@@ -88,13 +89,17 @@ Page({
   },
   onQualityChange(e) { this.setData({ qualityIdx: e.detail.index }); },
   onDeepInput(e) { this.setData({ deepSleep: e.detail.value }); },
-  onNoteInput(e) { this.setData({ note: e.detail.value }); },
+  onNoteInput(e) { this.setData({ notes: e.detail.value }); },
 
   async save() {
-    const { date, sleepTime, wakeTime, qualityIdx, deepSleep, note, profileId, id, isEdit, duration } = this.data;
+    const { date, sleepTime, wakeTime, qualityIdx, deepSleep, notes, profileId, id, isEdit, duration } = this.data;
 
     if (!sleepTime || !wakeTime) {
       wx.showToast({ title: '请输入入睡和起床时间', icon: 'none' });
+      return;
+    }
+    if (deepSleep && (Number(deepSleep) < 0 || Number(deepSleep) > 24)) {
+      wx.showToast({ title: '深睡时长应在 0-24 小时', icon: 'none' });
       return;
     }
 
@@ -108,7 +113,9 @@ Page({
         duration: duration || this.calcDuration(sleepTime, wakeTime),
         quality: QUALITY_OPTIONS[qualityIdx].value,
         deepSleep: deepSleep ? parseFloat(deepSleep) : '',
-        note: note.trim()
+        notes: notes.trim(),
+        note: notes.trim(),
+        updatedAt: Date.now()
       };
 
       if (isEdit) {

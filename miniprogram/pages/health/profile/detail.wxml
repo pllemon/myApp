@@ -1,13 +1,14 @@
-<view class="container" wx:if="{{profile}}">
-  <view class="profile-hero" style="background: linear-gradient(135deg, #FFE8EC 0%, #E8F0FA 100%);">
-    <view class="hero-avatar">
-      <text class="hero-avatar-emoji">{{profile.avatar || (profile.gender === 'female' ? '👩' : '👨')}}</text>
+<view class="m2-page" wx:if="{{profile}}" style="{{themeStyle}}">
+  <!-- 档案 Hero -->
+  <view class="m2-detail-hero">
+    <view class="m2-detail-icon detail-avatar">
+      <m-icon name="{{profile.avatar || 'user'}}" size="56" />
     </view>
-    <view class="hero-info">
-      <view class="hero-name-row">
-        <text class="hero-name">{{profile.name}}</text>
-        <text class="hero-gender">{{genderLabel}}</text>
-        <text class="hero-age">{{age}}岁</text>
+    <view class="m2-detail-main">
+      <view class="m2-detail-title">{{profile.name}}</view>
+      <view class="m2-detail-sub">
+        <text class="m2-badge">{{genderLabel}}</text>
+        <text class="m2-badge">{{age}}岁</text>
       </view>
       <view class="hero-basic">
         <text class="hero-basic-item" wx:if="{{profile.height}}">{{profile.height}}cm</text>
@@ -16,180 +17,200 @@
         <text class="hero-basic-item" wx:if="{{profile.bloodType && profile.bloodType !== '未知'}}">血型 {{profile.bloodType}}</text>
       </view>
       <view class="hero-actions">
-        <view class="hero-action" bindtap="goEditProfile">✏️ 编辑档案</view>
+        <view class="hero-action" bindtap="goEditProfile"><m-icon name="edit" size="26" inline />编辑档案</view>
+        <view class="hero-action" bindtap="exportReport"><m-icon name="doc" size="26" inline />导出报告</view>
       </view>
     </view>
   </view>
 
-  <view class="tab-bar">
-    <view 
-      wx:for="{{tabs}}" 
+  <!-- 分区切换 -->
+  <view class="m2-segment">
+    <view
+      wx:for="{{tabs}}"
       wx:key="key"
-      class="tab-item {{activeTab === item.key ? 'active' : ''}}"
+      class="m2-seg-item {{activeTab === item.key ? 'active' : ''}}"
       data-key="{{item.key}}"
       bindtap="switchTab"
     >
-      <text class="tab-icon">{{item.icon}}</text>
-      <text class="tab-label">{{item.label}}</text>
+      <m-icon value="{{item.icon}}" healthKey="{{item.label}}" tone="health" size="30" inline /> {{item.label}}
     </view>
   </view>
 
+  <!-- ===== 概览 ===== -->
   <view wx:if="{{activeTab === 'overview'}}" class="tab-content">
-    <view class="info-card">
-      <view class="info-card-title">📝 基础情况</view>
-      <view class="info-row">
-        <text class="info-key">姓名</text>
-        <text class="info-val">{{profile.name}}</text>
+    <view class="m2-card">
+      <view class="m2-card-head"><view class="m2-card-title">基础情况</view></view>
+      <view class="m2-detail-row"><view class="m2-detail-label">姓名</view><view class="m2-detail-value">{{profile.name}}</view></view>
+      <view class="m2-detail-row"><view class="m2-detail-label">性别</view><view class="m2-detail-value">{{genderLabel}}</view></view>
+      <view class="m2-detail-row"><view class="m2-detail-label">出生年月</view><view class="m2-detail-value">{{profile.birthDate || '--'}} ({{age}}岁)</view></view>
+      <view class="m2-detail-row"><view class="m2-detail-label">身高 / 体重</view><view class="m2-detail-value">{{profile.height || '--'}}cm / {{profile.weight || '--'}}kg</view></view>
+      <view class="m2-detail-row"><view class="m2-detail-label">BMI</view><view class="m2-detail-value">{{bmiValue || '--'}} {{bmiStatus ? '(' + bmiStatus + ')' : ''}}</view></view>
+      <view class="m2-detail-row"><view class="m2-detail-label">血型</view><view class="m2-detail-value">{{profile.bloodType || '未知'}}</view></view>
+    </view>
+
+    <view wx:if="{{profile.allergies}}" class="m2-card">
+      <view class="m2-card-head"><view class="m2-card-title">过敏史</view></view>
+      <view class="m2-note">{{profile.allergies}}</view>
+    </view>
+
+    <view wx:if="{{profile.medicalHistory}}" class="m2-card">
+      <view class="m2-card-head"><view class="m2-card-title">既往病史</view></view>
+      <view class="m2-note">{{profile.medicalHistory}}</view>
+    </view>
+
+    <view wx:if="{{profile.notes}}" class="m2-card">
+      <view class="m2-card-head"><view class="m2-card-title">备注</view></view>
+      <view class="m2-note">{{profile.notes}}</view>
+    </view>
+
+    <view wx:if="{{profile.targets && (profile.targets.bpSys || profile.targets.glucoseFasting || profile.targets.weight)}}" class="m2-card">
+      <view class="m2-card-head"><view class="m2-card-title">个人目标区间</view></view>
+      <view wx:if="{{profile.targets.bpSys || profile.targets.bpDia}}" class="m2-detail-row">
+        <view class="m2-detail-label">血压</view>
+        <view class="m2-detail-value">{{profile.targets.bpSys || '--'}}/{{profile.targets.bpDia || '--'}} mmHg</view>
       </view>
-      <view class="info-row">
-        <text class="info-key">性别</text>
-        <text class="info-val">{{genderLabel}}</text>
+      <view wx:if="{{profile.targets.glucoseFasting}}" class="m2-detail-row">
+        <view class="m2-detail-label">空腹血糖</view>
+        <view class="m2-detail-value">{{profile.targets.glucoseFasting}} {{profile.unitSystem === 'imperial' ? 'mg/dL' : 'mmol/L'}}</view>
       </view>
-      <view class="info-row">
-        <text class="info-key">出生年月</text>
-        <text class="info-val">{{profile.birthDate || '--'}} ({{age}}岁)</text>
+      <view wx:if="{{profile.targets.glucosePost}}" class="m2-detail-row">
+        <view class="m2-detail-label">餐后血糖</view>
+        <view class="m2-detail-value">{{profile.targets.glucosePost}} {{profile.unitSystem === 'imperial' ? 'mg/dL' : 'mmol/L'}}</view>
       </view>
-      <view class="info-row">
-        <text class="info-key">身高 / 体重</text>
-        <text class="info-val">{{profile.height || '--'}}cm / {{profile.weight || '--'}}kg</text>
-      </view>
-      <view class="info-row">
-        <text class="info-key">BMI</text>
-        <text class="info-val">{{bmiValue || '--'}} {{bmiStatus ? '(' + bmiStatus + ')' : ''}}</text>
-      </view>
-      <view class="info-row">
-        <text class="info-key">血型</text>
-        <text class="info-val">{{profile.bloodType || '未知'}}</text>
+      <view wx:if="{{profile.targets.weight}}" class="m2-detail-row">
+        <view class="m2-detail-label">体重</view>
+        <view class="m2-detail-value">{{profile.targets.weight}} {{profile.unitSystem === 'imperial' ? 'lbs' : 'kg'}}</view>
       </view>
     </view>
 
-    <view wx:if="{{profile.allergies}}" class="info-card">
-      <view class="info-card-title">⚠️ 过敏史</view>
-      <view class="info-text">{{profile.allergies}}</view>
+    <view wx:if="{{profile.emergencyContact && (profile.emergencyContact.name || profile.emergencyContact.phone)}}" class="m2-card">
+      <view class="m2-card-head"><view class="m2-card-title">紧急联系人</view></view>
+      <view class="m2-detail-row"><view class="m2-detail-label">联系人</view><view class="m2-detail-value">{{profile.emergencyContact.name || '--'}}</view></view>
+      <view class="m2-detail-row"><view class="m2-detail-label">电话</view><view class="m2-detail-value">{{profile.emergencyContact.phone || '--'}}</view></view>
     </view>
 
-    <view wx:if="{{profile.medicalHistory}}" class="info-card">
-      <view class="info-card-title">📋 既往病史</view>
-      <view class="info-text">{{profile.medicalHistory}}</view>
-    </view>
-
-    <view wx:if="{{profile.notes}}" class="info-card">
-      <view class="info-card-title">📌 备注</view>
-      <view class="info-text">{{profile.notes}}</view>
-    </view>
-
-    <view class="stats-row">
-      <view class="stat-tile" bindtap="switchTab" data-key="medication">
-        <text class="stat-num">{{medCount}}</text>
-        <text class="stat-lbl">用药记录</text>
+    <view class="m2-stat-grid stats-row">
+      <view class="m2-stat-cell stat-tile" bindtap="switchTab" data-key="medication">
+        <view class="m2-stat-num">{{medCount}}</view>
+        <view class="m2-stat-label">用药记录</view>
       </view>
-      <view class="stat-tile" bindtap="switchTab" data-key="visit">
-        <text class="stat-num">{{visitCount}}</text>
-        <text class="stat-lbl">看诊记录</text>
+      <view class="m2-stat-cell stat-tile" bindtap="switchTab" data-key="visit">
+        <view class="m2-stat-num">{{visitCount}}</view>
+        <view class="m2-stat-label">看诊记录</view>
       </view>
-      <view wx:if="{{isFemale}}" class="stat-tile" bindtap="switchTab" data-key="period">
-        <text class="stat-num">{{periodCount}}</text>
-        <text class="stat-lbl">生理期</text>
+      <view wx:if="{{isFemale}}" class="m2-stat-cell stat-tile" bindtap="switchTab" data-key="period">
+        <view class="m2-stat-num">{{periodCount}}</view>
+        <view class="m2-stat-label">生理期</view>
       </view>
     </view>
 
-    <view wx:if="{{isFemale && cycleInfo}}" class="cycle-card">
-      <view class="cycle-title">🌸 周期概况</view>
+    <view wx:if="{{isFemale && cycleInfo}}" class="m2-card cycle-card">
+      <view class="m2-card-head"><view class="m2-card-title"><m-icon tone="health" healthKey="生理期" size="28" inline />周期概况</view></view>
       <view class="cycle-main">
         <view class="cycle-ring">
           <text class="cycle-day">第 {{cycleInfo.dayInCycle}} 天</text>
           <text class="cycle-total">共 {{cycleInfo.totalDays}} 天</text>
         </view>
         <view class="cycle-info">
-          <text class="cycle-stage {{cycleStageClass}}">{{cycleStageText}}</text>
+          <text class="m2-badge {{cycleStageClass === 'period' ? 'm2-badge-danger' : cycleStageClass === 'ovulation' ? 'm2-badge-warning' : cycleStageClass === 'fertile' ? 'm2-badge-success' : ''}}">{{cycleStageText}}</text>
           <text class="cycle-next">下次生理期：{{cycleInfo.nextPeriod}}（还有{{cycleInfo.daysUntilNext}}天）</text>
         </view>
       </view>
     </view>
   </view>
 
+  <!-- ===== 用药 ===== -->
   <view wx:if="{{activeTab === 'medication'}}" class="tab-content">
     <view class="section-header">
-      <text class="section-title">💊 用药记录 ({{medCount}})</text>
-      <view class="section-add" bindtap="addMed">＋ 新增</view>
+      <view class="m2-group-title"><m-icon tone="health" healthKey="用药" size="28" inline />用药记录 ({{medCount}})</view>
+      <view class="m2-card-action" bindtap="addMed">＋ 新增</view>
     </view>
-    <view wx:if="{{medCount === 0}}" class="section-empty">还没有用药记录</view>
-    <block wx:for="{{medGroups}}" wx:key="month" wx:for-item="group">
-      <view class="group-label">{{group.month}}</view>
-      <view class="record-list">
-        <view 
-          wx:for="{{group.items}}" 
-          wx:key="_id" 
-          class="record-card med"
-          data-id="{{item._id}}"
-          bindtap="editMed"
-        >
-          <view class="med-header">
-            <text class="med-name">{{item.name}}</text>
-            <text wx:if="{{item.dosage}}" class="med-dosage">{{item.dosage}}</text>
-          </view>
-          <view wx:if="{{item.frequency}}" class="med-frequency">频次：{{item.frequency}}</view>
-          <view class="med-date">{{item._dateRange}}</view>
-          <view wx:if="{{item.notes}}" class="med-notes">{{item.notes}}</view>
-          <view class="record-del" data-id="{{item._id}}" catchtap="deleteMed">🗑️</view>
+    <m-empty wx:if="{{medCount === 0}}" title="还没有用药记录" />
+    <view class="m2-list" wx:for="{{medGroups}}" wx:key="month" wx:for-item="group">
+      <view class="m2-group-head"><view class="m2-group-title">{{group.month}}</view></view>
+      <view
+        class="m2-row"
+        wx:for="{{group.items}}"
+        wx:key="_id"
+        data-id="{{item._id}}"
+        bindtap="editMed"
+      >
+        <view class="m2-row-icon"><m-icon tone="health" healthKey="用药" size="36" /></view>
+        <view class="m2-row-body">
+          <view class="m2-row-title">{{item.name}} <text wx:if="{{item.dosage}}" class="med-dosage">{{item.dosage}}</text></view>
+          <view wx:if="{{item.frequency}}" class="m2-row-sub">频次：{{item.frequency}}</view>
+          <view class="m2-row-sub">{{item._dateRange}}</view>
+          <view wx:if="{{item.notes}}" class="m2-row-sub">{{item.notes}}</view>
         </view>
+        <view class="record-del" data-id="{{item._id}}" catchtap="deleteMed"><m-icon name="trash" size="32" /></view>
+        <view class="m2-row-arrow">›</view>
       </view>
-    </block>
+    </view>
   </view>
 
+  <!-- ===== 看诊 ===== -->
   <view wx:if="{{activeTab === 'visit'}}" class="tab-content">
     <view class="section-header">
-      <text class="section-title">🏥 看诊记录 ({{visitCount}})</text>
-      <view class="section-add" bindtap="addVisit">＋ 新增</view>
+      <view class="m2-group-title"><m-icon tone="health" healthKey="看诊" size="28" inline />看诊记录 ({{visitCount}})</view>
+      <view class="m2-card-action" bindtap="addVisit">＋ 新增</view>
     </view>
-    <view wx:if="{{visitCount === 0}}" class="section-empty">还没有看诊记录</view>
-    <block wx:for="{{visitGroups}}" wx:key="month" wx:for-item="group">
-      <view class="group-label">{{group.month}}</view>
-      <view class="record-list">
-        <view 
-          wx:for="{{group.items}}" 
-          wx:key="_id" 
-          class="record-card visit"
-          data-id="{{item._id}}"
-          bindtap="editVisit"
-        >
-          <view class="visit-header">
-            <text class="visit-title">{{item.title || '就诊'}}</text>
-            <text class="visit-date">{{item.date}}</text>
-          </view>
-          <view wx:if="{{item.hospital}}" class="visit-meta">🏥 {{item.hospital}}</view>
-          <view wx:if="{{item.doctor}}" class="visit-meta">👨‍⚕️ {{item.doctor}}</view>
-          <view wx:if="{{item.diagnosis}}" class="visit-diagnosis">🔍 {{item.diagnosis}}</view>
-          <view wx:if="{{item.notes}}" class="visit-notes">{{item.notes}}</view>
-          <view class="record-del" data-id="{{item._id}}" catchtap="deleteVisit">🗑️</view>
+    <m-empty wx:if="{{visitCount === 0}}" title="还没有看诊记录" />
+    <view class="m2-list" wx:for="{{visitGroups}}" wx:key="month" wx:for-item="group">
+      <view class="m2-group-head"><view class="m2-group-title">{{group.month}}</view></view>
+      <view
+        class="m2-row"
+        wx:for="{{group.items}}"
+        wx:key="_id"
+        data-id="{{item._id}}"
+        bindtap="editVisit"
+      >
+        <view class="m2-row-icon"><m-icon tone="health" healthKey="看诊" size="36" /></view>
+        <view class="m2-row-body">
+          <view class="m2-row-title">{{item.title || '就诊'}} <text class="m2-row-sub">{{item.date}}</text></view>
+          <view wx:if="{{item.hospital}}" class="m2-row-sub"><m-icon name="hospital" size="26" inline />{{item.hospital}}</view>
+          <view wx:if="{{item.doctor}}" class="m2-row-sub"><m-icon name="user" size="26" inline /> {{item.doctor}}</view>
+          <view wx:if="{{item.diagnosis}}" class="m2-row-sub visit-diagnosis"><m-icon name="search" size="26" inline />{{item.diagnosis}}</view>
+          <view wx:if="{{item.notes}}" class="m2-row-sub">{{item.notes}}</view>
         </view>
+        <view class="record-del" data-id="{{item._id}}" catchtap="deleteVisit"><m-icon name="trash" size="32" /></view>
+        <view class="m2-row-arrow">›</view>
       </view>
-    </block>
+    </view>
   </view>
 
+  <!-- ===== 生理期 ===== -->
   <view wx:if="{{activeTab === 'period'}}" class="tab-content">
     <view class="section-header">
-      <text class="section-title">🌸 生理期记录 ({{periodCount}})</text>
-      <view class="section-add" bindtap="addPeriod">＋ 新增</view>
+      <view class="m2-group-title"><m-icon tone="health" healthKey="生理期" size="28" inline />生理期记录 ({{periodCount}})</view>
+      <view class="m2-card-action" bindtap="addPeriod">＋ 新增</view>
     </view>
-    <view wx:if="{{periodCount === 0}}" class="section-empty">还没有生理期记录</view>
-    <view class="period-list">
-      <view 
-        wx:for="{{periods}}" 
-        wx:key="_id" 
-        class="period-card"
+    <m-empty wx:if="{{periodCount === 0}}" title="还没有生理期记录" />
+    <view class="m2-list">
+      <view
+        class="m2-row period-row"
+        wx:for="{{periods}}"
+        wx:key="_id"
         data-id="{{item._id}}"
         bindtap="editPeriod"
       >
-        <view class="period-date">{{item._dateRange}}</view>
-        <view class="period-duration">持续 {{item._duration || '--'}} 天</view>
-        <view class="period-meta">
-          <text wx:if="{{item.flow}}" class="period-chip">{{item.flow}}</text>
-          <text wx:if="{{item.symptom}}" class="period-chip">{{item.symptom}}</text>
+        <view class="m2-row-icon"><m-icon tone="health" healthKey="生理期" size="36" /></view>
+        <view class="m2-row-body">
+          <view class="m2-row-title period-date">{{item._dateRange}}</view>
+          <view class="m2-row-sub">持续 {{item._duration || '--'}} 天</view>
+          <view class="m2-chip-row period-meta">
+            <text wx:if="{{item.flow}}" class="m2-chip period-chip">{{item.flow}}</text>
+            <text wx:if="{{item.symptom}}" class="m2-chip period-chip">{{item.symptom}}</text>
+          </view>
+          <view wx:if="{{item.notes}}" class="m2-row-sub">{{item.notes}}</view>
         </view>
-        <view wx:if="{{item.notes}}" class="period-notes">{{item.notes}}</view>
-        <view class="record-del" data-id="{{item._id}}" catchtap="deletePeriod">🗑️</view>
+        <view class="record-del" data-id="{{item._id}}" catchtap="deletePeriod"><m-icon name="trash" size="32" /></view>
+        <view class="m2-row-arrow">›</view>
       </view>
     </view>
   </view>
+
+  <m-modal show="{{showReport}}" title="健康记录报告" subtitle="{{reportName}}" position="bottom" confirm-text="复制内容" bind:confirm="copyReport" bind:close="closeReport">
+    <view class="report-preview">{{reportContent}}</view>
+    <view class="report-hint">可复制后粘贴到备忘录或发给医生；数据仅在本机生成，不会上传。</view>
+  </m-modal>
 </view>

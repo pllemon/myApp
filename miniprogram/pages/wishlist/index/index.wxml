@@ -1,59 +1,75 @@
-<view class="container">
-  <view class="m-summary wish-summary">
-    <view class="wish-summary-left">
-      <view class="wish-summary-num">{{summary.achieved}}<text class="wish-summary-total">/{{summary.total}}</text></view>
-      <view class="wish-summary-label">已实现愿望</view>
-    </view>
-    <view class="wish-summary-progress">
-      <view class="m-progress-bar">
-        <view class="m-progress-fill" style="width: {{summary.rate}}%;background:#FFFFFF"></view>
+<view class="m2-page with-tabbar" style="{{themeStyle}}">
+  <!-- 愿望概览 Hero -->
+  <view class="m2-hero">
+    <view class="m2-hero-head">
+      <view>
+        <view class="m2-hero-title">我的愿望清单</view>
+        <view class="m2-hero-sub">把想要的生活，一件件变成现实</view>
       </view>
     </view>
-    <view class="wish-summary-meta">
-      <text>进行中 {{summary.active}}</text>
-      <text>完成率 {{summary.rate}}%</text>
+    <view class="m2-hero-value">{{summary.achieved}}<text class="m2-hero-unit">/{{summary.total}}</text></view>
+    <view class="m2-hero-note">已实现愿望</view>
+    <view class="hero-progress">
+      <view class="hero-progress-fill" style="width: {{summary.rate}}%;"></view>
+    </view>
+    <view class="m2-hero-stats">
+      <view class="m2-hero-stat">
+        <view class="m2-hero-stat-value">{{summary.active}}</view>
+        <view class="m2-hero-stat-label">进行中</view>
+      </view>
+      <view class="m2-hero-stat">
+        <view class="m2-hero-stat-value">{{summary.rate}}<text class="m2-hero-unit">%</text></view>
+        <view class="m2-hero-stat-label">完成率</view>
+      </view>
     </view>
   </view>
 
-  <scroll-view class="m-filter" scroll-x enable-flex>
+  <!-- 分段筛选 -->
+  <view class="m2-segment">
     <view
       wx:for="{{filters}}"
       wx:key="key"
-      class="m-filter-item {{activeFilter === item.key ? 'm-filter-active' : ''}}"
+      class="m2-seg-item {{activeFilter === item.key ? 'active' : ''}}"
       data-key="{{item.key}}"
       bindtap="switchFilter"
     >{{item.label}}</view>
-  </scroll-view>
+  </view>
 
-  <m-empty wx:if="{{showEmpty}}" icon="🌟" title="暂无愿望" desc="点击右下角 + 许个愿吧" />
+  <!-- 空态 -->
+  <m-empty
+    wx:if="{{showEmpty}}"
+    title="暂无愿望"
+    desc="点击右下角 + 许个愿吧"
+    action="去添加"
+    bindaction="goNew"
+  />
 
-  <view wx:else class="m-card-list wish-list">
+  <!-- 愿望列表 -->
+  <view wx:else class="m2-list">
     <view
       wx:for="{{list}}"
       wx:key="_id"
-      class="wish-card {{item.achieved ? 'wish-done' : ''}}"
+      class="m2-row {{item.achieved ? 'done' : ''}}"
       data-id="{{item._id}}"
-      bindtap="goEdit"
+      bindtap="goDetail"
     >
       <view
         class="wish-check {{item.achieved ? 'wish-check-done' : ''}}"
         data-id="{{item._id}}"
         catchtap="toggleAchieved"
       >
-        <text wx:if="{{item.achieved}}" class="wish-check-icon">✓</text>
+        <m-icon wx:if="{{item.achieved}}" name="check" size="28" />
       </view>
-      <view class="wish-icon" style="{{item.images && item.images.length > 0 ? '' : 'background:' + item.categoryTile + ';color:' + item.categoryColor}}">
+      <view class="m2-row-icon wish-row-icon" style="{{item.images && item.images.length > 0 ? '' : 'background:' + item.categoryTile + ';color:' + item.categoryColor}}">
         <image wx:if="{{item.images && item.images.length > 0}}" class="wish-icon-img" src="{{item.images[0]}}" mode="aspectFill" />
-        <text wx:else>{{item.icon || item.categoryIcon}}</text>
+        <m-icon wx:else value="{{item.icon || item.categoryIcon}}" size="36" />
       </view>
-      <view class="wish-body">
-        <view class="wish-title-row">
-          <text class="wish-title">{{item.title}}</text>
-        </view>
+      <view class="m2-row-body">
+        <view class="m2-row-title">{{item.title}}</view>
         <view class="wish-meta">
           <view class="wish-tag" style="color:{{item.categoryColor}};background:{{item.categorySoft}}">{{item.categoryLabel}}</view>
           <text wx:if="{{item.budget}}" class="wish-budget">预算 ¥{{item.budget}}</text>
-          <text wx:if="{{item.dueLabel}}" class="wish-due {{item.overdue ? 'wish-overdue' : ''}}">⏰ {{item.dueLabel}}</text>
+          <text wx:if="{{item.dueLabel}}" class="wish-due {{item.overdue ? 'wish-overdue' : ''}}"><m-icon name="clock" size="24" inline /> {{item.dueLabel}}</text>
         </view>
         <view class="wish-progress">
           <view class="m-progress-bar wish-progress-track">
@@ -65,5 +81,6 @@
     </view>
   </view>
 
-  <view class="m-fab" bindtap="goNew">+</view>
+  <view class="m2-fab" bindtap="goNew"><m-icon name="add" size="44" inline /></view>
 </view>
+<m-tab-bar id="tabbar" />

@@ -1,10 +1,13 @@
 const db = require('../../../utils/db.js');
+const ui = require('../../../utils/interaction.js');
 const healthUtil = require('../../../utils/health.js');
 
+const theme = require('../../../utils/theme.js');
+
 const TYPE_MAP = {
-  walk: '🚶 步行', run: '🏃 跑步', cycle: '🚴 骑行', swim: '🏊 游泳',
-  yoga: '🧘 瑜伽', gym: '🏋️ 健身', ball: '⚽ 球类', dance: '💃 舞蹈',
-  hike: '🥾 徒步', other: '其他'
+  walk: '步行', run: '跑步', cycle: '骑行', swim: '游泳',
+  yoga: '瑜伽', gym: '健身', ball: '球类', dance: '舞蹈',
+  hike: '徒步', other: '其他'
 };
 
 Page({
@@ -28,6 +31,7 @@ Page({
   async onShow() {
     if (!this.data.profileId) return;
     await this.loadData();
+    this.drawChart();
   },
 
   async loadData() {
@@ -46,14 +50,15 @@ Page({
   },
 
   drawChart() {
+    const p = theme.getChartPalette();
     const ctx = wx.createCanvasContext('exerciseChart');
     const chartRangeDays = this.data.ranges[this.data.chartRangeIdx].days;
     const points = healthUtil.buildChartPoints(this.data.records, 'date', 'duration', chartRangeDays);
     healthUtil.drawLineChart(ctx, points, {
       width: 345,
       height: 160,
-      lineColor: '#66BB6A',
-      fillColor: 'rgba(102, 187, 106, 0.15)'
+      lineColor: p.success,
+      fillColor: theme.hexToRgba(p.success, 0.15)
     });
     ctx.draw();
   },
@@ -63,7 +68,7 @@ Page({
     this.drawChart();
   },
 
-  onReady() { this.drawChart(); },
+
 
   goEdit(e) {
     const id = e.currentTarget.dataset.id;
@@ -72,20 +77,23 @@ Page({
     });
   },
 
+  async onItemLongPress(e) {
+    const action = await ui.showItemActions();
+    if (action === 'edit') this.goEdit(e);
+    if (action === 'delete') await this.deleteItem(e);
+  },
+
   async deleteItem(e) {
     const id = e.currentTarget.dataset.id;
-    wx.showModal({
-      title: '确认删除',
-      content: '删除后不可恢复',
-      success: async (res) => {
+    ui.confirmDeleteWith({ title: "确认删除", content: "删除后不可恢复" }, async (res) => {
         if (res.confirm) {
           await db.remove(db.COLLECTIONS.HEALTH_EXERCISE, id);
-          wx.showToast({ title: '已删除', icon: 'success' });
+          ui.toast('已删除');
           await this.loadData();
           this.drawChart();
         }
       }
-    });
+    );
   },
 
   goNew() {

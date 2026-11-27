@@ -1,0 +1,23 @@
+/* 统计页独有：骨架屏 / 年份切换 / 月度柱状图（统计卡与排行走 m2-* 全局类） */
+.skeleton-wrap { padding-top: 24rpx; }
+.m2-skeleton { background: var(--surface-2); border-radius: var(--radius-md); margin-bottom: 20rpx; animation: sk-blink 1.2s ease-in-out infinite; }
+.sk-hero { height: 320rpx; border-radius: 36rpx; }
+.sk-card { height: 220rpx; background: var(--surface); }
+@keyframes sk-blink { 0%, 100% { opacity: 1; } 50% { opacity: .5; } }
+
+.year-nav { display: flex; align-items: center; justify-content: space-between; margin: 0 24rpx 20rpx; }
+.year-nav-btn { width: 72rpx; height: 72rpx; border-radius: var(--radius-md); background: var(--surface); box-shadow: var(--shadow-sm); display: flex; align-items: center; justify-content: center; }
+.cal-prev { transform: rotate(180deg); }
+.year-nav-title { font-size: var(--font-xl); font-weight: 700; color: var(--text); }
+
+.month-bar-chart { display: flex; align-items: flex-end; height: 220rpx; gap: 8rpx; padding-top: 16rpx; }
+.mbc-col { flex: 1; display: flex; flex-direction: column; align-items: center; height: 100%; }
+.mbc-bar-wrap { flex: 1; width: 100%; display: flex; align-items: flex-end; justify-content: center; }
+.mbc-bar { width: 60%; min-height: 6rpx; border-radius: var(--radius-xs) var(--radius-xs) 0 0; background: var(--primary); opacity: .85; }
+.mbc-label { font-size: var(--font-xs); color: var(--text-3); margin-top: 8rpx; }
+
+.m2-chip { display: inline-flex; align-items: center; gap: 8rpx; }
+.sc-label { color: var(--text); }
+.sc-count { font-size: var(--font-sm); color: var(--text-3); }
+.hl-month { background: var(--primary-light); color: var(--primary-dark); font-size: var(--font-md); font-weight: 600; }
+.hl-date { font-size: var(--font-xs); font-weight: 400; color: var(--text-3); margin-left: 8rpx; }

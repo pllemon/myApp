@@ -1,8 +1,9 @@
 <view class="m-empty {{compact ? 'compact' : ''}}">
-  <view wx:if="{{icon && !compact}}" class="m-empty-icon">{{icon}}</view>
+  <image wx:if="{{!compact}}" class="m-empty-fixed-icon" src="{{iconSrc}}" mode="aspectFit" />
   <view class="m-empty-title">{{title}}</view>
   <view wx:if="{{desc}}" class="m-empty-desc">{{desc}}</view>
   <view wx:if="{{action}}" class="m-empty-action" bindtap="onAction">
     <text class="m-empty-action-text">{{action}}</text>
   </view>
+  <slot name="extra" />
 </view>

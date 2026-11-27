@@ -1,8 +1,9 @@
 const db = require('./db.js');
 
-const ICONS = ['💍', '🎂', '🎓', '💼', '🏠', '✈️', '👶', '💝', '🎉', '🌹', '⭐', '🍀', '🎁', '☕', '📚'];
+const ICONS = ['celebrate', 'education', 'work', 'home', 'travel', 'user', 'love', 'flower', 'star', 'plant', 'gift', 'coffee', 'book'];
 
-const COLORS = ['#FF6B6B', '#FF9F43', '#FECA57', '#52C41A', '#4A90D9', '#9B59B6', '#FF6B9D', '#1ABC9C'];
+// 固定色板，不随主题切换；历史色值已全部保留
+const COLORS = require('./color-palette.js').COLOR_VALUES;
 
 const REPEAT = {
   annual: { label: '每年' },

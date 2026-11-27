@@ -1,4 +1,5 @@
 const db = require('../../../utils/db.js');
+const healthUtil = require('../../../utils/health.js');
 
 const QUICK_AMOUNTS = [100, 200, 250, 300, 500];
 
@@ -10,7 +11,7 @@ Page({
     date: '',
     time: '',
     amount: '',
-    note: '',
+    notes: '',
     quickAmounts: QUICK_AMOUNTS
   },
 
@@ -48,7 +49,7 @@ Page({
           date: r.date || this.formatToday(),
           time: r.time || this.formatNowTime(),
           amount: r.amount || '',
-          note: r.note || ''
+          notes: r.notes || r.note || ''
         });
       }
     } catch (err) {
@@ -60,19 +61,21 @@ Page({
   onDateChange(e) { this.setData({ date: e.detail.value }); },
   onTimeChange(e) { this.setData({ time: e.detail.value }); },
   onAmountInput(e) { this.setData({ amount: e.detail.value }); },
-  onNoteInput(e) { this.setData({ note: e.detail.value }); },
+  onNoteInput(e) { this.setData({ notes: e.detail.value }); },
   onQuickTap(e) {
     const v = e.currentTarget.dataset.val;
     this.setData({ amount: String(v) });
   },
 
   async save() {
-    const { date, time, amount, note, profileId, id, isEdit } = this.data;
+    const { date, time, amount, notes, profileId, id, isEdit } = this.data;
 
     if (!amount) {
       wx.showToast({ title: '请输入饮水量', icon: 'none' });
       return;
     }
+    const err = healthUtil.validateFields([{ field: 'amount', value: amount, required: true }]);
+    if (err) { wx.showToast({ title: err.message, icon: 'none' }); return; }
 
     wx.showLoading({ title: '保存中', mask: true });
     try {
@@ -81,7 +84,9 @@ Page({
         date,
         time,
         amount: parseFloat(amount),
-        note: note.trim()
+        notes: notes.trim(),
+        note: notes.trim(),
+        updatedAt: Date.now()
       };
 
       if (isEdit) {

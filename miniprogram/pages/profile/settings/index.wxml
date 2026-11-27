@@ -1,50 +1,98 @@
-<view class="container" style="{{themeStyle}}">
-  <view class="section">
-    <view class="section-label">外观</view>
-    <view class="card">
-      <view class="theme-grid">
-        <view
-          wx:for="{{themeList}}"
-          wx:key="id"
-          class="theme-item {{themeId === item.id ? 'theme-selected' : ''}}"
-          data-id="{{item.id}}"
-          bindtap="selectTheme"
-        >
-          <view class="theme-swatch" style="background: {{item.primary}}">
-            <text wx:if="{{themeId === item.id}}" class="theme-check">✓</text>
-          </view>
-          <view class="theme-name">{{item.name}}</view>
+<view class="m2-page" style="{{themeStyle}}">
+  <!-- 外观 · 主题风格 -->
+  <view class="m2-card">
+    <view class="m2-card-head">
+      <view class="m2-card-title">外观 · 主题风格</view>
+    </view>
+    <view class="theme-grid">
+      <view
+        wx:for="{{themeList}}"
+        wx:key="id"
+        class="theme-item {{themeId === item.id ? 'theme-selected' : ''}}"
+        data-id="{{item.id}}"
+        bindtap="selectTheme"
+      >
+        <view class="theme-preview">
+          <view class="theme-dot" style="background: {{item.primary}}"></view>
+          <view class="theme-dot" style="background: {{item.light}}"></view>
+          <view class="theme-dot" style="background: {{item.accent}}"></view>
         </view>
+        <view class="theme-meta">
+          <view class="theme-name"><m-icon name="palette" size="28" inline /> {{item.name}}</view>
+          <view wx:if="{{themeId === item.id}}" class="theme-current">当前使用</view>
+        </view>
+        <m-icon wx:if="{{themeId === item.id}}" name="check" size="36" />
       </view>
     </view>
   </view>
 
-  <view class="section">
-    <view class="section-label">数据与存储</view>
-    <view class="card">
-      <view class="row-label">存储模式（当前：{{storageMode === 'cloud' ? '云端' : '本地'}}）</view>
-      <view class="mode-row">
-        <view class="mode-chip {{storageMode === 'local' ? 'mode-on' : ''}}" data-mode="local" bindtap="switchMode">📦 本地</view>
-        <view class="mode-chip {{storageMode === 'cloud' ? 'mode-on' : ''}}" data-mode="cloud" bindtap="switchMode">☁️ 云端</view>
+  <!-- 数据与存储 -->
+  <view class="m2-card">
+    <view class="m2-card-head">
+      <view class="m2-card-title">数据与存储</view>
+    </view>
+    <view class="m2-row">
+      <view class="m2-row-icon setting-icon"><m-icon name="storage" size="36" /></view>
+      <view class="m2-row-body">
+        <view class="m2-row-title">存储模式</view>
+        <view class="m2-row-sub">当前：{{storageMode === 'cloud' ? '云端' : '本地'}}</view>
       </view>
     </view>
-    <view class="card action-card" bindtap="exportData">
-      <view class="action-icon">📤</view>
-      <view class="action-text">导出全部数据（复制到剪贴板）</view>
-      <view class="action-arrow">›</view>
+    <view class="m2-chip-row mode-row">
+      <view class="m2-chip mode-chip {{storageMode === 'local' ? 'mode-on' : ''}}" data-mode="local" bindtap="switchMode"><m-icon name="storage" size="28" tone="system" inline />本地</view>
+      <view class="m2-chip mode-chip {{storageMode === 'cloud' ? 'mode-on' : ''}}" data-mode="cloud" bindtap="switchMode"><m-icon name="cloud" size="28" tone="category" inline />云端</view>
     </view>
-    <view class="card action-card danger" bindtap="clearAllData">
-      <view class="action-icon">🗑️</view>
-      <view class="action-text">清除全部本地数据</view>
-      <view class="action-arrow">›</view>
+
+    <view class="m2-row setting-action" bindtap="exportBackupFile">
+      <view class="m2-row-icon setting-icon"><m-icon name="backup" size="36" /></view>
+      <view class="m2-row-body"><view class="m2-row-title">备份到文件（推荐）</view></view>
+      <view class="m2-row-arrow"><m-icon name="chevronRight" size="28" inline /></view>
+    </view>
+    <view class="m2-row setting-action" bindtap="restoreBackup">
+      <view class="m2-row-icon setting-icon"><m-icon name="restore" size="36" /></view>
+      <view class="m2-row-body"><view class="m2-row-title">从备份文件恢复</view></view>
+      <view class="m2-row-arrow"><m-icon name="chevronRight" size="28" inline /></view>
+    </view>
+    <view class="m2-row setting-action" bindtap="exportData">
+      <view class="m2-row-icon setting-icon"><m-icon name="export" size="36" /></view>
+      <view class="m2-row-body"><view class="m2-row-title">导出到剪贴板（兼容旧方式）</view></view>
+      <view class="m2-row-arrow"><m-icon name="chevronRight" size="28" inline /></view>
+    </view>
+    <view class="m2-row setting-action" bindtap="clearCache">
+      <view class="m2-row-icon setting-icon"><m-icon name="sync" size="36" /></view>
+      <view class="m2-row-body"><view class="m2-row-title">清理统计缓存</view><view class="m2-row-sub">仅重建统计，不删除记录</view></view>
+      <view class="m2-row-arrow"><m-icon name="chevronRight" size="28" inline /></view>
+    </view>
+    <view class="m2-row setting-action setting-danger" bindtap="clearAllData">
+      <view class="m2-row-icon setting-icon"><m-icon name="clear" size="36" /></view>
+      <view class="m2-row-body"><view class="m2-row-title">清除全部本地数据</view></view>
+      <view class="m2-row-arrow"><m-icon name="chevronRight" size="28" inline /></view>
     </view>
   </view>
 
-  <view class="section">
-    <view class="section-label">关于</view>
-    <view class="card about-card">
-      <view class="about-row"><text>版本</text><text>{{version}}</text></view>
-      <view class="about-row"><text>数据策略</text><text>本地优先</text></view>
+  <!-- 关于 -->
+  <view class="m2-card">
+    <view class="m2-card-head">
+      <view class="m2-card-title">关于</view>
+    </view>
+    <view class="m2-row">
+      <view class="m2-row-body"><view class="m2-row-title">版本</view></view>
+      <view class="m2-row-value">{{version}}</view>
+    </view>
+    <view class="m2-row">
+      <view class="m2-row-body"><view class="m2-row-title">数据策略</view></view>
+      <view class="m2-row-value">本地优先</view>
+    </view>
+    <view class="m2-row setting-action" bindtap="goPrivacy">
+      <view class="m2-row-icon setting-icon"><m-icon name="doc" size="36" /></view>
+      <view class="m2-row-body"><view class="m2-row-title">隐私政策与用户协议</view></view>
+      <view class="m2-row-arrow"><m-icon name="chevronRight" size="28" inline /></view>
+    </view>
+    <view class="m2-row setting-action" bindtap="onFeedback">
+      <view class="m2-row-icon setting-icon"><m-icon name="feedback" size="36" /></view>
+      <view class="m2-row-body"><view class="m2-row-title">意见反馈</view></view>
+      <view class="m2-row-value">复制信息</view>
+      <view class="m2-row-arrow"><m-icon name="chevronRight" size="28" inline /></view>
     </view>
   </view>
 </view>

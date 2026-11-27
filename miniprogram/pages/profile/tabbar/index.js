@@ -1,204 +1,145 @@
 const tabConfig = require('../../../utils/tabbar-config.js');
+const theme = require('../../../utils/theme.js');
+
+function buildModules(ids) {
+  const selected = new Set(ids);
+  return tabConfig.getCandidates().map(m => ({
+    id: m.id,
+    text: m.text,
+    fixed: m.fixed,
+    selected: selected.has(m.id)
+  }));
+}
+
+function buildPreview(ids) {
+  const all = tabConfig.getCandidates();
+  return ids.map(id => {
+    const m = all.find(x => x.id === id);
+    return { id: id, text: m ? m.text : id, fixed: m ? m.fixed : false };
+  });
+}
+
+function buildMoreItems(ids) {
+  const selected = new Set(ids);
+  return tabConfig.getCandidates()
+    .filter(m => !m.fixed && !selected.has(m.id))
+    .map(m => ({ id: m.id, text: m.text }));
+}
 
 Page({
   data: {
-    items: [],
-    shortcutItems: [],
+    themeStyle: '',
+    modules: [],
+    previewItems: [],
     selectedIds: [],
-    shortcutSelectedIds: [],
-    maxCount: 5,
-    minCount: 3,
-    shortcutMax: 8,
-    draggingIdx: -1,
-    _draggingIdx: -1,
-    _startY: 0,
-    _startOffset: 0,
-    _accDy: 0,
-    _itemH: 0,
-    _totalH: 0
+    moreItems: [],
+    draggingId: ''
   },
 
   onLoad() {
+    theme.applyToPage(this);
     this.loadData();
+  },
+
+  onShow() {
+    theme.applyToPage(this);
   },
 
   loadData() {
-    const all = tabConfig.getCandidates();
-    const savedIds = tabConfig.getSelectedIds();
-    const validIds = savedIds.filter(id => all.find(c => c.id === id));
-    if (validIds.length === 0) {
-      validIds.push(...tabConfig.getPreset('default').defaultIds);
-    }
+    this.applyIds(tabConfig.getSelectedIds());
+  },
 
-    const fixedFirst = all.find(c => c.id === 'home');
-    const fixedLast = all.find(c => c.id === 'profile');
-    const middle = all.filter(c => !c.fixed);
-
-    const selectedSet = new Set(validIds);
-
-    const middleItems = validIds
-      .filter(id => id !== 'home' && id !== 'profile')
-      .map(id => {
-        const c = middle.find(m => m.id === id);
-        return { ...c, selected: true, fixed: false, _internalId: id };
-      });
-    const unselectedMiddle = middle
-      .filter(m => !selectedSet.has(m.id))
-      .map(m => ({ ...m, selected: false, fixed: false, _internalId: m.id }));
-
-    const items = [
-      { ...fixedFirst, selected: true, fixed: 'first', _internalId: 'home' },
-      ...middleItems,
-      ...unselectedMiddle,
-      { ...fixedLast, selected: true, fixed: 'last', _internalId: 'profile' }
-    ];
-
-    this.setData({ items, selectedIds: validIds });
-
-    const shortcutAll = tabConfig.getShortcutConfig();
-    const savedShortcut = tabConfig.loadShortcutIds();
-    const shortcutItems = shortcutAll.map(c => ({
-      ...c,
-      selected: savedShortcut.includes(c.id)
-    }));
+  applyIds(ids) {
     this.setData({
-      shortcutItems,
-      shortcutSelectedIds: savedShortcut.filter(id => shortcutAll.find(c => c.id === id))
+      selectedIds: ids,
+      modules: buildModules(ids),
+      previewItems: buildPreview(ids),
+      moreItems: buildMoreItems(ids)
     });
   },
 
-  toggleSelect(e) {
-    const idx = e.currentTarget.dataset.idx;
-    const item = this.data.items[idx];
-    if (item.fixed) return;
+  toggleModule(e) {
+    const id = e.currentTarget.dataset.id;
+    const m = tabConfig.getCandidates().find(x => x.id === id);
+    if (!m) return;
+    if (m.fixed) {
+      wx.showToast({ title: '首页 / 我的固定在底栏', icon: 'none' });
+      return;
+    }
 
-    let selectedIds = this.data.selectedIds.slice();
-    const isSelected = selectedIds.includes(item._internalId);
-
-    if (isSelected) {
-      const middleCount = selectedIds.filter(id => id !== 'home' && id !== 'profile').length;
+    const ids = this.data.selectedIds.slice();
+    const idx = ids.indexOf(id);
+    if (idx >= 0) {
+      const middleCount = ids.filter(x => x !== 'home' && x !== 'profile').length;
       if (middleCount <= tabConfig.MIDDLE_MIN) {
-        wx.showToast({ title: '至少保留1个中间项', icon: 'none' });
+        wx.showToast({ title: '至少保留 1 个中间项', icon: 'none' });
         return;
       }
-      selectedIds = selectedIds.filter(id => id !== item._internalId);
+      ids.splice(idx, 1);
     } else {
-      if (selectedIds.length >= this.data.maxCount) {
-        wx.showToast({ title: '最多选5个', icon: 'none' });
+      if (ids.length >= tabConfig.MAX_COUNT) {
+        wx.showToast({ title: '最多 5 个，先取消一个', icon: 'none' });
         return;
       }
-      const lastIdx = selectedIds.indexOf('profile');
-      selectedIds.splice(lastIdx, 0, item._internalId);
+      ids.splice(ids.indexOf('profile'), 0, id);
     }
+    this.applyIds(ids);
+    tabConfig.setSelectedIds(ids);
+  },
 
-    const items = this.data.items.map((it, i) => {
-      if (i === idx) return { ...it, selected: !isSelected };
-      return it;
+  // 方案 B：拖拽只发生在 5 格预览条内，不与下方点选冲突
+  onPreviewTouchStart(e) {
+    const id = e.currentTarget.dataset.id;
+    const m = tabConfig.getCandidates().find(x => x.id === id);
+    if (!m || m.fixed) return;
+
+    this._dragId = id;
+    this.setData({ draggingId: id });
+    try { wx.vibrateShort({ type: 'light' }); } catch (err) {}
+
+    wx.createSelectorQuery()
+      .selectAll('.preview-item')
+      .boundingClientRect(rects => { this._rects = rects || []; })
+      .exec();
+  },
+
+  onPreviewTouchMove(e) {
+    if (!this._dragId || !this._rects || this._rects.length === 0) return;
+    const x = e.touches[0].clientX;
+    let target = -1;
+    let best = Infinity;
+
+    this._rects.forEach((r, i) => {
+      if (x >= r.left && x <= r.right) target = i;
+      const d = Math.abs(x - (r.left + r.right) / 2);
+      if (d < best) { best = d; if (target < 0) target = i; }
     });
+    if (target < 0) return;
 
-    this.setData({ items, selectedIds });
+    const ids = this.data.selectedIds.slice();
+    const from = ids.indexOf(this._dragId);
+    if (from === target || from < 1 || from >= ids.length - 1) return;
+    if (target < 1 || target >= ids.length - 1) return;
+
+    ids.splice(from, 1);
+    ids.splice(target, 0, this._dragId);
+    this.applyIds(ids);
   },
 
-  toggleShortcut(e) {
-    const idx = e.currentTarget.dataset.idx;
-    const item = this.data.shortcutItems[idx];
-    const tabSelected = this.data.selectedIds;
-    const allCandidates = tabConfig.getCandidates();
-    const tabUnselected = allCandidates.filter(c => !tabSelected.includes(c.id));
-
-    if (!item.selected) {
-      const totalWillBe = (this.data.shortcutSelectedIds.length) + tabUnselected.length;
-      if (totalWillBe >= this.data.shortcutMax) {
-        wx.showToast({ title: '快捷入口已达上限', icon: 'none' });
-        return;
-      }
-    }
-
-    const items = this.data.shortcutItems.map((it, i) => {
-      if (i === idx) return { ...it, selected: !it.selected };
-      return it;
-    });
-    const shortcutSelectedIds = items.filter(i => i.selected).map(i => i.id);
-    this.setData({ shortcutItems: items, shortcutSelectedIds });
-  },
-
-  onLongPress(e) {
-    const idx = e.currentTarget.dataset.idx;
-    const item = this.data.items[idx];
-    if (item.fixed) return;
-    this._draggingIdx = idx;
-    this.setData({ draggingIdx: idx });
-    wx.vibrateShort({ type: 'light' });
-
-    const query = wx.createSelectorQuery();
-    query.select('.tabbar-item').boundingClientRect(rects => {
-      if (rects && rects[idx]) {
-        this._itemH = rects[idx].height;
-        this._totalH = rects.reduce((s, r) => s + r.height, 0);
-      }
-    }).exec();
-
-    const touch = e.touches[0];
-    this._startY = touch.pageY;
-    this._accDy = 0;
-  },
-
-  onTouchMove(e) {
-    if (this._draggingIdx < 0) return;
-    const touch = e.touches[0];
-    const dy = touch.pageY - this._startY;
-
-    if (Math.abs(dy) > this._itemH / 2 && this._itemH > 0) {
-      const direction = dy > 0 ? 1 : -1;
-      this._startY = touch.pageY;
-      this.swap(this._draggingIdx, this._draggingIdx + direction);
-    }
-  },
-
-  swap(fromIdx, toIdx) {
-    if (toIdx < 1 || toIdx >= this.data.items.length - 1) return;
-    if (fromIdx < 1 || fromIdx >= this.data.items.length - 1) return;
-
-    const items = this.data.items.slice();
-    const tmp = items[fromIdx];
-    items[fromIdx] = items[toIdx];
-    items[toIdx] = tmp;
-
-    const newSelectedIds = [];
-    const sortedIds = items.map(i => i._internalId);
-    const hasHome = sortedIds.includes('home');
-    const hasProfile = sortedIds.includes('profile');
-    if (hasHome) newSelectedIds.push('home');
-    sortedIds.forEach(id => {
-      if (id !== 'home' && id !== 'profile' && this.data.selectedIds.includes(id)) {
-        newSelectedIds.push(id);
-      }
-    });
-    if (hasProfile) newSelectedIds.push('profile');
-
-    this._draggingIdx = toIdx;
-    this.setData({ items, selectedIds: newSelectedIds, draggingIdx: toIdx });
-  },
-
-  onTouchEnd() {
-    this._draggingIdx = -1;
-    this.setData({ draggingIdx: -1 });
+  onPreviewTouchEnd() {
+    this._dragId = null;
+    this._rects = null;
+    tabConfig.setSelectedIds(this.data.selectedIds);
+    this.setData({ draggingId: '' });
   },
 
   reset() {
-    const preset = tabConfig.getPreset('default');
-    tabConfig.setSelectedIds(preset.defaultIds.slice());
-    const defaultShortcut = tabConfig.getShortcutConfig().map(c => c.id);
-    tabConfig.saveShortcutIds(defaultShortcut);
+    const ids = tabConfig.setSelectedIds(tabConfig.getPreset('default').defaultIds.slice());
+    this.applyIds(ids);
     wx.showToast({ title: '已重置', icon: 'success' });
-    this.loadData();
   },
 
-  save() {
-    tabConfig.setSelectedIds(this.data.selectedIds);
-    tabConfig.saveShortcutIds(this.data.shortcutSelectedIds);
-
-    wx.showToast({ title: '保存成功', icon: 'success' });
-    setTimeout(() => wx.navigateBack(), 600);
+  finish() {
+    wx.navigateBack();
   }
 });

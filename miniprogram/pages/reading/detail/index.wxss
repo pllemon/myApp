@@ -1,0 +1,5 @@
+/* 阅读详情独有：星级对齐（信息卡、键值对、图片、操作栏走 m2-detail-* 全局类） */
+.detail-stars { display: flex; justify-content: flex-end; gap: 4rpx; }
+.star-wrap { opacity: .3; }
+.star-wrap.star-on { opacity: 1; }
+.m2-badge-row { display: flex; flex-wrap: wrap; gap: var(--space-xs); margin-top: var(--space-sm); }

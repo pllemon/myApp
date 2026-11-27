@@ -1,53 +1,51 @@
-<view class="container">
-  <view class="filter-bar">
-    <view 
-      class="filter-chip {{filter === 'all' ? 'active' : ''}}" 
-      data-filter="all" 
-      bindtap="changeFilter"
-    >全部</view>
-    <view 
-      class="filter-chip {{filter === 'expense' ? 'active' : ''}}" 
-      data-filter="expense" 
-      bindtap="changeFilter"
-    >支出</view>
-    <view 
-      class="filter-chip {{filter === 'income' ? 'active' : ''}}" 
-      data-filter="income" 
-      bindtap="changeFilter"
-    >收入</view>
-    <view class="filter-count">共 {{totalAll}} 条</view>
+<view class="m2-page" style="{{themeStyle}}">
+  <!-- 收支筛选 -->
+  <view class="m2-segment">
+    <view class="m2-seg-item {{filter === 'all' ? 'active' : ''}}" data-filter="all" bindtap="changeFilter">全部</view>
+    <view class="m2-seg-item {{filter === 'expense' ? 'active' : ''}}" data-filter="expense" bindtap="changeFilter">支出</view>
+    <view class="m2-seg-item {{filter === 'income' ? 'active' : ''}}" data-filter="income" bindtap="changeFilter">收入</view>
+  </view>
+  <view class="m2-wrap count-bar">共 {{totalAll}} 条</view>
+
+  <!-- 加载骨架 -->
+  <view wx:if="{{loading}}" class="m2-wrap">
+    <view class="m-skeleton skeleton-row"></view>
+    <view class="m-skeleton skeleton-row"></view>
+    <view class="m-skeleton skeleton-row"></view>
+    <view class="m-skeleton skeleton-row"></view>
   </view>
 
-  <m-empty wx:if="{{groups.length === 0 && !loading}}" icon="📭" title="暂无记录" desc="还没有任何记账" />
+  <!-- 空态 -->
+  <m-empty wx:if="{{groups.length === 0 && !loading}}" title="暂无记录，还没有任何记账" />
 
-  <view wx:for="{{groups}}" wx:key="date" class="day-group">
-    <view class="day-header">
-      <view class="day-label">{{item.label}}</view>
-      <view class="day-summary">
-        <text wx:if="{{item.dayExpense > 0}}" class="neg">-¥{{item.dayExpense.toFixed(2)}}</text>
-        <text wx:if="{{item.dayExpense > 0 && item.dayIncome > 0}}" class="sep"> / </text>
-        <text wx:if="{{item.dayIncome > 0}}" class="pos">+¥{{item.dayIncome.toFixed(2)}}</text>
+  <!-- 按日分组 -->
+  <m-day-group
+    class="day-group-wrap"
+    wx:for="{{groups}}"
+    wx:key="date"
+    label="{{item.label}}"
+    expense="{{item.dayExpense}}"
+    income="{{item.dayIncome}}"
+    sticky="{{true}}"
+  >
+    <view class="record-list">
+      <view
+        wx:for="{{item.items}}"
+        wx:for-item="record"
+        wx:key="_id"
+        class="m2-row"
+        data-id="{{record._id}}"
+        bindtap="goToEdit"
+      >
+        <view class="m2-row-icon"><m-icon value="{{record.categoryIcon || 'other'}}" flatKey="{{record.category}}" size="36" tone="flat" /></view>
+        <view class="m2-row-body">
+          <view class="m2-row-title">{{record.category || '未分类'}}</view>
+          <view class="m2-row-sub" wx:if="{{record.note}}">{{record.note}}</view>
+        </view>
+        <view class="m2-row-value {{record.type === 'expense' ? 'm-text-danger' : 'm-text-success'}}">{{record.type === 'expense' ? '-' : '+'}}¥{{record.amount}}</view>
       </view>
     </view>
-
-    <view 
-      wx:for="{{item.items}}" 
-      wx:for-item="record" 
-      wx:key="_id" 
-      class="record-item"
-      data-id="{{record._id}}"
-      bindtap="goToEdit"
-    >
-      <view class="record-icon">{{record.categoryIcon || '📌'}}</view>
-      <view class="record-info">
-        <view class="record-category">{{record.category || '未分类'}}</view>
-        <view class="record-note" wx:if="{{record.note}}">{{record.note}}</view>
-      </view>
-      <view class="record-amount {{record.type === 'expense' ? 'neg' : 'pos'}}">
-        {{record.type === 'expense' ? '-' : '+'}}¥{{record.amount}}
-      </view>
-    </view>
-  </view>
+  </m-day-group>
 
   <view class="loading-tip" wx:if="{{loading}}">加载中...</view>
   <view class="loading-tip" wx:if="{{!hasMore && groups.length > 0}}">已加载全部 {{totalAll}} 条</view>

@@ -8,11 +8,11 @@
   </view>
   <view wx:if="{{show}}" class="option-row">
     <view 
-      wx:for="{{options}}" 
-      wx:key="*this"
+      wx:for="{{_items}}" 
+      wx:key="key"
       class="option-item {{_activeFlags[index] ? 'active' : ''}}"
       data-index="{{index}}"
       bindtap="select"
-    >{{item.label || item}}</view>
+    >{{item.label}}</view>
   </view>
 </view>

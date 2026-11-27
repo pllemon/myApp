@@ -1,0 +1,15 @@
+/* 待办详情独有：状态徽章 / 子任务进度 / 图片（信息与操作走 m2-detail-* 全局类） */
+.badge-row { display: flex; flex-wrap: wrap; margin-top: 8rpx; }
+.m2-detail-title.is-done { color: var(--text-3); text-decoration: line-through; }
+.text-danger { color: var(--danger); font-weight: 600; }
+.detail-tags { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8rpx; }
+
+.detail-progress { height: 10rpx; border-radius: var(--radius-full); background: var(--surface-3); overflow: hidden; margin-bottom: 12rpx; }
+.detail-progress-fill { height: 100%; border-radius: var(--radius-full); transition: width .4s var(--ease); }
+.detail-subtasks { padding: 0 4rpx; }
+.detail-subtask { min-height: 80rpx; }
+.todo-check { width: 40rpx; height: 40rpx; border-radius: 50%; border: 3rpx solid var(--primary); display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-sizing: border-box; }
+.todo-check-done { background: var(--success); border-color: var(--success); }
+
+.detail-images { display: flex; flex-wrap: wrap; gap: 12rpx; }
+.detail-image { width: calc((100% - 24rpx) / 3); height: 200rpx; border-radius: var(--radius-md); background: var(--surface-2); }

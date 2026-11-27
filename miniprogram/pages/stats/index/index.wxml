@@ -1,81 +1,134 @@
-<view class="container tabbar-page">
-  <view class="page-title">数据洞察 · {{monthLabel}}</view>
-
-  <view class="overview-grid">
-    <view class="overview-card">
-      <view class="ov-label">本月支出</view>
-      <view class="ov-value expense">¥{{overview.monthExpense}}</view>
-    </view>
-    <view class="overview-card">
-      <view class="ov-label">本月收入</view>
-      <view class="ov-value income">¥{{overview.monthIncome}}</view>
-    </view>
-    <view class="overview-card">
-      <view class="ov-label">本月结余</view>
-      <view class="ov-value {{overview.monthBalance >= 0 ? 'income' : 'expense'}}">¥{{overview.monthBalance}}</view>
-    </view>
-    <view class="overview-card">
-      <view class="ov-label">本月日记</view>
-      <view class="ov-value">{{overview.diaryMonth}}<text class="ov-unit">篇</text></view>
-    </view>
+<view class="m2-page with-tabbar" style="{{themeStyle}}">
+  <!-- 首次加载骨架屏（不使用转圈） -->
+  <view wx:if="{{loading}}" class="m2-wrap">
+    <view class="m2-skeleton skeleton-hero"></view>
+    <view class="m2-skeleton skeleton-grid"></view>
+    <view class="m2-skeleton skeleton-card"></view>
+    <view class="m2-skeleton skeleton-card"></view>
   </view>
 
-  <view class="card">
-    <view class="card-title">近 7 天支出</view>
-    <view class="chart">
-      <view class="bar-col" wx:for="{{bars}}" wx:key="label">
-        <view class="bar-value">{{item.value}}</view>
-        <view class="bar-track">
-          <view class="bar-fill" style="height: {{item.pct}}%"></view>
-        </view>
-        <view class="bar-label">{{item.label}}</view>
-      </view>
-    </view>
-  </view>
-
-  <view class="card">
-    <view class="card-title">打卡统计</view>
-    <view class="stat-grid">
-      <view class="stat-cell">
-        <view class="stat-num">{{checkinStats.habitCount}}</view>
-        <view class="stat-cap">习惯数</view>
-      </view>
-      <view class="stat-cell">
-        <view class="stat-num">{{checkinStats.todayDone}}</view>
-        <view class="stat-cap">今日打卡</view>
-      </view>
-      <view class="stat-cell">
-        <view class="stat-num">{{checkinStats.totalCheckins}}</view>
-        <view class="stat-cap">累计打卡</view>
-      </view>
-      <view class="stat-cell">
-        <view class="stat-num accent">{{checkinStats.currentStreak}}</view>
-        <view class="stat-cap">当前连续</view>
-      </view>
-      <view class="stat-cell">
-        <view class="stat-num">{{checkinStats.longestStreak}}</view>
-        <view class="stat-cap">最长连续</view>
-      </view>
-    </view>
-  </view>
-
-  <view class="card">
-    <view class="card-title">待办完成率</view>
-    <view class="todo-summary">
-      <view class="todo-ring" style="background: conic-gradient(var(--primary) {{overview.todoRate}}%, var(--divider) 0deg)">
-        <view class="todo-ring-inner">
-          <view class="todo-rate">{{overview.todoRate}}%</view>
-          <view class="todo-rate-sub">{{overview.todoDone}}/{{overview.todoTotal}}</view>
+  <block wx:else>
+    <!-- 数据洞察 Hero -->
+    <view class="m2-hero">
+      <view class="m2-hero-head">
+        <view>
+          <view class="m2-hero-title">数据洞察</view>
+          <view class="m2-hero-sub">{{monthLabel}} · 收支与习惯一览</view>
         </view>
       </view>
-      <view class="todo-recent">
-        <view wx:if="{{recentTodos.length === 0}}" class="recent-empty">暂无待办</view>
-        <view wx:for="{{recentTodos}}" wx:key="title" class="recent-item {{item.completed ? 'recent-done' : ''}}">
-          <text class="recent-dot">{{item.completed ? '✓' : '○'}}</text>
-          <text class="recent-text">{{item.title}}</text>
+      <view class="m2-hero-value">¥{{overview.monthExpense}}</view>
+      <view class="m2-hero-note">本月支出</view>
+      <view class="m2-hero-stats">
+        <view class="m2-hero-stat">
+          <view class="m2-hero-stat-value">¥{{overview.monthIncome}}</view>
+          <view class="m2-hero-stat-label">本月收入</view>
+        </view>
+        <view class="m2-hero-stat">
+          <view class="m2-hero-stat-value">{{overview.diaryMonth}}<text class="m2-hero-unit">篇</text></view>
+          <view class="m2-hero-stat-label">本月日记</view>
         </view>
       </view>
     </view>
-  </view>
+
+    <!-- 本月概览（保留全部跳转） -->
+    <view class="m2-wrap">
+      <view class="m2-stat-grid overview-grid">
+        <view class="m2-stat-cell overview-cell" bindtap="goOverview" data-path="/pages/accounting/index/index">
+          <view class="m2-stat-num m-text-danger">¥{{overview.monthExpense}}</view>
+          <view class="m2-stat-label">本月支出</view>
+        </view>
+        <view class="m2-stat-cell overview-cell" bindtap="goOverview" data-path="/pages/accounting/index/index">
+          <view class="m2-stat-num m-text-success">¥{{overview.monthIncome}}</view>
+          <view class="m2-stat-label">本月收入</view>
+        </view>
+        <view class="m2-stat-cell overview-cell" bindtap="goOverview" data-path="/pages/accounting/index/index">
+          <view class="m2-stat-num {{overview.monthBalance >= 0 ? 'm-text-success' : 'm-text-danger'}}">¥{{overview.monthBalance}}</view>
+          <view class="m2-stat-label">本月结余</view>
+        </view>
+        <view class="m2-stat-cell overview-cell" bindtap="goOverview" data-path="/pages/diary/index/index">
+          <view class="m2-stat-num">{{overview.diaryMonth}}<text class="stat-unit">篇</text></view>
+          <view class="m2-stat-label">本月日记</view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 近 7 天支出柱状图 -->
+    <view class="m2-card">
+      <view class="m2-card-head"><view class="m2-card-title">近 7 天支出</view></view>
+      <view class="chart">
+        <view class="bar-col" wx:for="{{bars}}" wx:key="label">
+          <view class="bar-value">{{item.value}}</view>
+          <view class="bar-track">
+            <view class="bar-fill" style="height: {{item.pct}}%"></view>
+          </view>
+          <view class="bar-label">{{item.label}}</view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 打卡统计 -->
+    <view class="m2-card">
+      <view class="m2-card-head"><view class="m2-card-title">打卡统计</view></view>
+      <view class="checkin-grid">
+        <view class="checkin-cell">
+          <view class="m2-stat-num">{{checkinStats.habitCount}}</view>
+          <view class="m2-stat-label">习惯数</view>
+        </view>
+        <view class="checkin-cell">
+          <view class="m2-stat-num">{{checkinStats.todayDone}}</view>
+          <view class="m2-stat-label">今日打卡</view>
+        </view>
+        <view class="checkin-cell">
+          <view class="m2-stat-num">{{checkinStats.totalCheckins}}</view>
+          <view class="m2-stat-label">累计打卡</view>
+        </view>
+        <view class="checkin-cell">
+          <view class="m2-stat-num accent">{{checkinStats.currentStreak}}</view>
+          <view class="m2-stat-label">当前连续</view>
+        </view>
+        <view class="checkin-cell">
+          <view class="m2-stat-num">{{checkinStats.longestStreak}}</view>
+          <view class="m2-stat-label">最长连续</view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 待办完成率 -->
+    <view class="m2-card">
+      <view class="m2-card-head"><view class="m2-card-title">待办完成率</view></view>
+      <view class="todo-summary">
+        <view class="todo-ring" style="background: conic-gradient(var(--primary) {{overview.todoRate}}%, var(--divider) 0deg)">
+          <view class="todo-ring-inner">
+            <view class="todo-rate">{{overview.todoRate}}%</view>
+            <view class="todo-rate-sub">{{overview.todoDone}}/{{overview.todoTotal}}</view>
+          </view>
+        </view>
+        <view class="todo-recent">
+          <view wx:if="{{recentTodos.length === 0}}" class="todo-rate-sub">暂无待办</view>
+          <view wx:for="{{recentTodos}}" wx:key="title" class="recent-item {{item.completed ? 'recent-done' : ''}}">
+            <view class="recent-dot"><m-icon wx:if="{{item.completed}}" name="check" size="28" /></view>
+            <text class="recent-text">{{item.title}}</text>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 生活洞察 -->
+    <view class="m2-card insight-card">
+      <view class="m2-card-head">
+        <view class="m2-card-title">生活洞察</view>
+        <view class="m2-badge m2-badge-success">规则观察</view>
+      </view>
+      <view wx:for="{{insights}}" wx:key="title" class="insight-item {{item.type}}">
+        <view class="insight-icon"><m-icon value="{{item.icon}}" size="36" /></view>
+        <view class="insight-body">
+          <view class="insight-title">{{item.title}}</view>
+          <view class="insight-detail">{{item.detail}}</view>
+          <view class="insight-sample">{{item.sample}}</view>
+        </view>
+      </view>
+      <view class="insight-disclaimer">基于近 30 天记录的规则观察，仅供参考，不构成建议</view>
+    </view>
+  </block>
 </view>
 <m-tab-bar id="tabbar" />

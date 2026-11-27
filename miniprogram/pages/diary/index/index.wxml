@@ -1,64 +1,129 @@
-<view class="container tabbar-page">
-  <view class="stats-header">
-    <view class="stat-item">
-      <view class="stat-num">{{totalCount}}</view>
-      <view class="stat-label">篇日记</view>
-    </view>
-    <view class="stat-divider"></view>
-    <view class="stat-item">
-      <view class="stat-num">{{wordCount}}</view>
-      <view class="stat-label">字</view>
-    </view>
+<view class="m2-page with-tabbar" style="{{themeStyle}}">
+  <view wx:if="{{loading}}" class="m2-wrap skeleton-wrap">
+    <view class="m2-skeleton sk-hero"></view>
+    <view class="m2-skeleton sk-line"></view>
+    <view class="m2-skeleton sk-line short"></view>
+    <view class="m2-skeleton sk-card"></view>
+    <view class="m2-skeleton sk-card"></view>
   </view>
 
-  <view class="toolbar">
-    <view class="toolbar-title">我的日记</view>
-    <view class="toolbar-search" bindtap="toggleSearch">
-      {{showSearch ? '收起' : '🔍 搜索'}}
-    </view>
-  </view>
-
-  <view wx:if="{{showSearch}}" class="search-box">
-    <input 
-      class="search-input" 
-      placeholder="搜索标题、内容、标签..." 
-      value="{{keyword}}"
-      bindinput="onSearchInput"
-    />
-  </view>
-
-  <m-empty wx:if="{{groups.length === 0}}" icon="📔" title="还没有日记" desc="记录下今天的心情和想法吧" />
-
-  <block wx:for="{{groups}}" wx:key="date" wx:for-item="group">
-    <view class="date-group">
-      <view class="date-label">{{group.date}} · {{group.items[0]._dateLabel}}</view>
-      <view class="diary-list">
-        <view 
-          wx:for="{{group.items}}" 
-          wx:key="_id" 
-          class="diary-card {{item.images && item.images.length > 0 ? 'has-thumb' : ''}}"
-          data-id="{{item._id}}"
-          bindtap="goDetail"
-          bindlongpress="goEdit"
-        >
-          <view class="diary-main">
-            <view class="diary-mood-row">
-              <text class="diary-mood">{{item.mood || '📝'}}</text>
-              <text wx:if="{{item.weather}}" class="diary-weather">{{item.weather}}</text>
-            </view>
-            <view wx:if="{{item.title}}" class="diary-title">{{item.title}}</view>
-            <view class="diary-content">{{item._summary}}</view>
-            <view class="diary-meta">
-              <text class="diary-date">{{item.date}}</text>
-              <text wx:if="{{item._tagsStr}}" class="diary-tags">{{item._tagsStr}}</text>
-            </view>
-          </view>
-          <image wx:if="{{item.images && item.images.length > 0}}" class="diary-thumb" src="{{item.images[0]}}" mode="aspectFill" />
+  <block wx:else>
+    <view class="m2-hero">
+      <view class="m2-hero-head">
+        <view>
+          <view class="m2-hero-title">我的日记</view>
+          <view class="m2-hero-sub">用文字收藏每一天的心情与想法</view>
+        </view>
+        <view class="hero-actions">
+          <view class="m2-hero-action" bindtap="goYearbook"><m-icon name="bookline" size="26" inline /> 年度</view>
+          <view class="m2-hero-action" bindtap="toggleView"><m-icon name="{{viewMode === 'list' ? 'calendar' : 'list'}}" size="26" inline /> {{viewMode === 'list' ? '日历' : '列表'}}</view>
+          <view class="m2-hero-action" bindtap="toggleSearch"><m-icon name="search" size="26" inline /> {{showSearch ? '收起' : '搜索'}}</view>
+        </view>
+      </view>
+      <view class="m2-hero-stats">
+        <view class="m2-hero-stat">
+          <view class="m2-hero-stat-value">{{totalCount}}</view>
+          <view class="m2-hero-stat-label">篇日记</view>
+        </view>
+        <view class="m2-hero-stat">
+          <view class="m2-hero-stat-value">{{wordCount}}</view>
+          <view class="m2-hero-stat-label">累计字数</view>
         </view>
       </view>
     </view>
-  </block>
-</view>
 
-<view class="m-fab" bindtap="goEditor">✏️</view>
+    <view wx:if="{{showSearch}}" class="m2-searchbar">
+      <m-icon name="search" size="30" inline />
+      <input class="m2-search-input" placeholder="搜索标题、内容、标签..." value="{{keyword}}" bindinput="onSearchInput" />
+    </view>
+
+    <view wx:if="{{viewMode === 'calendar'}}" class="m2-card diary-calendar">
+      <view class="cal-nav">
+        <view class="cal-nav-btn" bindtap="calPrev"><m-icon name="chevronRight" size="36" class="cal-prev" /></view>
+        <view class="cal-month">{{calLabel}}</view>
+        <view class="cal-nav-btn" bindtap="calNext"><m-icon name="chevronRight" size="36" /></view>
+      </view>
+      <view class="cal-weekdays">
+        <text wx:for="{{weekdays}}" wx:key="*this">{{item}}</text>
+      </view>
+      <view class="cal-grid">
+        <view
+          wx:for="{{calDays}}"
+          wx:key="key"
+          class="cal-cell {{item.empty ? 'empty' : ''}} {{item.count > 0 ? 'has' : ''}} {{item.key === selectedDate ? 'selected' : ''}}"
+          data-key="{{item.key}}"
+          data-day="{{item.day}}"
+          data-count="{{item.count}}"
+          bindtap="selectDay"
+        >
+          <text class="cal-day">{{item.day}}</text>
+          <view class="cal-mood" wx:if="{{item.mood}}"><m-icon value="{{item.mood}}" tone="category" size="36" /></view>
+        </view>
+      </view>
+      <view class="cal-detail" wx:if="{{selectedDate}}">
+        <view class="cal-detail-title">{{selectedDate}} · {{selectedDiaries.length}} 篇</view>
+        <view
+          wx:for="{{selectedDiaries}}"
+          wx:key="_id"
+          class="m2-row cal-diary"
+          data-id="{{item._id}}"
+          bindtap="goDetail"
+        >
+          <view class="m2-row-icon cal-mood"><m-icon value="{{item.mood || ''}}" tone="category" size="36" /></view>
+          <view class="m2-row-body">
+            <view class="m2-row-title">{{item.title || '无标题'}}</view>
+            <view class="m2-row-sub">{{item._summary}}</view>
+          </view>
+          <view class="m2-row-arrow"><m-icon name="chevronRight" size="28" inline /></view>
+        </view>
+      </view>
+      <view class="cal-tip">点有记录的日期查看，点空白日期可直接补记</view>
+    </view>
+
+    <block wx:if="{{viewMode === 'list'}}">
+      <m-empty
+        wx:if="{{groups.length === 0}}"
+        title="还没有日记"
+        desc="记录下今天的心情和想法吧"
+        action="去记录"
+        bindaction="goEditor"
+      />
+
+      <view class="m2-group" wx:for="{{groups}}" wx:key="date" wx:for-item="group">
+        <view class="m2-group-head">
+          <view class="m2-group-title">{{group.date}} · {{group.items[0]._dateLabel}}</view>
+          <view class="m2-group-count">{{group.items.length}} 篇</view>
+        </view>
+        <view class="m2-list">
+          <view
+            wx:for="{{group.items}}"
+            wx:key="_id"
+            class="m2-row diary-row {{item.images && item.images.length > 0 ? 'has-thumb' : ''}}"
+            data-id="{{item._id}}"
+            bindtap="goDetail"
+            bindlongpress="onDiaryLongPress"
+          >
+            <view class="m2-row-icon diary-row-icon"><m-icon value="{{item.mood || ''}}" tone="category" size="40" /></view>
+            <view class="m2-row-body">
+              <view class="diary-row-head">
+                <view wx:if="{{item.title}}" class="m2-row-title">{{item.title}}</view>
+                <view wx:else class="m2-row-title">无标题</view>
+                <view wx:if="{{item.weather}}" class="diary-weather"><m-icon wx:if="{{item._weatherIcon}}" value="{{item._weatherIcon}}" tone="category" size="24" inline /> {{item._weatherLabel || '未选择'}}</view>
+              </view>
+              <view class="m2-row-sub">{{item._summary}}</view>
+              <view class="diary-row-meta">
+                <text class="diary-date">{{item.date}}</text>
+                <text wx:if="{{item._tagsStr}}" class="diary-tags">{{item._tagsStr}}</text>
+              </view>
+            </view>
+            <image wx:if="{{item.images && item.images.length > 0}}" class="diary-thumb" src="{{item.images[0]}}" mode="aspectFill" />
+            <view class="m2-row-arrow"><m-icon name="chevronRight" size="28" inline /></view>
+          </view>
+        </view>
+      </view>
+    </block>
+  </block>
+
+  <view class="m2-fab" bindtap="goEditor"><m-icon name="add" size="48" color="#FFFFFF" /></view>
+</view>
 <m-tab-bar id="tabbar" />

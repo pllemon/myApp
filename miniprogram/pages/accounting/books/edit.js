@@ -6,7 +6,7 @@ Page({
     editId: '',
     name: '',
     note: '',
-    icon: '💰',
+    icon: 'wallet',
     color: '#4A90D9',
     iconChoices: bookUtil.BOOK_ICONS,
     colorChoices: bookUtil.BOOK_COLORS
@@ -29,7 +29,7 @@ Page({
       this.setData({
         name: book.name || '',
         note: book.note || '',
-        icon: book.icon || '💰',
+        icon: book.icon || 'wallet',
         color: book.color || '#4A90D9'
       });
     }
@@ -44,11 +44,12 @@ Page({
   },
 
   selectIcon(e) {
-    this.setData({ icon: e.currentTarget.dataset.icon });
+    const icon = e.detail ? e.detail.icon : e.currentTarget.dataset.icon;
+    this.setData({ icon });
   },
 
   selectColor(e) {
-    this.setData({ color: e.currentTarget.dataset.value });
+    this.setData({ color: e.detail.color });
   },
 
   async save() {

@@ -1,0 +1,33 @@
+<view
+  wx:if="{{show}}"
+  class="m-modal-mask {{position === 'bottom' ? 'm-modal-bottom' : ''}}"
+  catchtap="onMaskTap"
+>
+  <view class="m-modal-panel" catchtap="noop">
+    <view wx:if="{{title || subtitle || showClose}}" class="m-modal-header">
+      <view class="m-modal-heading">
+        <text wx:if="{{title}}" class="m-modal-title">{{title}}</text>
+        <text wx:if="{{subtitle}}" class="m-modal-subtitle">{{subtitle}}</text>
+      </view>
+      <view wx:if="{{showClose}}" class="m-modal-close" catchtap="onClose">×</view>
+    </view>
+
+    <view class="m-modal-body">
+      <slot />
+    </view>
+
+    <view wx:if="{{showConfirm || showCancel}}" class="m-modal-footer">
+      <slot name="footer" />
+      <view
+        wx:if="{{showCancel}}"
+        class="m-modal-btn m-modal-btn-cancel"
+        catchtap="onCancel"
+      >{{cancelText}}</view>
+      <view
+        wx:if="{{showConfirm}}"
+        class="m-modal-btn m-modal-btn-confirm {{confirmDisabled ? 'is-disabled' : ''}}"
+        catchtap="onConfirm"
+      >{{confirmText}}</view>
+    </view>
+  </view>
+</view>

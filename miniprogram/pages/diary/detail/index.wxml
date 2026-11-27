@@ -1,55 +1,54 @@
-<view class="container" wx:if="{{diary}}">
-  <view class="detail-card">
-    <view class="detail-header">
-      <view class="detail-date-row">
-        <text class="detail-date">{{diary.date}}</text>
-        <text class="detail-date-label">{{dateLabel}}</text>
-      </view>
-      <view class="detail-info-row">
-        <text wx:if="{{diary.mood}}" class="info-item">{{diary.mood}}</text>
-        <text wx:if="{{diary.weather}}" class="info-item">{{diary.weather}}</text>
-        <text wx:if="{{diary.location}}" class="info-item">📍 {{diary.location}}</text>
-      </view>
-    </view>
-
-    <view wx:if="{{diary.title}}" class="detail-title">{{diary.title}}</view>
-
-    <view class="detail-content">
-      <text>{{diary.content}}</text>
-    </view>
-
-    <view wx:if="{{diary.images && diary.images.length > 0}}" class="img-grid">
-      <view wx:for="{{diary.images}}" wx:key="*this" class="img-item">
-        <image class="img-thumb" src="{{item}}" mode="aspectFill" data-index="{{index}}" bindtap="previewImage" />
+<view class="m2-page" style="{{themeStyle}}">
+  <view wx:if="{{diary}}">
+    <view class="m2-detail-hero">
+      <view class="m2-detail-icon" style="background: var(--primary-light)"><m-icon name="bookline" size="64" /></view>
+      <view class="m2-detail-main">
+        <view wx:if="{{diary.title}}" class="m2-detail-title">{{diary.title}}</view>
+        <view wx:else class="m2-detail-title">无标题日记</view>
+        <view class="m2-detail-sub">{{diary.date}} · {{dateLabel}}</view>
+        <view class="badge-row">
+          <view wx:if="{{diary.mood}}" class="m2-badge m2-badge-success"><m-icon value="{{diary.mood}}" tone="category" size="26" inline /> 心情</view>
+          <view wx:if="{{diary.weather}}" class="m2-badge m2-badge-warning"><m-icon wx:if="{{detailWeatherIcon}}" value="{{detailWeatherIcon}}" tone="category" size="26" inline /> {{detailWeatherLabel || '未选择'}}</view>
+          <view wx:if="{{diary.location}}" class="m2-badge m2-badge-success"><m-icon name="location" size="26" inline /> {{diary.location}}</view>
+        </view>
       </view>
     </view>
 
-    <view wx:if="{{diary.tags.length > 0}}" class="detail-tags">
-      <view wx:for="{{diary.tags}}" wx:key="*this" class="detail-tag">#{{item}}</view>
+    <view class="m2-card">
+      <view class="m2-detail-row">
+        <view class="m2-detail-label">日期</view>
+        <view class="m2-detail-value">{{diary.date}}</view>
+      </view>
+      <view class="m2-detail-row">
+        <view class="m2-detail-label">字数</view>
+        <view class="m2-detail-value">{{diary.wordCount || diary.content.length}} 字</view>
+      </view>
+      <view class="m2-detail-row">
+        <view class="m2-detail-label">时间</view>
+        <view class="m2-detail-value">{{updatedAtLabel ? '编辑于 ' + updatedAtLabel : '发布于 ' + createdAtLabel}}</view>
+      </view>
     </view>
 
-    <view class="detail-stats">
-      <text class="stat-item">共 {{diary.wordCount || diary.content.length}} 字</text>
-      <text class="stat-item">{{updatedAtLabel ? '编辑于 ' + updatedAtLabel : '发布于 ' + createdAtLabel}}</text>
-    </view>
-  </view>
+    <view class="m2-card">
+      <view class="m2-card-head"><view class="m2-card-title">正文</view></view>
+      <view class="m2-note"><text>{{diary.content}}</text></view>
 
-  <view class="action-bar">
-    <view class="action-btn edit" bindtap="goEdit">
-      <text class="action-icon">✏️</text>
-      <text class="action-text">编辑</text>
+      <view wx:if="{{diary.images && diary.images.length > 0}}" class="m2-detail-images">
+        <view wx:for="{{diary.images}}" wx:key="*this" class="m2-detail-image">
+          <image src="{{item}}" mode="aspectFill" data-index="{{index}}" bindtap="previewImage" />
+        </view>
+      </view>
+
+      <view wx:if="{{diary.tags.length > 0}}" class="m2-chip-row tag-row">
+        <view wx:for="{{diary.tags}}" wx:key="*this" class="m2-chip active">#{{item}}</view>
+      </view>
     </view>
-    <view class="action-btn copy" bindtap="copyContent">
-      <text class="action-icon">📋</text>
-      <text class="action-text">复制</text>
-    </view>
-    <view class="action-btn share" open-type="share">
-      <text class="action-icon">📤</text>
-      <text class="action-text">分享</text>
-    </view>
-    <view class="action-btn delete" bindtap="deleteDiary">
-      <text class="action-icon">🗑️</text>
-      <text class="action-text">删除</text>
+
+    <view class="m2-footer">
+      <view class="m2-btn m2-btn-primary" bindtap="goEdit"><m-icon name="edit" size="32" inline /> 编辑</view>
+      <view class="m2-btn m2-btn-ghost" bindtap="copyContent"><m-icon name="copy" size="32" inline /> 复制</view>
+      <view class="m2-btn m2-btn-ghost" open-type="share"><m-icon name="share" size="32" inline /> 分享</view>
+      <view class="m2-btn m2-btn-danger" bindtap="deleteDiary"><m-icon name="trash" size="32" inline /> 删除</view>
     </view>
   </view>
 </view>

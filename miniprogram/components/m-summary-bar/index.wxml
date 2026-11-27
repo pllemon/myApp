@@ -1,0 +1,11 @@
+<view class="m-summary">
+  <view class="m-summary-row">
+    <block wx:for="{{items}}" wx:key="label">
+      <view wx:if="{{index > 0}}" class="m-summary-divider"></view>
+      <view class="m-summary-item">
+        <view class="m-summary-num">{{item.value}}<text wx:if="{{item.total !== null && item.total !== undefined}}" class="m-summary-total">/{{item.total}}</text></view>
+        <view class="m-summary-label">{{item.label}}</view>
+      </view>
+    </block>
+  </view>
+</view>

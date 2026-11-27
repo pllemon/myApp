@@ -1,0 +1,107 @@
+.m-day-group {
+  margin-bottom: var(--space-md);
+}
+
+.m-day-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-sm);
+  padding: var(--space-sm) var(--space-xs);
+}
+
+.m-day-group.is-dense .m-day-header {
+  padding: var(--space-xs) 0;
+}
+
+.m-day-heading,
+.m-day-meta {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+}
+
+.m-day-heading {
+  gap: var(--space-xs);
+}
+
+.m-day-meta {
+  flex-shrink: 0;
+  font-size: var(--font-md);
+}
+
+.m-day-dot {
+  width: 12rpx;
+  height: 12rpx;
+  border-radius: var(--radius-full);
+  background: var(--primary);
+}
+
+.m-day-label {
+  font-size: var(--font-lg);
+  font-weight: 600;
+  color: var(--text);
+}
+
+.m-day-weekday {
+  font-size: var(--font-sm);
+  color: var(--text-3);
+}
+
+.m-day-count {
+  font-size: var(--font-sm);
+  color: var(--text-3);
+}
+
+.m-day-expense {
+  color: var(--danger);
+}
+
+.m-day-income {
+  color: var(--success);
+}
+
+.m-day-sep {
+  color: var(--text-3);
+}
+
+.m-day-group.is-sticky .m-day-header {
+  position: sticky;
+  top: 0;
+  z-index: var(--z-sticky);
+  background: var(--bg);
+}
+
+.m-day-group.is-subtle .m-day-header {
+  display: inline-flex;
+  padding: var(--space-xs) var(--space-sm);
+  background: var(--surface-2);
+  border-radius: var(--radius-xs);
+}
+
+.m-day-group.is-subtle .m-day-label {
+  font-size: var(--font-md);
+  font-weight: 400;
+  color: var(--text-2);
+}
+
+.m-day-group.is-subtle .m-day-content {
+  background: transparent;
+  border-radius: 0;
+  box-shadow: none;
+  margin-top: var(--space-sm);
+}
+
+.m-day-content {
+  background: var(--surface);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+}
+
+.m-day-group.is-bare .m-day-content {
+  background: transparent;
+  border-radius: 0;
+  box-shadow: none;
+  overflow: visible;
+}

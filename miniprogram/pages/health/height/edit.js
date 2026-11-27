@@ -1,4 +1,5 @@
 const db = require('../../../utils/db.js');
+const healthUtil = require('../../../utils/health.js');
 
 Page({
   data: {
@@ -7,7 +8,8 @@ Page({
     isEdit: false,
     date: '',
     height: '',
-    notes: ''
+    notes: '',
+    disclaimer: healthUtil.MEDICAL_DISCLAIMER
   },
 
   onLoad(options) {
@@ -60,6 +62,8 @@ Page({
       wx.showToast({ title: '请输入身高', icon: 'none' });
       return;
     }
+    const err = healthUtil.validateFields([{ field: 'height', value: height, required: true }]);
+    if (err) { wx.showToast({ title: err.message, icon: 'none' }); return; }
 
     wx.showLoading({ title: '保存中', mask: true });
     try {
@@ -67,7 +71,8 @@ Page({
         profileId,
         date,
         height: parseFloat(height),
-        notes: notes.trim()
+        notes: notes.trim(),
+        updatedAt: Date.now()
       };
 
       if (isEdit) {

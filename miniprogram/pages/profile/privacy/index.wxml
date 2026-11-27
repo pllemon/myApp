@@ -1,0 +1,28 @@
+<view class="m2-page" style="{{themeStyle}}">
+  <view class="m2-hero privacy-hero">
+    <view class="privacy-hero-icon"><m-icon name="lock" size="56" color="var(--text-inverse)" /></view>
+    <view class="m2-hero-title">隐私政策与用户协议</view>
+    <view class="m2-hero-sub">你的记录，只属于你</view>
+    <view class="m2-hero-note">更新日期：{{updatedAt}}</view>
+  </view>
+
+  <view class="m2-card privacy-summary-card">
+    <view class="privacy-summary">
+      <view class="privacy-summary-item"><view class="m2-row-icon privacy-summary-icon"><m-icon name="storage" size="28" tone="system" inline /></view><text>数据默认仅存本地</text></view>
+      <view class="privacy-summary-item"><view class="m2-row-icon privacy-summary-icon"><m-icon name="ban" size="28" tone="category" inline /></view><text>不上传、不用于广告</text></view>
+      <view class="privacy-summary-item"><view class="m2-row-icon privacy-summary-icon"><m-icon name="backup" size="28" inline /></view><text>可随时导出与删除</text></view>
+    </view>
+  </view>
+
+  <view class="m2-wrap">
+    <view wx:for="{{sections}}" wx:key="title" class="m2-card privacy-section">
+      <view class="m2-card-title privacy-section-title">{{item.title}}</view>
+      <view wx:for="{{item.paragraphs}}" wx:for-item="p" wx:key="*this" class="privacy-paragraph">{{p}}</view>
+    </view>
+  </view>
+
+  <view class="m2-wrap privacy-footer">
+    <view>使用「生活记」即表示你已阅读并理解本政策。</view>
+    <view>版本 1.0 · 生效日期 {{updatedAt}}</view>
+  </view>
+</view>

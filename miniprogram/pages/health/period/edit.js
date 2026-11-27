@@ -1,8 +1,8 @@
 const db = require('../../../utils/db.js');
+const diaryUtil = require('../../../utils/diary.js');
 
 const FLOW_OPTIONS = ['少量', '正常', '较多', '大量'];
 const SYMPTOM_OPTIONS = ['腹痛', '腰酸', '头痛', '乏力', '乳房胀痛', '情绪波动', '失眠', '食欲不振'];
-const MOOD_OPTIONS = ['😊', '😔', '😤', '😴', '🥰', '😐'];
 
 Page({
   data: {
@@ -15,10 +15,11 @@ Page({
     flowOptions: FLOW_OPTIONS,
     symptoms: [],
     symptomOptions: SYMPTOM_OPTIONS,
-    mood: '',
-    moodOptions: MOOD_OPTIONS,
+    mood: 'calm',
+    moodLabel: diaryUtil.MOOD_LABELS.calm,
+    moodOptions: diaryUtil.MOOD_OPTIONS,
     painLevel: 0,
-    painText: '😌 没什么感觉',
+    painText: '没什么感觉',
     notes: ''
   },
 
@@ -52,6 +53,7 @@ Page({
           flow: p.flow || '',
           symptoms: p.symptoms || [],
           mood: p.mood || '',
+          moodLabel: diaryUtil.MOOD_LABELS[p.mood] || '',
           painLevel: p.painLevel || 0,
           painText: this.calcPainText(p.painLevel || 0),
           notes: p.notes || ''
@@ -70,13 +72,16 @@ Page({
   onFlowChange(e) { this.setData({ flow: e.detail.value }); },
 
   onSymptomsChange(e) { this.setData({ symptoms: e.detail.values }); },
-  onMoodChange(e) { this.setData({ mood: e.detail.value }); },
+  onMoodChange(e) {
+    const mood = e.detail.value;
+    this.setData({ mood, moodLabel: diaryUtil.MOOD_LABELS[mood] || '' });
+  },
 
   calcPainText(level) {
-    if (level === 0) return '😌 没什么感觉';
-    if (level <= 2) return '😐 轻微不适';
-    if (level <= 3) return '😣 有点痛';
-    return '😖 很痛，影响正常生活';
+    if (level === 0) return '没什么感觉';
+    if (level <= 2) return '轻微不适';
+    if (level <= 3) return '有点痛';
+    return '很痛，影响正常生活';
   },
 
   onPainChange(e) { 

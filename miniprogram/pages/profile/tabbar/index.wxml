@@ -1,57 +1,74 @@
-<view class="page">
-  <view class="section">
-    <view class="section-title">
-      🎯 TabBar 配置
-      <text class="section-desc">（3-5个，长按中间项可拖拽排序）</text>
+<view class="m2-page" style="{{themeStyle}}">
+  <view class="m2-hero">
+    <view class="m2-hero-head">
+      <view class="m2-hero-title">底部导航</view>
+      <view class="m2-hero-action"><m-icon name="grip" size="28" inline color="var(--text-inverse)" /></view>
     </view>
-    <view class="list">
-      <view
-        class="tabbar-item {{item.selected ? 'selected' : ''}} {{item.fixed ? 'fixed' : ''}} {{draggingIdx === index ? 'dragging' : ''}}"
-        wx:for="{{items}}"
-        wx:key="_internalId"
-        data-idx="{{index}}"
-        bindtap="toggleSelect"
-        bindlongpress="onLongPress"
-        catchtouchmove="onTouchMove"
-        catchtouchend="onTouchEnd"
-      >
-        <view class="drag-handle" wx:if="{{!item.fixed && item.selected}}">⋮⋮</view>
-        <view class="drag-handle-placeholder" wx:else></view>
-        <view class="item-icon">{{item.icon}}</view>
-        <view class="item-text">{{item.text}}</view>
-        <view class="item-tag" wx:if="{{item.fixed === 'first'}}">固定首项</view>
-        <view class="item-tag" wx:elif="{{item.fixed === 'last'}}">固定末项</view>
-        <view class="check {{item.selected ? 'checked' : ''}} {{item.fixed ? 'disabled' : ''}}">
-          <text wx:if="{{item.selected}}">✓</text>
-        </view>
-      </view>
-    </view>
+    <view class="m2-hero-sub">把常用模块放到底部，其他自动进入首页「更多」，调整后立即生效</view>
   </view>
 
-  <view class="section">
-    <view class="section-title">
-      🧩 首页快捷入口
-      <text class="section-desc">（最多8个，TabBar未选的模块自动补入）</text>
+  <!-- 实时预览：方案 B，中间项可左右拖动 -->
+  <view class="m2-card">
+    <view class="m2-card-head">
+      <view class="m2-card-title">实时预览</view>
+      <view class="m2-card-action">已选 {{selectedIds.length}} / 5</view>
     </view>
-    <view class="shortcut-grid">
+    <view class="preview-hint">按住中间模块左右拖动排序，首页 / 我的固定，改动即时生效</view>
+    <view
+      class="preview-bar"
+      bindtouchmove="onPreviewTouchMove"
+      bindtouchend="onPreviewTouchEnd"
+      bindtouchcancel="onPreviewTouchEnd"
+    >
       <view
-        class="shortcut-item {{item.selected ? 'selected' : ''}}"
-        wx:for="{{shortcutItems}}"
+        class="preview-item {{item.fixed ? 'fixed' : ''}} {{draggingId === item.id ? 'dragging' : ''}}"
+        wx:for="{{previewItems}}"
         wx:key="id"
-        data-idx="{{index}}"
-        bindtap="toggleShortcut"
+        data-id="{{item.id}}"
+        bindtouchstart="onPreviewTouchStart"
       >
-        <view class="shortcut-icon">{{item.icon}}</view>
-        <view class="shortcut-text">{{item.text}}</view>
-        <view class="check {{item.selected ? 'checked' : ''}}">
-          <text wx:if="{{item.selected}}">✓</text>
-        </view>
+        <view class="preview-grip" wx:if="{{!item.fixed}}"><m-icon name="grip" size="22" inline /></view>
+        <view class="preview-icon"><m-icon moduleKey="{{item.id}}" size="44" tone="module" /></view>
+        <view class="preview-label">{{item.text}}</view>
       </view>
     </view>
   </view>
 
-  <view class="footer">
-    <button class="btn btn-reset" bindtap="reset">重置</button>
-    <button class="btn btn-save" bindtap="save">保存</button>
+  <!-- 单一候选池 -->
+  <view class="m2-card">
+    <view class="m2-card-head">
+      <view class="m2-card-title">选择底部模块</view>
+      <view class="m2-card-action">中间最多 3 个</view>
+    </view>
+    <view class="module-grid">
+      <view
+        class="module-card {{item.selected ? 'selected' : ''}} {{item.fixed ? 'fixed' : ''}}"
+        wx:for="{{modules}}"
+        wx:key="id"
+        data-id="{{item.id}}"
+        bindtap="toggleModule"
+      >
+        <view class="module-icon"><m-icon moduleKey="{{item.id}}" size="48" tone="module" muted="{{!item.selected}}" /></view>
+        <view class="module-name">{{item.text}}</view>
+        <view class="module-state">{{item.fixed ? '固定' : (item.selected ? '在底部' : '在更多')}}</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 自动结果 -->
+  <view class="m2-card">
+    <view class="m2-card-head">
+      <view class="m2-card-title">首页「更多」</view>
+      <view class="m2-card-action">自动</view>
+    </view>
+    <view class="more-desc">未放到底部的模块自动出现在这里，无需单独设置。</view>
+    <view class="more-tags">
+      <view class="more-tag" wx:for="{{moreItems}}" wx:key="id">{{item.text}}</view>
+    </view>
+  </view>
+
+  <view class="m2-footer">
+    <view class="m2-btn m2-btn-ghost" bindtap="reset">恢复默认</view>
+    <view class="m2-btn m2-btn-primary" bindtap="finish">完成</view>
   </view>
 </view>

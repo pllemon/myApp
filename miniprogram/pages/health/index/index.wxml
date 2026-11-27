@@ -9,7 +9,8 @@ function contains(arr, key) {
 module.exports = { contains: contains };
 </wxs>
 
-<view class="page">
+<view class="m2-page with-tabbar" style="{{themeStyle}}">
+  <!-- 档案切换 -->
   <scroll-view scroll-x class="profile-bar" wx:if="{{profiles.length > 0}}">
     <view class="profile-chip {{activeProfileId === p._id ? 'active' : ''}}"
           wx:for="{{profiles}}" wx:for-item="p" wx:key="_id"
@@ -23,569 +24,554 @@ module.exports = { contains: contains };
     <view class="profile-chip add" bindtap="goCreate">+ 新建</view>
   </scroll-view>
 
+  <!-- 指标切换 -->
   <scroll-view scroll-x class="tab-bar" wx:if="{{profiles.length > 0}}">
     <view class="tab-item {{activeTab === t.key ? 'active' : ''}}"
           wx:for="{{tabs}}" wx:for-item="t" wx:key="key"
           data-key="{{t.key}}" bindtap="switchTab">
-      <text class="tab-ico">{{t.icon}}</text>
+      <view class="tab-ico"><m-icon value="{{t.icon}}" healthKey="{{t.label}}" tone="health" size="36" /></view>
       <text class="tab-label">{{t.label}}</text>
-      </view>
+    </view>
   </scroll-view>
 
-  <m-empty wx:if="{{profiles.length === 0}}" icon="📋" title="还没有健康档案" desc="点击下方按钮开始创建吧" action="+ 新建档案" bind:action="goCreate" />
+  <!-- 空态：还没有档案 -->
+  <m-empty wx:if="{{profiles.length === 0}}" title="还没有健康档案，点击顶部「新建」开始创建吧" />
 
   <block wx:if="{{profiles.length > 0 && current}}">
 
-<!-- ===== 生理期 ===== -->
+    <!-- ===== 健康概览 ===== -->
     <view class="tab-content" wx:if="{{activeTab === 'overview'}}">
-      <view class="profile-header">
-        <view class="ph-left">
-          <view class="ph-avatar">{{current.avatar || genderLabel}}</view>
-          <view class="ph-info">
-            <text class="ph-name">{{current.name}}</text>
-            <text class="ph-meta">{{genderLabel}} · {{age}}岁</text>
-            <text bindtap="goProfileDetail" style="display:inline-block;margin-top:8rpx;font-size:22rpx;color:var(--primary);">档案详情 ›</text>
-      </view>
+      <view class="m2-hero">
+        <view class="m2-hero-head">
+          <view class="hero-avatar">{{current.avatar || genderLabel}}</view>
+          <view class="hero-head-main">
+            <view class="m2-hero-title">{{current.name}}</view>
+            <view class="m2-hero-sub">{{genderLabel}} · {{age}}岁</view>
+          </view>
+          <view class="m2-hero-action" bindtap="goProfileDetail">档案详情 ›</view>
         </view>
-        <view class="ph-bmi" bindtap="goEditProfile">
-          <text class="ph-bmi-val">{{bmiValue || '--'}}</text>
-          <text class="ph-bmi-status">{{bmiStatus}}</text>
-      </view>
+        <view class="m2-hero-value" bindtap="goEditProfile">{{bmiValue || '--'}}<text class="m2-hero-unit">BMI · {{bmiStatus}}</text></view>
+        <view class="m2-hero-note">点击 BMI 可编辑健康档案</view>
       </view>
 
       <view class="overview-grid">
         <view class="mini-card" wx:if="{{weightLast && u.contains(enabledTabs, 'weight')}}">
-          <view class="mini-title">最新数据</view>
-          <view class="mini-value">{{weightLast.weight}}<text class="mini-unit">kg</text>
-      </view>
-          <view class="mini-sub" wx:if="{{weightFirst}}">较首次 {{weightDiff > 0 ? '+' : ''}}{{weightDiff}}kg</view>
+          <view class="mini-title">最新体重</view>
+          <view class="mini-value">{{weightLast.weight}}<text class="mini-unit">{{units.weight}}</text></view>
+          <view class="mini-sub" wx:if="{{weightFirst}}">较首次 {{weightDiff > 0 ? '+' : ''}}{{weightDiff}}{{units.weight}}<text wx:if="{{trendDelta}}" style="color: {{trendDelta.color}};"> · {{trendDelta.text}}</text></view>
         </view>
         <view class="mini-card" wx:if="{{bpLatest && u.contains(enabledTabs, 'bp')}}" style="border-left: 6rpx solid {{bpStatus.color}};">
-          <view class="mini-title">最新数据</view>
+          <view class="mini-title">最新血压</view>
           <view class="mini-value">{{bpLatest.systolic}}/{{bpLatest.diastolic}}</view>
           <view class="mini-sub" style="color: {{bpStatus.color}};">{{bpStatus.label}}</view>
         </view>
         <view class="mini-card" wx:if="{{glucoseLatest && u.contains(enabledTabs, 'glucose')}}" style="border-left: 6rpx solid {{glucoseStatus.color}};">
-          <view class="mini-title">最新数据</view>
-          <view class="mini-value">{{glucoseLatest.value}}<text class="mini-unit">mmol/L</text>
-      </view>
+          <view class="mini-title">最新血糖</view>
+          <view class="mini-value">{{glucoseLatest.value}}<text class="mini-unit">{{units.glucose}}</text></view>
           <view class="mini-sub" style="color: {{glucoseStatus.color}};">{{glucoseStatus.label}}</view>
         </view>
         <view class="mini-card" wx:if="{{oxygenLatest && u.contains(enabledTabs, 'oxygen')}}" style="border-left: 6rpx solid {{oxygenStatus.color}};">
-          <view class="mini-title">最新数据</view>
-          <view class="mini-value">{{oxygenLatest.oxygen}}<text class="mini-unit">%</text>
-      </view>
+          <view class="mini-title">最新血氧</view>
+          <view class="mini-value">{{oxygenLatest.oxygen}}<text class="mini-unit">%</text></view>
           <view class="mini-sub" style="color: {{oxygenStatus.color}};">{{oxygenStatus.label}}</view>
         </view>
         <view class="mini-card" wx:if="{{tempLatest && u.contains(enabledTabs, 'temperature')}}" style="border-left: 6rpx solid {{tempStatus.color}};">
-          <view class="mini-title">最新数据</view>
-          <view class="mini-value">{{tempLatest.temperature}}<text class="mini-unit">°C</text>
-      </view>
+          <view class="mini-title">最新体温</view>
+          <view class="mini-value">{{tempLatest.temperature}}<text class="mini-unit">°C</text></view>
           <view class="mini-sub" style="color: {{tempStatus.color}};">{{tempStatus.label}}</view>
         </view>
         <view class="mini-card" wx:if="{{u.contains(enabledTabs, 'water')}}">
-          <view class="mini-title">最新数据</view>
-          <view class="mini-value">{{waterToday}}<text class="mini-unit">ml</text>
-      </view>
+          <view class="mini-title">今日饮水<view bindtap="quickAddWater" style="display:inline-block;margin-left:8rpx;padding:0 8rpx;"><m-icon name="add" size="32" inline /></view></view>
+          <view class="mini-value">{{waterToday}}<text class="mini-unit">ml</text></view>
           <view class="mini-sub">目标 {{waterGoal}}ml</view>
         </view>
       </view>
 
-      <view class="today-med-card" wx:if="{{todayMeds.length > 0 && u.contains(enabledTabs, 'medication')}}">
-        <view class="today-med-title">今日用药提醒</view>
+      <view class="m2-card today-med-card" wx:if="{{todayMeds.length > 0 && u.contains(enabledTabs, 'medication')}}">
+        <view class="m2-card-head"><view class="m2-card-title">今日用药提醒</view></view>
         <view class="today-med-item" wx:for="{{todayMeds}}" wx:key="_id">
           <view class="tm-left">
             <text class="tm-name">{{item.name}}</text>
             <text class="tm-dose">{{item.dosage || ''}} {{item.frequency || ''}}</text>
-      </view>
+          </view>
           <view class="tm-times">
             <text class="tm-chip" wx:for="{{item._reminderList}}" wx:for-item="t" wx:key="*this">{{t}}</text>
-      </view>
+          </view>
         </view>
       </view>
 
-      <view wx:if="{{cycleInfo && u.contains(enabledTabs, 'period')}}" class="cycle-card {{cycleStageClass}}">
-        <view class="cycle-label">当前阶段</view>
+      <view wx:if="{{cycleInfo && u.contains(enabledTabs, 'period')}}" class="m2-card cycle-card {{cycleStageClass}}">
+        <view class="m2-card-head"><view class="m2-card-title">当前阶段</view></view>
         <view class="cycle-text">{{cycleStageText}}</view>
         <view class="cycle-meta">
           <text>周期第 {{cycleInfo.dayInCycle}}/{{cycleInfo.totalDays}} 天</text>
           <text wx:if="{{cycleInfo.daysUntilNext}}">距离下次姨妈还有 {{cycleInfo.daysUntilNext}} 天</text>
-      </view>
+        </view>
       </view>
     </view>
 
-<!-- ===== 概览 ===== -->
+    <!-- ===== 身高 ===== -->
     <view class="tab-content" wx:if="{{activeTab === 'height'}}">
-      <view class="chart-card" wx:if="{{heights.length > 0}}">
+      <view class="m2-card chart-card" wx:if="{{heights.length > 0}}">
         <view class="chart-header">
-          <text class="chart-title">身高趋势</text>
+          <view class="m2-card-title">身高趋势</view>
           <view class="chart-range">
-            <text class="range-btn {{heightDays === 90 ? 'active' : ''}}" data-tab="height" data-d="90" bindtap="setChartDays">90</text>
-            <text class="range-btn {{heightDays === 180 ? 'active' : ''}}" data-tab="height" data-d="180" bindtap="setChartDays">WB</text>
-            <text class="range-btn {{heightDays === 365 ? 'active' : ''}}" data-tab="height" data-d="365" bindtap="setChartDays"></text>
-      </view>
+            <view class="range-btn {{heightDays === 90 ? 'active' : ''}}" data-tab="height" data-d="90" bindtap="setChartDays">90</view>
+            <view class="range-btn {{heightDays === 180 ? 'active' : ''}}" data-tab="height" data-d="180" bindtap="setChartDays">180</view>
+            <view class="range-btn {{heightDays === 365 ? 'active' : ''}}" data-tab="height" data-d="365" bindtap="setChartDays">1年</view>
+          </view>
         </view>
         <canvas id="heightChart" class="chart-canvas" type="2d"></canvas>
         <view class="chart-summary" wx:if="{{heightStats.count > 0}}">
           <text class="cs-item">最高 {{heightStats.max}} </text>
           <text class="cs-item">最低 {{heightStats.min}} </text>
-          <text class="cs-item">N {{heightStats.avg}}cm</text>
-          <text class="cs-item">O?{{heightStats.count}} </text>
-      </view>
-      </view>
-      <m-empty compact title="暂无身高记录" />
-      <view wx:for="{{heightGroups}}" wx:for-item="group" wx:key="month" class="month-group">
-        <view class="month-header"><text>{{group.month}}</text>
-      </view>
-        <view class="rec-item" wx:for="{{group.items}}" wx:key="_id" bindtap="editHeight" data-id="{{item._id}}">
-          <view class="rec-main">
-            <text class="rec-value">{{item.height}}</text>
-            <text class="rec-sub">cm</text>
-      </view>
-          <view class="rec-date">{{item.date}}</view>
+          <text class="cs-item">平均 {{heightStats.avg}}{{units.height}}</text>
+          <text class="cs-item">共 {{heightStats.count}} 条</text>
         </view>
       </view>
-      <view class="m-fab" bindtap="addHeight">+</view>
+      <m-empty wx:if="{{heights.length === 0}}" title="暂无身高记录" />
+      <view class="m2-list" wx:for="{{heightGroups}}" wx:for-item="group" wx:key="month">
+        <view class="m2-group-head"><view class="m2-group-title">{{group.month}}</view></view>
+        <view class="m2-row" wx:for="{{group.items}}" wx:key="_id" bindtap="editHeight" data-id="{{item._id}}">
+          <view class="m2-row-icon"><m-icon tone="health" healthKey="身高" size="36" /></view>
+          <view class="m2-row-body">
+            <view class="m2-row-title">{{item._displayValue}}<text class="cs-item">{{units.height}}</text></view>
+            <view class="m2-row-sub">{{item.date}}</view>
+          </view>
+          <view class="m2-row-arrow">›</view>
+        </view>
+      </view>
+      <view class="m2-fab" bindtap="addHeight"><m-icon name="add" size="48" color="#FFFFFF" /></view>
     </view>
 
-<!-- ===== 身高 ===== -->
+    <!-- ===== 体重 ===== -->
     <view class="tab-content" wx:if="{{activeTab === 'weight'}}">
-      <view class="chart-card" wx:if="{{weights.length > 0}}">
+      <view class="m2-card chart-card" wx:if="{{weights.length > 0}}">
         <view class="chart-header">
-          <text class="chart-title">体重趋势</text>
+          <view class="m2-card-title">体重趋势</view>
           <view class="chart-range">
-            <text class="range-btn {{weightDays === 14 ? 'active' : ''}}" data-tab="weight" data-d="14" bindtap="setChartDays">14</text>
-            <text class="range-btn {{weightDays === 30 ? 'active' : ''}}" data-tab="weight" data-d="30" bindtap="setChartDays">30</text>
-            <text class="range-btn {{weightDays === 90 ? 'active' : ''}}" data-tab="weight" data-d="90" bindtap="setChartDays">90</text>
-      </view>
+            <view class="range-btn {{weightDays === 14 ? 'active' : ''}}" data-tab="weight" data-d="14" bindtap="setChartDays">14</view>
+            <view class="range-btn {{weightDays === 30 ? 'active' : ''}}" data-tab="weight" data-d="30" bindtap="setChartDays">30</view>
+            <view class="range-btn {{weightDays === 90 ? 'active' : ''}}" data-tab="weight" data-d="90" bindtap="setChartDays">90</view>
+          </view>
         </view>
         <canvas id="weightChart" class="chart-canvas" type="2d"></canvas>
         <view class="chart-summary" wx:if="{{weightStats.count > 0}}">
           <text class="cs-item">最高 {{weightStats.max}} </text>
           <text class="cs-item">最低 {{weightStats.min}} </text>
-          <text class="cs-item">N {{weightStats.avg}}kg</text>
-          <text class="cs-item">O?{{weightStats.count}} </text>
-      </view>
-      </view>
-      <m-empty compact title="暂无体重记录" />
-      <view wx:for="{{weightGroups}}" wx:for-item="group" wx:key="month" class="month-group">
-        <view class="month-header"><text>{{group.month}}</text>
-      </view>
-        <view class="rec-item" wx:for="{{group.items}}" wx:key="_id" bindtap="editWeight" data-id="{{item._id}}">
-          <view class="rec-main">
-            <text class="rec-value">{{item.weight}}</text>
-            <text class="rec-sub">kg</text>
-      </view>
-          <view class="rec-date">{{item.date}}</view>
+          <text class="cs-item">平均 {{weightStats.avg}}{{units.weight}}</text>
+          <text class="cs-item">共 {{weightStats.count}} 条</text>
         </view>
       </view>
-      <view class="m-fab" bindtap="addWeight">+</view>
+      <m-empty wx:if="{{weights.length === 0}}" title="暂无体重记录" />
+      <view class="m2-list" wx:for="{{weightGroups}}" wx:for-item="group" wx:key="month">
+        <view class="m2-group-head"><view class="m2-group-title">{{group.month}}</view></view>
+        <view class="m2-row" wx:for="{{group.items}}" wx:key="_id" bindtap="editWeight" data-id="{{item._id}}">
+          <view class="m2-row-icon"><m-icon tone="health" healthKey="体重" size="36" /></view>
+          <view class="m2-row-body">
+            <view class="m2-row-title">{{item._displayValue}}<text class="cs-item">{{units.weight}}</text></view>
+            <view class="m2-row-sub" wx:if="{{item.bodyFat}}">体脂 {{item.bodyFat}}%</view>
+            <view class="m2-row-sub" wx:if="{{item.bmi != null}}">BMI {{item.bmi}}</view>
+            <view class="m2-row-sub">{{item.date}} {{item.time || ''}}</view>
+          </view>
+          <view class="m2-row-arrow">›</view>
+        </view>
+      </view>
+      <view class="m2-fab" bindtap="addWeight"><m-icon name="add" size="48" color="#FFFFFF" /></view>
     </view>
 
-<!-- ===== 体重 ===== -->
+    <!-- ===== 血压 ===== -->
     <view class="tab-content" wx:if="{{activeTab === 'bp'}}">
-      <view class="chart-card" wx:if="{{bps.length > 0}}">
+      <view class="m2-card chart-card" wx:if="{{bps.length > 0}}">
         <view class="chart-header">
-          <text class="chart-title">血压趋势</text>
+          <view class="m2-card-title">血压趋势</view>
           <view class="chart-range">
-            <text class="range-btn {{bpDays === 7 ? 'active' : ''}}" data-tab="bp" data-d="7" bindtap="setChartDays">7</text>
-            <text class="range-btn {{bpDays === 14 ? 'active' : ''}}" data-tab="bp" data-d="14" bindtap="setChartDays">14</text>
-            <text class="range-btn {{bpDays === 30 ? 'active' : ''}}" data-tab="bp" data-d="30" bindtap="setChartDays">30</text>
-      </view>
+            <view class="range-btn {{bpDays === 7 ? 'active' : ''}}" data-tab="bp" data-d="7" bindtap="setChartDays">7</view>
+            <view class="range-btn {{bpDays === 14 ? 'active' : ''}}" data-tab="bp" data-d="14" bindtap="setChartDays">14</view>
+            <view class="range-btn {{bpDays === 30 ? 'active' : ''}}" data-tab="bp" data-d="30" bindtap="setChartDays">30</view>
+          </view>
         </view>
         <canvas id="bpChart" class="chart-canvas" type="2d"></canvas>
         <view class="chart-summary" wx:if="{{bpStats.count > 0}}">
-          <text class="cs-item">N {{bpStats.avg}}</text>
+          <text class="cs-item">平均 {{bpStats.avg}}</text>
           <text class="cs-item">正常率 {{bpStats.normalRate}}%</text>
-          <text class="cs-item">O?{{bpStats.count}} </text>
-      </view>
-      </view>
-      <m-empty compact title="暂无血压记录" />
-      <view wx:for="{{bpGroups}}" wx:for-item="group" wx:key="month" class="month-group">
-        <view class="month-header"><text>{{group.month}}</text>
-      </view>
-        <view class="rec-item" wx:for="{{group.items}}" wx:key="_id" bindtap="editBP" data-id="{{item._id}}">
-          <view class="bp-row">
-            <text class="bp-val">{{item.systolic}}/{{item.diastolic}}</text>
-            <m-status-badge text="{{item._statusLabel}}" color="{{item._statusColor}}" />
-      </view>
-          <view class="bp-meta">
-            <text class="bp-date">{{item.date}} {{item.time || ''}}</text>
-            <text wx:if="{{item.pulse}}" class="bp-pulse" style="color: {{item._pulseColor}};">心率 {{item.pulse}}{{item._pulseLabel && item._pulseLabel !== '正常' ? ' ' + item._pulseLabel : ''}}</text>
-            <text wx:if="{{item.source}}" class="bp-src">{{item.source}}</text>
-      </view>
+          <text class="cs-item">共 {{bpStats.count}} 条</text>
         </view>
       </view>
-      <view class="m-fab" bindtap="addBP">+</view>
+      <m-empty wx:if="{{bps.length === 0}}" title="暂无血压记录" />
+      <view class="m2-list" wx:for="{{bpGroups}}" wx:for-item="group" wx:key="month">
+        <view class="m2-group-head"><view class="m2-group-title">{{group.month}}</view></view>
+        <view class="m2-row" wx:for="{{group.items}}" wx:key="_id" bindtap="editBP" data-id="{{item._id}}">
+          <view class="m2-row-icon"><m-icon tone="health" healthKey="血压" size="36" /></view>
+          <view class="m2-row-body">
+            <view class="m2-row-title">{{item.systolic}}/{{item.diastolic}} <m-status-badge text="{{item._statusLabel}}" color="{{item._statusColor}}" /></view>
+            <view class="m2-row-sub">{{item.date}} {{item.time || ''}}</view>
+            <view class="m2-row-sub" wx:if="{{item.pulse}}" style="color: {{item._pulseColor}};">心率 {{item.pulse}}{{item._pulseLabel && item._pulseLabel !== '正常' ? ' ' + item._pulseLabel : ''}}</view>
+            <view class="m2-row-sub" wx:if="{{item._sourceLabel || item.source}}">{{item._sourceLabel || item.source}}</view>
+            <view class="m2-row-sub" wx:if="{{item._measureMeta}}">{{item._measureMeta}}</view>
+          </view>
+          <view class="m2-row-arrow">›</view>
+        </view>
+      </view>
+      <view class="m2-fab" bindtap="addBP"><m-icon name="add" size="48" color="#FFFFFF" /></view>
     </view>
 
-<!-- ===== 血压 ===== -->
+    <!-- ===== 心率 ===== -->
     <view class="tab-content" wx:if="{{activeTab === 'heart_rate'}}">
-      <view class="chart-card" wx:if="{{heartRates.length > 0}}">
+      <view class="m2-card chart-card" wx:if="{{heartRates.length > 0}}">
         <view class="chart-header">
-          <text class="chart-title">心率趋势</text>
+          <view class="m2-card-title">心率趋势</view>
           <view class="chart-range">
-            <text class="range-btn {{heartRateDays === 7 ? 'active' : ''}}" data-tab="heart_rate" data-d="7" bindtap="setChartDays">7</text>
-            <text class="range-btn {{heartRateDays === 14 ? 'active' : ''}}" data-tab="heart_rate" data-d="14" bindtap="setChartDays">14</text>
-            <text class="range-btn {{heartRateDays === 30 ? 'active' : ''}}" data-tab="heart_rate" data-d="30" bindtap="setChartDays">30</text>
-      </view>
+            <view class="range-btn {{heartRateDays === 7 ? 'active' : ''}}" data-tab="heart_rate" data-d="7" bindtap="setChartDays">7</view>
+            <view class="range-btn {{heartRateDays === 14 ? 'active' : ''}}" data-tab="heart_rate" data-d="14" bindtap="setChartDays">14</view>
+            <view class="range-btn {{heartRateDays === 30 ? 'active' : ''}}" data-tab="heart_rate" data-d="30" bindtap="setChartDays">30</view>
+          </view>
         </view>
         <canvas id="heartRateChart" class="chart-canvas" type="2d"></canvas>
         <view class="chart-summary" wx:if="{{heartRateStats.count > 0}}">
-          <text class="cs-item">N {{heartRateStats.avg}} bpm</text>
+          <text class="cs-item">平均 {{heartRateStats.avg}} bpm</text>
           <text class="cs-item">正常率 {{heartRateStats.normalRate}}%</text>
-          <text class="cs-item">O?{{heartRateStats.count}} </text>
-      </view>
-      </view>
-      <m-empty compact title="暂无心率记录" />
-      <view class="rec-item" wx:for="{{heartRateGroups}}" wx:for-item="group" wx:key="month" wx:for-index="gi">
-        <view class="month-header"><text>{{group.month}}</text>
-      </view>
-        <view wx:for="{{group.items}}" wx:key="_id" bindtap="editHeartRate" data-id="{{item._id}}">
-          <view class="rec-item">
-            <view class="bp-row">
-              <text class="bp-val">{{item.rate}} bpm</text>
-              <m-status-badge text="{{item._statusLabel}}" color="{{item._statusColor}}" />
-      </view>
-            <view class="bp-meta">
-              <text class="bp-date">{{item.date}} {{item.time || ''}}</text>
-              <text wx:if="{{item._sceneLabel}}">{{item._sceneLabel}}</text>
-      </view>
-          </view>
+          <text class="cs-item">共 {{heartRateStats.count}} 条</text>
         </view>
       </view>
-      <view class="m-fab" bindtap="addHeartRate">+</view>
+      <m-empty wx:if="{{heartRates.length === 0}}" title="暂无心率记录" />
+      <view class="m2-list" wx:for="{{heartRateGroups}}" wx:for-item="group" wx:for-index="gi" wx:key="month">
+        <view class="m2-group-head"><view class="m2-group-title">{{group.month}}</view></view>
+        <view class="m2-row" wx:for="{{group.items}}" wx:key="_id" bindtap="editHeartRate" data-id="{{item._id}}">
+          <view class="m2-row-icon"><m-icon tone="health" healthKey="心率" size="36" /></view>
+          <view class="m2-row-body">
+            <view class="m2-row-title">{{item.rate}} bpm <m-status-badge text="{{item._statusLabel}}" color="{{item._statusColor}}" /></view>
+            <view class="m2-row-sub">{{item.date}} {{item.time || ''}}</view>
+            <view class="m2-row-sub" wx:if="{{item._sceneLabel}}">{{item._sceneLabel}}</view>
+          </view>
+          <view class="m2-row-arrow">›</view>
+        </view>
+      </view>
+      <view class="m2-fab" bindtap="addHeartRate"><m-icon name="add" size="48" color="#FFFFFF" /></view>
     </view>
 
-<!-- ===== 心率 ===== -->
+    <!-- ===== 血糖 ===== -->
     <view class="tab-content" wx:if="{{activeTab === 'glucose'}}">
-      <view class="chart-card" wx:if="{{glucoses.length > 0}}">
+      <view class="m2-card chart-card" wx:if="{{glucoses.length > 0}}">
         <view class="chart-header">
-          <text class="chart-title">血糖趋势</text>
+          <view class="m2-card-title">血糖趋势</view>
           <view class="chart-range">
-            <text class="range-btn {{glucoseDays === 7 ? 'active' : ''}}" data-tab="glucose" data-d="7" bindtap="setChartDays">7</text>
-            <text class="range-btn {{glucoseDays === 30 ? 'active' : ''}}" data-tab="glucose" data-d="30" bindtap="setChartDays">30</text>
-            <text class="range-btn {{glucoseDays === 90 ? 'active' : ''}}" data-tab="glucose" data-d="90" bindtap="setChartDays">90</text>
-      </view>
+            <view class="range-btn {{glucoseDays === 7 ? 'active' : ''}}" data-tab="glucose" data-d="7" bindtap="setChartDays">7</view>
+            <view class="range-btn {{glucoseDays === 30 ? 'active' : ''}}" data-tab="glucose" data-d="30" bindtap="setChartDays">30</view>
+            <view class="range-btn {{glucoseDays === 90 ? 'active' : ''}}" data-tab="glucose" data-d="90" bindtap="setChartDays">90</view>
+          </view>
         </view>
         <canvas id="glucoseChart" class="chart-canvas" type="2d"></canvas>
         <view class="chart-summary" wx:if="{{glucoseStats.count > 0}}">
-          <text class="cs-item">N {{glucoseStats.avg}}</text>
+          <text class="cs-item">平均 {{glucoseStats.avg}} {{units.glucose}}</text>
           <text class="cs-item">正常率 {{glucoseStats.normalRate}}%</text>
-          <text class="cs-item">O?{{glucoseStats.count}} </text>
-      </view>
-      </view>
-      <m-empty compact title="暂无血糖记录" />
-      <view wx:for="{{glucoseGroups}}" wx:for-item="group" wx:key="month" class="month-group">
-        <view class="month-header"><text>{{group.month}}</text>
-      </view>
-        <view class="rec-item" wx:for="{{group.items}}" wx:key="_id" bindtap="editGlucose" data-id="{{item._id}}">
-          <view class="glu-row">
-            <text class="glu-val">{{item.value}}</text>
-            <text class="glu-unit">mmol/L</text>
-            <text class="glu-type">{{item._typeLabel}}</text>
-            <m-status-badge text="{{item._statusLabel}}" color="{{item._statusColor}}" />
-      </view>
-          <view class="glu-meta"><text class="glu-date">{{item.date}} {{item.time || ''}}</text>
-      </view>
+          <text class="cs-item">共 {{glucoseStats.count}} 条</text>
         </view>
       </view>
-      <view class="m-fab" bindtap="addGlucose">+</view>
+      <m-empty wx:if="{{glucoses.length === 0}}" title="暂无血糖记录" />
+      <view class="m2-list" wx:for="{{glucoseGroups}}" wx:for-item="group" wx:key="month">
+        <view class="m2-group-head"><view class="m2-group-title">{{group.month}}</view></view>
+        <view class="m2-row" wx:for="{{group.items}}" wx:key="_id" bindtap="editGlucose" data-id="{{item._id}}">
+          <view class="m2-row-icon"><m-icon tone="health" healthKey="血糖" size="36" /></view>
+          <view class="m2-row-body">
+            <view class="m2-row-title">{{item._displayValue}}<text class="cs-item">{{units.glucose}}</text> <text class="glu-type">{{item._typeLabel}}</text> <m-status-badge text="{{item._statusLabel}}" color="{{item._statusColor}}" /></view>
+            <view class="m2-row-sub">{{item.date}} {{item.time || ''}}<text wx:if="{{item._mealLabel}}" class="glu-date"> · {{item._mealLabel}}</text></view>
+          </view>
+          <view class="m2-row-arrow">›</view>
+        </view>
+      </view>
+      <view class="m2-fab" bindtap="addGlucose"><m-icon name="add" size="48" color="#FFFFFF" /></view>
     </view>
 
-<!-- ===== 血糖 ===== -->
+    <!-- ===== 血氧 ===== -->
     <view class="tab-content" wx:if="{{activeTab === 'oxygen'}}">
-      <view class="chart-card" wx:if="{{oxygens.length > 0}}">
+      <view class="m2-card chart-card" wx:if="{{oxygens.length > 0}}">
         <view class="chart-header">
-          <text class="chart-title">血氧趋势</text>
+          <view class="m2-card-title">血氧趋势</view>
           <view class="chart-range">
-            <text class="range-btn {{oxygenDays === 7 ? 'active' : ''}}" data-tab="oxygen" data-d="7" bindtap="setChartDays">7</text>
-            <text class="range-btn {{oxygenDays === 14 ? 'active' : ''}}" data-tab="oxygen" data-d="14" bindtap="setChartDays">14</text>
-            <text class="range-btn {{oxygenDays === 30 ? 'active' : ''}}" data-tab="oxygen" data-d="30" bindtap="setChartDays">30</text>
-      </view>
+            <view class="range-btn {{oxygenDays === 7 ? 'active' : ''}}" data-tab="oxygen" data-d="7" bindtap="setChartDays">7</view>
+            <view class="range-btn {{oxygenDays === 14 ? 'active' : ''}}" data-tab="oxygen" data-d="14" bindtap="setChartDays">14</view>
+            <view class="range-btn {{oxygenDays === 30 ? 'active' : ''}}" data-tab="oxygen" data-d="30" bindtap="setChartDays">30</view>
+          </view>
         </view>
         <canvas id="oxygenChart" class="chart-canvas" type="2d"></canvas>
         <view class="chart-summary" wx:if="{{oxygenStats.count > 0}}">
-          <text class="cs-item">N {{oxygenStats.avg}}%</text>
+          <text class="cs-item">平均 {{oxygenStats.avg}}%</text>
           <text class="cs-item">正常率 {{oxygenStats.normalRate}}%</text>
-          <text class="cs-item">O?{{oxygenStats.count}} </text>
-      </view>
-      </view>
-      <m-empty compact title="暂无血氧记录" />
-      <view class="rec-item" wx:for="{{oxygenGroups}}" wx:for-item="group" wx:key="month" wx:for-index="gi">
-        <view class="month-header"><text>{{group.month}}</text>
-      </view>
-        <view wx:for="{{group.items}}" wx:key="_id" bindtap="editOxygen" data-id="{{item._id}}">
-          <view class="rec-item">
-            <view class="bp-row">
-              <text class="bp-val">{{item.oxygen}}%</text>
-              <m-status-badge text="{{item._statusLabel}}" color="{{item._statusColor}}" />
-      </view>
-            <view class="bp-meta">
-              <text class="bp-date">{{item.date}} {{item.time || ''}}</text>
-              <text wx:if="{{item.pulse}}" class="bp-pulse">心率 {{item.pulse}}{{item._pulseLabel && item._pulseLabel !== '正常' ? ' ' + item._pulseLabel : ''}}</text>
-      </view>
-          </view>
+          <text class="cs-item">共 {{oxygenStats.count}} 条</text>
         </view>
       </view>
-      <view class="m-fab" bindtap="addOxygen">+</view>
+      <m-empty wx:if="{{oxygens.length === 0}}" title="暂无血氧记录" />
+      <view class="m2-list" wx:for="{{oxygenGroups}}" wx:for-item="group" wx:for-index="gi" wx:key="month">
+        <view class="m2-group-head"><view class="m2-group-title">{{group.month}}</view></view>
+        <view class="m2-row" wx:for="{{group.items}}" wx:key="_id" bindtap="editOxygen" data-id="{{item._id}}">
+          <view class="m2-row-icon"><m-icon tone="health" healthKey="血氧" size="36" /></view>
+          <view class="m2-row-body">
+            <view class="m2-row-title">{{item.oxygen}}% <m-status-badge text="{{item._statusLabel}}" color="{{item._statusColor}}" /></view>
+            <view class="m2-row-sub">{{item.date}} {{item.time || ''}}</view>
+            <view class="m2-row-sub" wx:if="{{item.pulse}}">心率 {{item.pulse}}{{item._pulseLabel && item._pulseLabel !== '正常' ? ' ' + item._pulseLabel : ''}}</view>
+          </view>
+          <view class="m2-row-arrow">›</view>
+        </view>
+      </view>
+      <view class="m2-fab" bindtap="addOxygen"><m-icon name="add" size="48" color="#FFFFFF" /></view>
     </view>
 
-<!-- ===== 血氧 ===== -->
+    <!-- ===== 体温 ===== -->
     <view class="tab-content" wx:if="{{activeTab === 'temperature'}}">
-      <view class="chart-card" wx:if="{{temperatures.length > 0}}">
+      <view class="m2-card chart-card" wx:if="{{temperatures.length > 0}}">
         <view class="chart-header">
-          <text class="chart-title">体温趋势</text>
+          <view class="m2-card-title">体温趋势</view>
           <view class="chart-range">
-            <text class="range-btn {{tempDays === 7 ? 'active' : ''}}" data-tab="temperature" data-d="7" bindtap="setChartDays">7</text>
-            <text class="range-btn {{tempDays === 14 ? 'active' : ''}}" data-tab="temperature" data-d="14" bindtap="setChartDays">14</text>
-            <text class="range-btn {{tempDays === 30 ? 'active' : ''}}" data-tab="temperature" data-d="30" bindtap="setChartDays">30</text>
-      </view>
+            <view class="range-btn {{tempDays === 7 ? 'active' : ''}}" data-tab="temperature" data-d="7" bindtap="setChartDays">7</view>
+            <view class="range-btn {{tempDays === 14 ? 'active' : ''}}" data-tab="temperature" data-d="14" bindtap="setChartDays">14</view>
+            <view class="range-btn {{tempDays === 30 ? 'active' : ''}}" data-tab="temperature" data-d="30" bindtap="setChartDays">30</view>
+          </view>
         </view>
         <canvas id="tempChart" class="chart-canvas" type="2d"></canvas>
         <view class="chart-summary" wx:if="{{tempStats.count > 0}}">
-          <text class="cs-item">N {{tempStats.avg}}C</text>
+          <text class="cs-item">平均 {{tempStats.avg}}°C</text>
           <text class="cs-item">正常率 {{tempStats.normalRate}}%</text>
-          <text class="cs-item">O?{{tempStats.count}} </text>
+          <text class="cs-item">共 {{tempStats.count}} 条</text>
+        </view>
       </view>
-      </view>
-      <m-empty compact title="暂无体温记录" />
-      <view class="rec-item" wx:for="{{temperatureGroups}}" wx:for-item="group" wx:key="month">
-        <view class="month-header"><text>{{group.month}}</text>
-      </view>
-        <view wx:for="{{group.items}}" wx:key="_id" bindtap="editTemperature" data-id="{{item._id}}">
-          <view class="rec-item">
-            <view class="bp-row">
-              <text class="bp-val">{{item.temperature}}C</text>
-              <m-status-badge text="{{item._statusLabel}}" color="{{item._statusColor}}" />
-      </view>
-            <view class="bp-meta">
-              <text class="bp-date">{{item.date}} {{item.time || ''}}</text>
-              <text wx:if="{{item._locLabel}}" class="bp-pulse">{{item._locLabel}}</text>
-      </view>
+      <m-empty wx:if="{{temperatures.length === 0}}" title="暂无体温记录" />
+      <view class="m2-list" wx:for="{{temperatureGroups}}" wx:for-item="group" wx:key="month">
+        <view class="m2-group-head"><view class="m2-group-title">{{group.month}}</view></view>
+        <view class="m2-row" wx:for="{{group.items}}" wx:key="_id" bindtap="editTemperature" data-id="{{item._id}}">
+          <view class="m2-row-icon"><m-icon tone="health" healthKey="体温" size="36" /></view>
+          <view class="m2-row-body">
+            <view class="m2-row-title">{{item.temperature}}°C <m-status-badge text="{{item._statusLabel}}" color="{{item._statusColor}}" /></view>
+            <view class="m2-row-sub">{{item.date}} {{item.time || ''}}</view>
+            <view class="m2-row-sub" wx:if="{{item._locLabel}}">{{item._locLabel}}</view>
           </view>
+          <view class="m2-row-arrow">›</view>
         </view>
       </view>
-      <view class="m-fab" bindtap="addTemperature">+</view>
+      <view class="m2-fab" bindtap="addTemperature"><m-icon name="add" size="48" color="#FFFFFF" /></view>
     </view>
 
-<!-- ===== 体温 ===== -->
+    <!-- ===== 饮水 ===== -->
     <view class="tab-content" wx:if="{{activeTab === 'water'}}">
-      <view class="shortcut-grid">
-        <view class="sc-card" bindtap="goWater">
-          <text class="sc-ico">📊</text>
-          <view class="sc-info">
-            <text class="sc-title">快捷入口</text>
-            <text class="sc-sub">`C {{waterToday}}ml / {{waterGoal}}ml  O?{{waterCount}} </text>
-      </view>
+      <view class="m2-card sc-card" bindtap="goWater">
+        <view class="m2-row-icon"><m-icon tone="health" healthKey="饮水" size="36" /></view>
+        <view class="m2-row-body">
+          <view class="m2-row-title">快捷入口</view>
+          <view class="m2-row-sub">今日 {{waterToday}}ml / {{waterGoal}}ml · 共 {{waterCount}} 次</view>
         </view>
+        <view class="m2-row-arrow">›</view>
       </view>
-      <view class="m-fab" bindtap="addWater">+</view>
+      <view class="m2-fab" bindtap="addWater"><m-icon name="add" size="48" color="#FFFFFF" /></view>
     </view>
 
-<!-- ===== 饮水 ===== -->
+    <!-- ===== 睡眠 ===== -->
     <view class="tab-content" wx:if="{{activeTab === 'sleep'}}">
-      <view class="shortcut-grid">
-        <view class="sc-card" bindtap="goSleep">
-          <text class="sc-ico">😴</text>
-          <view class="sc-info">
-            <text class="sc-title">睡眠记录</text>
-            <text class="sc-sub" wx:if="{{sleepStats.count > 0}}">N {{sleepStats.avg}}h  O?{{sleepStats.count}} </text>
-            <text class="sc-sub" wx:else>共 {{sleepCount}} 次记录</text>
-      </view>
+      <view class="m2-card chart-card" wx:if="{{sleeps.length > 0}}">
+        <view class="chart-header"><view class="m2-card-title">睡眠时长趋势</view></view>
+        <canvas id="sleepChart" class="chart-canvas" type="2d"></canvas>
+        <view class="chart-summary" wx:if="{{sleepStats.count > 0}}">
+          <text class="cs-item">平均 {{sleepStats.avg}}h</text>
+          <text class="cs-item">最长 {{sleepStats.max}}h</text>
+          <text class="cs-item">最短 {{sleepStats.min}}h</text>
         </view>
       </view>
-      <view class="m-fab" bindtap="addSleep">+</view>
+      <m-empty wx:if="{{sleeps.length === 0}}" title="暂无睡眠记录" />
+      <view class="m2-card sc-card" bindtap="goSleep">
+        <view class="m2-row-icon"><m-icon tone="health" healthKey="睡眠" size="36" /></view>
+        <view class="m2-row-body">
+          <view class="m2-row-title">查看全部睡眠记录</view>
+          <view class="m2-row-sub">共 {{sleepCount}} 次记录</view>
+        </view>
+        <view class="m2-row-arrow">›</view>
+      </view>
+      <view class="m2-fab" bindtap="addSleep"><m-icon name="add" size="48" color="#FFFFFF" /></view>
     </view>
 
-<!-- ===== 睡眠 ===== -->
+    <!-- ===== 运动 ===== -->
     <view class="tab-content" wx:if="{{activeTab === 'exercise'}}">
-      <view class="shortcut-grid">
-        <view class="sc-card" bindtap="goExercise">
-          <text class="sc-ico">🏃</text>
-          <view class="sc-info">
-            <text class="sc-title">运动记录</text>
-            <text class="sc-sub">共 {{exerciseCount}} 次记录</text>
-      </view>
+      <view class="m2-card chart-card" wx:if="{{exercises.length > 0}}">
+        <view class="chart-header"><view class="m2-card-title">运动时长趋势</view></view>
+        <canvas id="exerciseChart" class="chart-canvas" type="2d"></canvas>
+        <view class="chart-summary" wx:if="{{exerciseStats.count > 0}}">
+          <text class="cs-item">平均 {{exerciseStats.avg}} 分钟</text>
+          <text class="cs-item">最长 {{exerciseStats.max}} 分钟</text>
+          <text class="cs-item">共 {{exerciseCount}} 次</text>
         </view>
       </view>
-      <view class="m-fab" bindtap="addExercise">+</view>
+      <m-empty wx:if="{{exercises.length === 0}}" title="暂无运动记录" />
+      <view class="m2-card sc-card" bindtap="goExercise">
+        <view class="m2-row-icon"><m-icon tone="health" healthKey="运动" size="36" /></view>
+        <view class="m2-row-body">
+          <view class="m2-row-title">查看全部运动记录</view>
+          <view class="m2-row-sub">共 {{exerciseCount}} 次记录</view>
+        </view>
+        <view class="m2-row-arrow">›</view>
+      </view>
+      <view class="m2-fab" bindtap="addExercise"><m-icon name="add" size="48" color="#FFFFFF" /></view>
     </view>
 
-<!-- ===== 运动 ===== -->
+    <!-- ===== 尿酸 ===== -->
     <view class="tab-content" wx:if="{{activeTab === 'uric_acid'}}">
-      <view class="chart-card" wx:if="{{uricAcids.length > 0}}">
+      <view class="m2-card chart-card" wx:if="{{uricAcids.length > 0}}">
         <view class="chart-header">
-          <text class="chart-title">尿酸趋势</text>
+          <view class="m2-card-title">尿酸趋势</view>
           <view class="chart-range">
-            <text class="range-btn {{uricDays === 30 ? 'active' : ''}}" data-tab="uric_acid" data-d="30" bindtap="setChartDays">30</text>
-            <text class="range-btn {{uricDays === 90 ? 'active' : ''}}" data-tab="uric_acid" data-d="90" bindtap="setChartDays">90</text>
-            <text class="range-btn {{uricDays === 180 ? 'active' : ''}}" data-tab="uric_acid" data-d="180" bindtap="setChartDays">WB</text>
-      </view>
+            <view class="range-btn {{uricDays === 30 ? 'active' : ''}}" data-tab="uric_acid" data-d="30" bindtap="setChartDays">30</view>
+            <view class="range-btn {{uricDays === 90 ? 'active' : ''}}" data-tab="uric_acid" data-d="90" bindtap="setChartDays">90</view>
+            <view class="range-btn {{uricDays === 180 ? 'active' : ''}}" data-tab="uric_acid" data-d="180" bindtap="setChartDays">180</view>
+          </view>
         </view>
         <canvas id="uricChart" class="chart-canvas" type="2d"></canvas>
         <view class="chart-summary" wx:if="{{uricStats.count > 0}}">
-          <text class="cs-item">N {{uricStats.avg}}-mol/L</text>
+          <text class="cs-item">平均 {{uricStats.avg}}μmol/L</text>
           <text class="cs-item">正常率 {{uricStats.normalRate}}%</text>
-          <text class="cs-item">O?{{uricStats.count}} </text>
-      </view>
-      </view>
-      <m-empty compact title="暂无尿酸记录" />
-      <view class="rec-item" wx:for="{{uricGroups}}" wx:for-item="group" wx:key="month">
-        <view class="month-header"><text>{{group.month}}</text>
-      </view>
-        <view wx:for="{{group.items}}" wx:key="_id" bindtap="editUric" data-id="{{item._id}}">
-          <view class="rec-item">
-            <view class="glu-row">
-              <text class="glu-val">{{item.uricAcid}}</text>
-              <text class="glu-unit">-mol/L</text>
-              <m-status-badge text="{{item._statusLabel}}" color="{{item._statusColor}}" />
-      </view>
-            <view class="glu-meta"><text class="glu-date">{{item.date}}</text>
-      </view>
-          </view>
+          <text class="cs-item">共 {{uricStats.count}} 条</text>
         </view>
       </view>
-      <view class="m-fab" bindtap="addUric">+</view>
+      <m-empty wx:if="{{uricAcids.length === 0}}" title="暂无尿酸记录" />
+      <view class="m2-list" wx:for="{{uricGroups}}" wx:for-item="group" wx:key="month">
+        <view class="m2-group-head"><view class="m2-group-title">{{group.month}}</view></view>
+        <view class="m2-row" wx:for="{{group.items}}" wx:key="_id" bindtap="editUric" data-id="{{item._id}}">
+          <view class="m2-row-icon"><m-icon tone="health" healthKey="尿酸" size="36" /></view>
+          <view class="m2-row-body">
+            <view class="m2-row-title">{{item.uricAcid}}<text class="cs-item">μmol/L</text> <m-status-badge text="{{item._statusLabel}}" color="{{item._statusColor}}" /></view>
+            <view class="m2-row-sub">{{item.date}}<text wx:if="{{item._typeLabel}}" class="glu-date"> · {{item._typeLabel}}</text></view>
+          </view>
+          <view class="m2-row-arrow">›</view>
+        </view>
+      </view>
+      <view class="m2-fab" bindtap="addUric"><m-icon name="add" size="48" color="#FFFFFF" /></view>
     </view>
 
-<!-- ===== 尿酸 ===== -->
+    <!-- ===== 血脂 ===== -->
     <view class="tab-content" wx:if="{{activeTab === 'cholesterol'}}">
-      <view class="chart-card" wx:if="{{cholesterols.length > 0}}">
+      <view class="m2-card chart-card" wx:if="{{cholesterols.length > 0}}">
         <view class="chart-header">
-          <text class="chart-title">血脂趋势</text>
+          <view class="m2-card-title">血脂趋势</view>
           <view class="chart-range">
-            <text class="range-btn {{cholDays === 30 ? 'active' : ''}}" data-tab="cholesterol" data-d="30" bindtap="setChartDays">30</text>
-            <text class="range-btn {{cholDays === 90 ? 'active' : ''}}" data-tab="cholesterol" data-d="90" bindtap="setChartDays">90</text>
-            <text class="range-btn {{cholDays === 180 ? 'active' : ''}}" data-tab="cholesterol" data-d="180" bindtap="setChartDays">WB</text>
-      </view>
+            <view class="range-btn {{cholDays === 30 ? 'active' : ''}}" data-tab="cholesterol" data-d="30" bindtap="setChartDays">30</view>
+            <view class="range-btn {{cholDays === 90 ? 'active' : ''}}" data-tab="cholesterol" data-d="90" bindtap="setChartDays">90</view>
+            <view class="range-btn {{cholDays === 180 ? 'active' : ''}}" data-tab="cholesterol" data-d="180" bindtap="setChartDays">180</view>
+          </view>
         </view>
         <canvas id="cholChart" class="chart-canvas" type="2d"></canvas>
         <view class="chart-summary" wx:if="{{cholStats.count > 0}}">
-          <text class="cs-item">g?{{cholStats.avg}}mmol/L</text>
-          <text class="cs-item" wx:if="{{cholTgStats.count > 0}}">TG g?{{cholTgStats.avg}}</text>
-          <text class="cs-item">O?{{cholStats.count}} </text>
-      </view>
-      </view>
-      <m-empty compact title="暂无血脂记录" />
-      <view class="rec-item" wx:for="{{cholGroups}}" wx:for-item="group" wx:key="month">
-        <view class="month-header"><text>{{group.month}}</text>
-      </view>
-        <view wx:for="{{group.items}}" wx:key="_id" bindtap="editChol" data-id="{{item._id}}">
-          <view class="rec-item">
-            <view class="bp-row">
-              <text class="bp-val">{{item.total || '--'}} mmol/L</text>
-              <m-status-badge text="{{item._statusLabel}}" color="{{item._statusColor}}" />
-      </view>
-            <view class="bp-meta">
-              <text wx:if="{{item.ldl}}">LDL {{item.ldl}}</text>
-              <text wx:if="{{item.hdl}}">HDL {{item.hdl}}</text>
-              <text wx:if="{{item.tg}}">TG {{item.tg}}</text>
-              <text class="bp-date">{{item.date}}</text>
-      </view>
-          </view>
+          <text class="cs-item">平均 {{cholStats.avg}}mmol/L</text>
+          <text class="cs-item" wx:if="{{cholTgStats.count > 0}}">TG 平均 {{cholTgStats.avg}}</text>
+          <text class="cs-item">共 {{cholStats.count}} 条</text>
         </view>
       </view>
-      <view class="m-fab" bindtap="addChol">+</view>
+      <m-empty wx:if="{{cholesterols.length === 0}}" title="暂无血脂记录" />
+      <view class="m2-list" wx:for="{{cholGroups}}" wx:for-item="group" wx:key="month">
+        <view class="m2-group-head"><view class="m2-group-title">{{group.month}}</view></view>
+        <view class="m2-row" wx:for="{{group.items}}" wx:key="_id" bindtap="editChol" data-id="{{item._id}}">
+          <view class="m2-row-icon"><m-icon tone="health" healthKey="血脂" size="36" /></view>
+          <view class="m2-row-body">
+            <view class="m2-row-title">{{item.total || '--'}} mmol/L <m-status-badge text="{{item._statusLabel}}" color="{{item._statusColor}}" /></view>
+            <view class="m2-row-sub"><text wx:if="{{item.ldl}}">LDL {{item.ldl}} </text><text wx:if="{{item.hdl}}">HDL {{item.hdl}} </text><text wx:if="{{item.tg}}">TG {{item.tg}} </text>{{item.date}}</view>
+          </view>
+          <view class="m2-row-arrow">›</view>
+        </view>
+      </view>
+      <view class="m2-fab" bindtap="addChol"><m-icon name="add" size="48" color="#FFFFFF" /></view>
     </view>
 
-<!-- ===== 血脂 ===== -->
+    <!-- ===== 饮食 ===== -->
     <view class="tab-content" wx:if="{{activeTab === 'diet'}}">
-      <view class="chart-card" wx:if="{{dietDaily.length > 0}}">
+      <view class="m2-card chart-card" wx:if="{{dietDaily.length > 0}}">
         <view class="chart-header">
-          <text class="chart-title">饮食趋势</text>
+          <view class="m2-card-title">饮食趋势</view>
           <view class="chart-range">
-            <text class="range-btn {{dietDays === 7 ? 'active' : ''}}" data-tab="diet" data-d="7" bindtap="setChartDays">7</text>
-            <text class="range-btn {{dietDays === 30 ? 'active' : ''}}" data-tab="diet" data-d="30" bindtap="setChartDays">30</text>
-            <text class="range-btn {{dietDays === 90 ? 'active' : ''}}" data-tab="diet" data-d="90" bindtap="setChartDays">90</text>
-      </view>
+            <view class="range-btn {{dietDays === 7 ? 'active' : ''}}" data-tab="diet" data-d="7" bindtap="setChartDays">7</view>
+            <view class="range-btn {{dietDays === 30 ? 'active' : ''}}" data-tab="diet" data-d="30" bindtap="setChartDays">30</view>
+            <view class="range-btn {{dietDays === 90 ? 'active' : ''}}" data-tab="diet" data-d="90" bindtap="setChartDays">90</view>
+          </view>
         </view>
         <canvas id="dietChart" class="chart-canvas" type="2d"></canvas>
         <view class="chart-summary">
           <text class="cs-item">今日 {{dietToday}} kcal</text>
-          <text class="cs-item">O?{{dietCount}} </text>
-          <text class="cs-item">U
- {{dietDaily.length}} </text>
-      </view>
-      </view>
-      <m-empty compact title="暂无饮食记录" />
-      <view class="rec-item" wx:for="{{dietGroups}}" wx:for-item="group" wx:key="month" wx:for-index="gi">
-        <view class="month-header"><text>{{group.month}}</text>
-      </view>
-        <view wx:for="{{group.items}}" wx:key="_id" bindtap="editDiet" data-id="{{item._id}}">
-          <view class="rec-item">
-            <view class="bp-row">
-              <text class="bp-val">{{item._mealIcon}} {{item.food}}</text>
-              <m-status-badge wx:if="{{item.calories}}" text="{{item.calories}} kcal" color="#FFA726" />
-      </view>
-            <view class="bp-meta">
-              <text class="bp-date">{{item.date}}</text>
-              <text>{{item._mealLabel}}</text>
-      </view>
-          </view>
+          <text class="cs-item">共 {{dietCount}} 条</text>
+          <text class="cs-item">记录 {{dietDaily.length}} 天</text>
         </view>
       </view>
-      <view class="m-fab" bindtap="addDiet">+</view>
+      <m-empty wx:if="{{diets.length === 0}}" title="暂无饮食记录" />
+      <view class="m2-list" wx:for="{{dietGroups}}" wx:for-item="group" wx:for-index="gi" wx:key="month">
+        <view class="m2-group-head"><view class="m2-group-title">{{group.month}}</view></view>
+        <view class="m2-row" wx:for="{{group.items}}" wx:key="_id" bindtap="editDiet" data-id="{{item._id}}">
+          <view class="m2-row-icon"><m-icon tone="health" healthKey="饮食" size="36" /></view>
+          <view class="m2-row-body">
+            <view class="m2-row-title"><m-icon value="{{item._mealIcon}}" size="26" tone="category" inline /> {{item.food}} <m-status-badge wx:if="{{item.calories}}" text="{{item.calories}} kcal" color="var(--warning)" /></view>
+            <view class="m2-row-sub">{{item.date}} {{item.time || ''}} · {{item._mealLabel}}</view>
+          </view>
+          <view class="m2-row-arrow">›</view>
+        </view>
+      </view>
+      <view class="m2-fab" bindtap="addDiet"><m-icon name="add" size="48" color="#FFFFFF" /></view>
     </view>
 
-<!-- ===== 饮食 ===== -->
+    <!-- ===== 用药 ===== -->
     <view class="tab-content" wx:if="{{activeTab === 'medication'}}">
-      <m-empty compact wx:if="{{meds.length === 0}}" title="暂无用药记录" />
-      <view wx:for="{{medGroups}}" wx:for-item="group" wx:key="month">
-        <view class="month-header"><text>{{group.month}}</text>
-      </view>
-        <view class="rec-item" wx:for="{{group.items}}" wx:key="_id" bindtap="editMed" data-id="{{item._id}}">
-          <view class="rec-main">
-            <text class="rec-value" style="font-size: 32rpx;">💊 {{item.name}}</text>
-      </view>
-          <view class="rec-notes">
-            {{item.dosage || ''}} {{item.frequency || ''}}
+      <m-empty wx:if="{{meds.length === 0}}" title="暂无用药记录" />
+      <view class="m2-list" wx:for="{{medGroups}}" wx:for-item="group" wx:key="month">
+        <view class="m2-group-head"><view class="m2-group-title">{{group.month}}</view></view>
+        <view class="m2-row" wx:for="{{group.items}}" wx:key="_id" bindtap="editMed" data-id="{{item._id}}">
+          <view class="m2-row-icon"><m-icon tone="health" healthKey="用药" size="36" /></view>
+          <view class="m2-row-body">
+            <view class="m2-row-title">{{item.name}}</view>
+            <view class="m2-row-sub">{{item.dosage || ''}} {{item.frequency || ''}}</view>
+            <view class="m2-row-sub">{{item._dateRange}}</view>
+            <view class="m2-row-sub" wx:if="{{item.images && item.images.length}}"><m-icon name="clip" size="24" inline />{{item.images.length}} 张照片</view>
+            <view class="m2-row-sub" wx:if="{{item.reminderEnabled}}">提醒时间 {{item.reminderTimes || '未设置'}}（暂不支持推送）</view>
           </view>
-          <view class="rec-date">{{item._dateRange}}</view>
-          <view wx:if="{{item.reminderEnabled}}" class="med-reminder">点击设置用药提醒</view>
+          <view class="m2-row-arrow">›</view>
         </view>
       </view>
-      <view class="m-fab" bindtap="addMed">+</view>
+      <view class="m2-fab" bindtap="addMed"><m-icon name="add" size="48" color="#FFFFFF" /></view>
     </view>
 
-<!-- ===== 用药 ===== -->
+    <!-- ===== 看诊 ===== -->
     <view class="tab-content" wx:if="{{activeTab === 'visit'}}">
-      <m-empty compact wx:if="{{visits.length === 0}}" title="暂无看诊记录" />
-      <view wx:for="{{visitGroups}}" wx:for-item="group" wx:key="month">
-        <view class="month-header"><text>{{group.month}}</text>
-      </view>
-        <view class="rec-item" wx:for="{{group.items}}" wx:key="_id" bindtap="editVisit" data-id="{{item._id}}">
-          <view class="rec-main">
-            <text class="rec-value" style="font-size: 32rpx;">🏥 {{item.hospital || '*-'}}</text>
-      </view>
-          <view wx:if="{{item.doctor}}" class="rec-notes">VdS{item.doctor}}</view>
-          <view wx:if="{{item.diagnosis}}" class="rec-notes">C{item.diagnosis}}</view>
-          <view class="rec-date">{{item._dateLabel}}</view>
+      <m-empty wx:if="{{visits.length === 0}}" title="暂无看诊记录" />
+      <view class="m2-list" wx:for="{{visitGroups}}" wx:for-item="group" wx:key="month">
+        <view class="m2-group-head"><view class="m2-group-title">{{group.month}}</view></view>
+        <view class="m2-row" wx:for="{{group.items}}" wx:key="_id" bindtap="editVisit" data-id="{{item._id}}">
+          <view class="m2-row-icon"><m-icon tone="health" healthKey="看诊" size="36" /></view>
+          <view class="m2-row-body">
+            <view class="m2-row-title">{{item.hospital || item._title || '未填写'}}</view>
+            <view class="m2-row-sub"><text wx:if="{{item._visitType}}">{{item._visitType}}</text><text wx:if="{{item._department}}"> · {{item._department}}</text><text wx:if="{{item.doctor}}"> · {{item.doctor}}</text><text wx:if="{{item._costText}}"> · {{item._costText}}</text></view>
+            <view class="m2-row-sub" wx:if="{{item.diagnosis}}">诊断：{{item.diagnosis}}</view>
+            <view class="m2-row-sub" wx:if="{{item._treatment}}">方案：{{item._treatment}}</view>
+            <view class="m2-row-sub" wx:if="{{item.images && item.images.length}}"><m-icon name="clip" size="24" inline />{{item.images.length}} 张照片</view>
+            <view class="m2-row-sub">{{item._dateLabel}}</view>
+          </view>
+          <view class="m2-row-arrow">›</view>
         </view>
       </view>
-      <view class="m-fab" bindtap="addVisit">+</view>
+      <view class="m2-fab" bindtap="addVisit"><m-icon name="add" size="48" color="#FFFFFF" /></view>
     </view>
 
-<!-- ===== 看诊 ===== -->
+    <!-- ===== 生理期 ===== -->
     <view class="tab-content" wx:if="{{activeTab === 'period'}}">
-      <view class="cycle-card {{cycleStageClass}}" wx:if="{{cycleInfo}}">
-        <view class="cycle-label">当前阶段</view>
+      <view wx:if="{{cycleInfo}}" class="m2-card cycle-card {{cycleStageClass}}">
+        <view class="m2-card-head"><view class="m2-card-title">当前阶段</view></view>
         <view class="cycle-text">{{cycleStageText}}</view>
         <view class="cycle-meta">
           <text>周期第 {{cycleInfo.dayInCycle}}/{{cycleInfo.totalDays}} 天</text>
-          <text wx:if="{{cycleInfo.daysUntilNext}}">+%i;A {{cycleInfo.daysUntilNext}} </text>
-      </view>
-      </view>
-      <m-empty compact wx:if="{{periods.length === 0}}" title="暂无生理期记录" />
-      <view wx:for="{{periods}}" wx:key="_id" bindtap="editPeriod" data-id="{{item._id}}">
-        <view class="rec-item">
-          <view class="rec-main">
-            <text class="rec-value" style="font-size: 32rpx;">🌸 {{item._dateRange}}</text>
-      </view>
-          <view wx:if="{{item._duration}}" class="rec-notes">持续 {{item._duration}} 天 </view>
+          <text wx:if="{{cycleInfo.daysUntilNext}}">距离下次姨妈还有 {{cycleInfo.daysUntilNext}} 天</text>
         </view>
       </view>
-      <view class="m-fab" bindtap="addPeriod">+</view>
+      <m-empty wx:if="{{periods.length === 0}}" title="暂无生理期记录" />
+      <view class="m2-list">
+        <view class="m2-row" wx:for="{{periods}}" wx:key="_id" bindtap="editPeriod" data-id="{{item._id}}">
+          <view class="m2-row-icon"><m-icon tone="health" healthKey="生理期" size="36" /></view>
+          <view class="m2-row-body">
+            <view class="m2-row-title">{{item._dateRange}}</view>
+            <view class="m2-row-sub" wx:if="{{item._duration}}">持续 {{item._duration}} 天</view>
+          </view>
+          <view class="m2-row-arrow">›</view>
+        </view>
+      </view>
+      <view class="m2-fab" bindtap="addPeriod"><m-icon name="add" size="48" color="#FFFFFF" /></view>
     </view>
 
   </block>

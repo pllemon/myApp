@@ -1,0 +1,19 @@
+<view class="mp-root">
+  <view class="mp-head">
+    <text wx:if="{{label}}" class="mp-label">{{label}}</text>
+    <text class="mp-count">{{images.length}}/{{max}}</text>
+  </view>
+  <view class="mp-grid {{size ? 'mp-grid-' + size : ''}}">
+    <view wx:for="{{images}}" wx:key="*this" class="mp-item">
+      <image class="mp-thumb" src="{{item}}" mode="aspectFill" data-index="{{index}}" bindtap="previewImage" />
+      <view wx:if="{{!readonly}}" class="mp-remove" data-index="{{index}}" catchtap="removeImage">
+        <m-icon name="close" size="22" color="#FFFFFF" />
+      </view>
+    </view>
+    <view wx:if="{{!readonly && images.length < max}}" class="mp-add" bindtap="chooseImages">
+      <view class="mp-add-icon">+</view>
+      <view class="mp-add-text">添加图片</view>
+    </view>
+  </view>
+  <view wx:if="{{!readonly}}" class="mp-tip">点击图片可预览 · 最多 {{max}} 张，单张不超过 10MB</view>
+</view>

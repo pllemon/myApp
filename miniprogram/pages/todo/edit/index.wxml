@@ -1,160 +1,127 @@
-<view class="container m-edit-page">
-  <view class="m-form-card">
-    <m-field label="待办内容" block>
-      <input class="m-title-input"
-        placeholder="例如：完成项目周报"
-        value="{{title}}"
-        maxlength="60"
-        bindinput="onTitleInput"
-        focus="{{!isEdit}}"
-      />
-    </m-field>
+<view class="m2-page m2-edit" style="{{themeStyle}}">
+  <view class="m2-edit-hero">
+    <view class="m2-edit-hero-icon" style="background: var(--primary-light)"><m-icon name="note" size="48" /></view>
+    <view>
+      <view class="m2-edit-title">{{isEdit ? '编辑待办' : '新建待办'}}</view>
+      <view class="m2-edit-desc">写下要做的事，剩下的交给清单</view>
+    </view>
+  </view>
+
+  <view class="m2-form-card">
+    <view class="m2-field">
+      <view class="m2-field-label">待办内容</view>
+      <input class="m2-field-value title-input" placeholder="例如：完成项目周报" value="{{title}}" maxlength="60" bindinput="onTitleInput" focus="{{!isEdit}}" />
+    </view>
 
     <m-field label="所属清单" click bind:fieldtap="openListPicker">
       <view class="m-form-picker-value">
-        <text>{{listId || '不指定清单'}}</text>
+        <text>{{selectedListName || '不指定清单'}}</text>
         <text class="m-picker-arrow">›</text>
       </view>
     </m-field>
 
-    <m-field label="优先级" block>
+    <view class="m2-field">
+      <view class="m2-field-label">优先级</view>
       <view class="priority-row">
         <view
           wx:for="{{priorityOptions}}"
           wx:key="key"
-          class="priority-chip {{priority === item.key ? 'priority-active' : ''}}"
+          class="m2-chip priority-chip {{priority === item.key ? 'priority-active active' : ''}}"
           style="{{priority === item.key ? 'color:' + item.color + ';background:' + item.bg + ';border-color:' + item.color : ''}}"
           data-key="{{item.key}}"
           bindtap="selectPriority"
         >{{item.label}}</view>
       </view>
-    </m-field>
+    </view>
 
-    <m-field label="截止日期">
+    <view class="m2-field">
+      <view class="m2-field-label">截止日期</view>
       <picker mode="date" value="{{dueDate}}" bindchange="onDateChange">
-        <view class="m-form-picker-value {{dueDate ? '' : 'date-placeholder'}}">
-          {{dueDate || '选择日期（可选）'}}
-        </view>
+        <view class="m2-field-value {{dueDate ? '' : 'placeholder'}}">{{dueDate || '选填'}}</view>
       </picker>
-      <view wx:if="{{dueDate}}" class="date-clear" catchtap="clearDate">清除</view>
-    </m-field>
+      <view wx:if="{{dueDate}}" class="date-clear" catchtap="clearDate"><m-icon name="close" size="24" inline /> 清除</view>
+    </view>
 
-    <m-field wx:if="{{dueDate}}" label="截止时间">
+    <view class="m2-field" wx:if="{{dueDate}}">
+      <view class="m2-field-label">截止时间</view>
       <picker mode="time" value="{{dueTime}}" bindchange="onTimeChange">
-        <view class="m-form-picker-value {{dueTime ? '' : 'date-placeholder'}}">
-          {{dueTime ? '时间 ' + dueTime : '选择时间（可选）'}}
-        </view>
+        <view class="m2-field-value {{dueTime ? '' : 'placeholder'}}">{{dueTime ? '时间 ' + dueTime : '选填'}}</view>
       </picker>
-      <view wx:if="{{dueTime}}" class="date-clear" catchtap="clearTime">清除</view>
-    </m-field>
+      <view wx:if="{{dueTime}}" class="date-clear" catchtap="clearTime"><m-icon name="close" size="24" inline /> 清除</view>
+    </view>
 
-    <m-field wx:if="{{dueDate}}" block>
-      <view class="switch-row">
-        <text class="switch-label">到期提醒（页面内提示）</text>
-        <switch checked="{{remind}}" color="var(--primary)" bindchange="toggleRemind" />
-      </view>
-    </m-field>
+    <view class="m2-field" wx:if="{{dueDate}}">
+      <view class="m2-field-label">标记提醒</view>
+      <switch checked="{{remind}}" color="var(--primary)" bindchange="toggleRemind" />
+    </view>
 
-    <m-field label="标签" block>
-      <view class="tag-section">
-        <view class="tag-chips" wx:if="{{tags.length > 0}}">
-          <view wx:for="{{tags}}" wx:key="*this" class="tag-chip tag-chip-active">
-            <text>#{{item}}</text>
-            <text class="tag-close" data-tag="{{item}}" catchtap="removeTag">×</text>
-          </view>
-        </view>
-        <view class="tag-input-row">
-          <input
-            class="tag-input"
-            placeholder="输入标签后按回车"
-            value="{{newTag}}"
-            bindinput="onNewTagInput"
-            bindconfirm="addTag"
-          />
-          <view class="tag-add-btn" bindtap="addTag">添加</view>
-        </view>
-      </view>
-    </m-field>
-
-    <m-field label="子任务" block>
-      <view class="subtask-list" wx:if="{{subtasks.length > 0}}">
-        <view wx:for="{{subtasks}}" wx:key="index" class="subtask-item">
-          <switch checked="{{item.done}}" color="var(--primary)" data-index="{{index}}" bindchange="toggleSubtask" />
-          <input
-            class="subtask-input {{item.done ? 'subtask-done' : ''}}"
-            value="{{item.title}}"
-            placeholder="子任务"
-            data-index="{{index}}"
-            bindinput="onSubtaskTitle"
-          />
-          <view class="subtask-del" data-index="{{index}}" catchtap="removeSubtask">×</view>
-        </view>
-      </view>
-      <view class="subtask-add-row">
-        <input
-          class="subtask-add-input"
-          placeholder="添加子任务..."
-          value="{{newSubtask}}"
-          bindinput="onNewSubtaskInput"
-          bindconfirm="addSubtask"
-        />
-        <view class="subtask-add-btn" bindtap="addSubtask">+</view>
-      </view>
-    </m-field>
-
-    <m-field label="备注" block>
-      <textarea class="m-note-input"
-        placeholder="补充说明（可选）"
-        value="{{note}}"
-        maxlength="200"
-        bindinput="onNoteInput"
-        auto-height
-      />
-    </m-field>
-
-    <m-field label="附件图片" block>
-      <view class="img-grid img-grid-sm">
-        <view wx:for="{{images}}" wx:key="*this" class="img-item">
-          <image class="img-thumb" src="{{item}}" mode="aspectFill" data-index="{{index}}" bindtap="previewImage" />
-          <view class="img-remove" data-index="{{index}}" catchtap="removeImage">×</view>
-        </view>
-        <view wx:if="{{images.length < 9}}" class="img-add" bindtap="chooseImages">
-          <text class="img-add-icon">+</text>
-          <text class="img-add-text">添加</text>
-        </view>
-      </view>
-    </m-field>
-  </view>
-
-  <m-save-bar
-    save-text="保存"
-    show-delete="{{isEdit}}"
-    bind:save="save"
-    bind:delete="remove"
-  />
-
-  <view wx:if="{{showListPicker}}" class="modal-mask" bindtap="closeListPicker">
-    <view class="modal-panel" catchtap="">
-      <view class="modal-header">
-        <text class="modal-title">选择清单</text>
-        <view class="modal-close" bindtap="closeListPicker">×</view>
-      </view>
-      <view class="list-picker-body">
-        <view class="list-option {{!listId ? 'list-option-active' : ''}}" bindtap="clearList">
-          <view class="list-option-icon">📦</view>
-          <view class="list-option-name">不指定</view>
-        </view>
-        <view
-          wx:for="{{lists}}"
-          wx:key="_id"
-          class="list-option {{listId === item._id ? 'list-option-active' : ''}}"
-          data-id="{{item._id}}"
-          bindtap="selectList"
-        >
-          <view class="list-option-icon" style="background:{{item.color || '#4A90D9'}}20;color:{{item.color || '#4A90D9'}}">{{item.icon || '📋'}}</view>
-          <view class="list-option-name">{{item.name}}</view>
-        </view>
-      </view>
+    <view class="m2-field" wx:if="{{dueDate}}">
+      <view class="m2-field-label">重复</view>
+      <picker mode="selector" range="{{repeatOptions}}" value="{{repeatIndex}}" bindchange="onRepeatChange">
+        <view class="m2-field-value">{{repeatOptions[repeatIndex]}}</view>
+      </picker>
     </view>
   </view>
+
+  <view class="m2-form-card">
+    <view class="m2-form-title">标签</view>
+    <view class="m2-chip-row" wx:if="{{tags.length > 0}}">
+      <view wx:for="{{tags}}" wx:key="*this" class="m2-chip active tag-chip">
+        <text>#{{item}}</text>
+        <view class="tag-close" data-tag="{{item}}" catchtap="removeTag"><m-icon name="close" size="24" inline /></view>
+      </view>
+    </view>
+    <view class="tag-input-row">
+      <input class="tag-input" placeholder="输入标签后按回车" value="{{newTag}}" bindinput="onNewTagInput" bindconfirm="addTag" />
+      <view class="m2-btn m2-btn-ghost tag-add-btn" bindtap="addTag">添加</view>
+    </view>
+  </view>
+
+  <view class="m2-form-card">
+    <view class="m2-form-title">子任务</view>
+    <view class="subtask-list" wx:if="{{subtasks.length > 0}}">
+      <view wx:for="{{subtasks}}" wx:key="index" class="subtask-item">
+        <switch checked="{{item.done}}" color="var(--primary)" data-index="{{index}}" bindchange="toggleSubtask" />
+        <input class="subtask-input {{item.done ? 'subtask-done' : ''}}" value="{{item.title}}" placeholder="子任务" data-index="{{index}}" bindinput="onSubtaskTitle" />
+        <view class="subtask-del" data-index="{{index}}" catchtap="removeSubtask"><m-icon name="close" size="24" inline /></view>
+      </view>
+    </view>
+    <view class="subtask-add-row">
+      <input class="subtask-add-input" placeholder="添加子任务..." value="{{newSubtask}}" bindinput="onNewSubtaskInput" bindconfirm="addSubtask" />
+      <view class="subtask-add-btn" bindtap="addSubtask"><m-icon name="add" size="36" color="#FFFFFF" /></view>
+    </view>
+  </view>
+
+  <view class="m2-form-card">
+    <view class="m2-form-title">备注</view>
+    <textarea class="m2-note note-input" placeholder="补充说明（可选）" value="{{note}}" maxlength="200" bindinput="onNoteInput" auto-height />
+  </view>
+
+  <view class="m2-form-card">
+    <view class="m2-form-title">附件图片</view>
+    <m-image-picker images="{{images}}" size="sm" bind:change="onImagesChange" />
+  </view>
+
+  <view wx:if="{{isEdit}}" class="focus-entry" bindtap="goPomodoro"><m-icon name="clock" size="32" inline /> 专注此任务</view>
+
+  <m-save-bar save-text="保存" show-delete="{{isEdit}}" bind:save="save" bind:delete="remove" />
+
+  <m-modal show="{{showListPicker}}" title="选择清单" bind:close="closeListPicker">
+    <view class="list-picker-body">
+      <view class="m2-row list-option {{!listId ? 'list-option-active active' : ''}}" bindtap="clearList">
+        <view class="m2-row-icon list-option-icon"><m-icon name="inbox" size="36" tone="system" /></view>
+        <view class="m2-row-body list-option-name">不指定</view>
+      </view>
+      <view
+        wx:for="{{lists}}"
+        wx:key="_id"
+        class="m2-row list-option {{listId === item._id ? 'list-option-active active' : ''}}"
+        data-id="{{item._id}}"
+        bindtap="selectList"
+      >
+        <view class="m2-row-icon list-option-icon" style="background:{{item.color ? item.color + '20' : 'var(--primary-light)'}};color:{{item.color || 'var(--primary-dark)'}}"><m-icon value="{{item.icon || 'note'}}" size="36" /></view>
+        <view class="m2-row-body list-option-name">{{item.name}}</view>
+      </view>
+    </view>
+  </m-modal>
 </view>

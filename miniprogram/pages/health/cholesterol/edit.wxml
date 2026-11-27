@@ -1,42 +1,54 @@
-<view class="container m-edit-page">
-  <view class="m-form-card">
-    <view class="m-form-title">🧪 血脂数据</view>
+<view class="m2-page m2-edit" style="{{themeStyle}}">
+  <view class="m2-edit-hero">
+    <view class="m2-edit-hero-icon" style="background: var(--primary-light)"><m-icon tone="health" healthKey="血脂" size="44" /></view>
+    <view>
+      <view class="m2-edit-title">{{isEdit ? '编辑血脂' : '新增血脂'}}</view>
+      <view class="m2-edit-desc">记录血脂四项，实时查看判读结果</view>
+    </view>
+  </view>
 
-    <m-field label="日期">
-      <picker mode="date" value="{{date}}" bindchange="onDateChange">
-        <view class="m-form-picker-value">{{date}}</view>
-      </picker>
-    </m-field>
-
-    <m-field label="总胆固醇 (mmol/L)">
-      <input class="m-form-input" type="digit" value="{{total}}" placeholder="正常值 < 5.2" bindinput="onTotalInput" />
-    </m-field>
-
-    <m-field label="低密度脂蛋白 (mmol/L)">
-      <input class="m-form-input" type="digit" value="{{ldl}}" placeholder="正常值 < 3.4" bindinput="onLdlInput" />
-    </m-field>
-
-    <m-field label="高密度脂蛋白 (mmol/L)">
-      <input class="m-form-input" type="digit" value="{{hdl}}" placeholder="正常值 > 1.0" bindinput="onHdlInput" />
-    </m-field>
-
-    <m-field label="甘油三酯 (mmol/L)">
-      <input class="m-form-input" type="digit" value="{{tg}}" placeholder="选填" bindinput="onTgInput" />
-    </m-field>
-
-    <m-field wx:if="{{preview}}" label="状态预览">
-      <view class="m-form-picker-value">
-        <m-status-badge text="{{preview.label}}" color="{{preview.color}}" />
+  <view class="m2-form-card">
+    <view class="m2-form-title">血脂数据</view>
+    <picker mode="date" value="{{date}}" bindchange="onDateChange">
+      <view class="m2-field">
+        <view class="m2-field-label">日期</view>
+        <view class="m2-field-value">{{date}}</view>
+        <view class="m2-field-arrow">›</view>
       </view>
-    </m-field>
+    </picker>
+    <view class="m2-field">
+      <view class="m2-field-label">总胆固醇 (mmol/L)</view>
+      <input class="m2-field-value" type="digit" value="{{total}}" placeholder="正常值 < 5.2" bindinput="onTotalInput" />
+    </view>
+    <view class="m2-field">
+      <view class="m2-field-label">低密度脂蛋白 (mmol/L)</view>
+      <input class="m2-field-value" type="digit" value="{{ldl}}" placeholder="正常值 < 3.4" bindinput="onLdlInput" />
+    </view>
+    <view class="m2-field">
+      <view class="m2-field-label">高密度脂蛋白 (mmol/L)</view>
+      <input class="m2-field-value" type="digit" value="{{hdl}}" placeholder="正常值 > 1.0" bindinput="onHdlInput" />
+    </view>
+    <view class="m2-field">
+      <view class="m2-field-label">甘油三酯 (mmol/L)</view>
+      <input class="m2-field-value" type="digit" value="{{tg}}" placeholder="选填" bindinput="onTgInput" />
+    </view>
+    <view class="m2-field" wx:if="{{preview}}">
+      <view class="m2-field-label">状态预览</view>
+      <view class="m2-field-value"><m-status-badge text="{{preview.label}}" color="{{preview.color}}" /></view>
+    </view>
+    <view wx:if="{{preview && preview.basis}}" class="m-judge-meta">判定参考：{{preview.basis}}（{{preview.version}}）</view>
   </view>
 
-  <view class="m-form-card">
-    <view class="m-form-title">📝 备注</view>
-    <m-field block>
-      <textarea class="m-form-textarea" placeholder="选填" value="{{notes}}" bindinput="onNotesInput" auto-height maxlength="200" />
-    </m-field>
+  <view class="m2-form-card">
+    <view class="m2-form-title">备注</view>
+    <view class="m2-field textarea-field">
+      <view class="m2-field-label">备注</view>
+      <textarea class="m2-field-value" placeholder="选填" value="{{notes}}" bindinput="onNotesInput" auto-height maxlength="200" />
+    </view>
+    <view class="m-disclaimer">{{disclaimer}}</view>
   </view>
 
-  <m-save-bar save-text="{{isEdit ? '保存修改' : '保存记录'}}" bind:save="save" />
+  <view class="m2-footer">
+    <view class="m2-btn m2-btn-primary" bindtap="save">保存</view>
+  </view>
 </view>

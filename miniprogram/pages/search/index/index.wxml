@@ -1,51 +1,65 @@
-<view class="container" style="{{themeStyle}}">
-  <view class="search-bar">
-    <view class="search-icon">🔍</view>
+<view class="m2-page" style="{{themeStyle}}">
+  <!-- 搜索栏 -->
+  <view class="m2-searchbar">
+    <m-icon name="search" size="36" />
     <input
-      class="search-input"
+      class="m2-search-input"
       placeholder="搜索记账、日记、书籍、影片..."
       value="{{keyword}}"
       focus="{{true}}"
       bindinput="onInput"
       confirm-type="search"
     />
-    <view wx:if="{{keyword}}" class="search-clear" bindtap="clearKeyword">×</view>
+    <view wx:if="{{keyword}}" class="search-clear" bindtap="clearKeyword"><m-icon name="close" size="32" /></view>
   </view>
 
-  <view wx:if="{{!searched}}" class="suggestions">
-    <view class="sugg-title">搜索建议</view>
-    <view class="sugg-row">
+  <!-- 搜索建议 -->
+  <view wx:if="{{!searched}}" class="m2-card">
+    <view class="m2-card-head"><view class="m2-card-title">搜索建议</view></view>
+    <view class="m2-chip-row">
       <view
         wx:for="{{suggestions}}"
         wx:key="*this"
-        class="sugg-chip"
+        class="m2-chip"
         data-kw="{{item}}"
         bindtap="useSuggestion"
       >{{item}}</view>
     </view>
   </view>
 
-  <m-empty wx:if="{{searched && showEmpty}}" icon="🔎" title="没有找到「{{keyword}}」" desc="换个关键词试试吧" />
+  <!-- 无结果空态 -->
+  <m-empty
+    wx:if="{{searched && showEmpty}}"
+    title="没有找到「{{keyword}}」"
+    desc="换个关键词试试吧"
+  />
 
-  <view wx:if="{{searched && !showEmpty}}" class="result-meta">找到 {{results.length}} 条相关记录</view>
-
-  <view class="result-list">
-    <view
-      wx:for="{{results}}"
-      wx:key="_id"
-      class="result-item"
-      data-path="{{item.targetPath}}"
-      bindtap="goItem"
-    >
-      <view class="ri-icon" style="background:{{item.moduleColor}};color:#fff">{{item.moduleIcon}}</view>
-      <view class="ri-body">
-        <view class="ri-title">{{item.title}}</view>
-        <view wx:if="{{item.subtitle}}" class="ri-sub">{{item.subtitle}}</view>
-        <view class="ri-footer">
-          <text class="ri-module" style="color:{{item.moduleColor}}">{{item.moduleLabel}}</text>
-          <text wx:if="{{item.amount}}" class="ri-amount" style="color:{{item.moduleColor}}">{{item.amount}}</text>
+  <!-- 搜索结果 -->
+  <block wx:if="{{searched && !showEmpty}}">
+    <view class="m2-group-head"><view class="m2-group-title">找到 {{results.length}} 条相关记录</view></view>
+    <view wx:for="{{resultGroups}}" wx:for-item="group" wx:for-index="gi" wx:key="module">
+      <view class="m2-group-head"><view class="m2-group-title">{{group.label}}</view></view>
+      <view class="m2-list">
+        <view
+          wx:for="{{group.items}}"
+          wx:for-item="item"
+          wx:for-index="ii"
+          wx:key="_id"
+          class="m2-row"
+          data-path="{{item.targetPath}}"
+          bindtap="goItem"
+        >
+          <view class="m2-row-icon" style="background:{{item.moduleColor}}"><m-icon value="{{item.moduleIcon}}" size="36" color="#FFFFFF" /></view>
+          <view class="m2-row-body">
+            <view class="m2-row-title">{{item.title}}</view>
+            <view wx:if="{{item.subtitle}}" class="m2-row-sub">{{item.subtitle}}</view>
+            <view class="ri-footer">
+              <text class="ri-module" style="color:{{item.moduleColor}}">{{item.moduleLabel}}</text>
+              <text wx:if="{{item.amount}}" class="ri-amount" style="color:{{item.moduleColor}}">{{item.amount}}</text>
+            </view>
+          </view>
         </view>
       </view>
     </view>
-  </view>
+  </block>
 </view>

@@ -1,232 +1,44 @@
-.summary-title {
-  font-size: 26rpx;
-  opacity: 0.85;
-  margin-bottom: 16rpx;
-}
+/* 骨架屏 */
+.skeleton-hero { height: 280rpx; border-radius: var(--radius-lg); margin-bottom: var(--space-md); }
+.skeleton-card { height: 200rpx; border-radius: var(--radius-md); margin-bottom: var(--space-md); }
 
-.summary-main {
-  margin-bottom: 32rpx;
-}
+/* Hero 语义色 */
+.hero-pos { color: var(--surface); }
+.hero-neg { color: var(--danger-light); }
 
-.main-label {
-  font-size: 24rpx;
-  opacity: 0.8;
-}
+/* 收支语义色：支出红 / 收入绿 */
+.pos { color: var(--success); }
+.neg { color: var(--danger); }
+.pos-bg { background: var(--success); }
+.neg-bg { background: var(--danger); }
 
-.main-amount {
-  font-size: 64rpx;
-  font-weight: 700;
-  margin-top: 4rpx;
-}
+/* 图表 */
+.chart-wrap, .chart-wrap-pie { display: flex; justify-content: center; }
+.canvas-pie { width: 260px; height: 220px; }
+.canvas-bar { width: 320px; height: 190px; }
+.chart-legend { margin-top: var(--space-sm); display: flex; flex-wrap: wrap; }
+.legend-item { display: flex; align-items: center; width: 50%; padding: 8rpx 0; box-sizing: border-box; }
+.legend-dot { width: 16rpx; height: 16rpx; border-radius: var(--radius-full); margin-right: 12rpx; flex-shrink: 0; }
+.legend-name { flex: 1; font-size: var(--font-sm); color: var(--text-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.legend-val { font-size: var(--font-sm); color: var(--text); font-weight: 500; }
+.chart-legend-inline { display: flex; gap: var(--space-lg); margin-bottom: var(--space-xs); }
+.legend-inline-item { display: flex; align-items: center; font-size: var(--font-sm); color: var(--text-2); }
+.legend-inline-dot { width: 16rpx; height: 16rpx; border-radius: var(--radius-xs); margin-right: 8rpx; }
 
-.main-amount.pos { color: #FFFFFF; }
-.main-amount.neg { color: #FFDAD6; }
+/* 年度卡片 */
+.year-card { padding: 0 28rpx; }
+.year-header { padding: 28rpx 0; }
+.year-left { flex: 1; min-width: 0; }
+.year-meta { font-size: var(--font-sm); color: var(--text-3); margin-top: 8rpx; }
+.year-meta .sep { margin: 0 12rpx; color: var(--border); }
+.year-arrow { font-size: var(--font-xl); color: var(--text-3); transition: transform var(--duration) var(--ease); transform: rotate(90deg); }
+.year-arrow.up { transform: rotate(-90deg); }
 
-.summary-row {
-  display: flex;
-  align-items: center;
-  background: rgba(255,255,255,0.15);
-  border-radius: 16rpx;
-  padding: 20rpx 0;
-}
-
-.sum-item {
-  flex: 1;
-  text-align: center;
-}
-
-.sum-label {
-  font-size: 24rpx;
-  opacity: 0.8;
-}
-
-.sum-value {
-  font-size: 32rpx;
-  font-weight: 600;
-  margin-top: 4rpx;
-}
-
-.sum-divider {
-  width: 2rpx;
-  height: 48rpx;
-  background: rgba(255,255,255,0.3);
-}
-
-.empty-hint {
-  font-size: 24rpx;
-  color: #CCC;
-  margin-top: 12rpx;
-}
-
-.year-card {
-  background: #FFFFFF;
-  border-radius: 20rpx;
-  margin-bottom: 20rpx;
-  overflow: hidden;
-  box-shadow: 0 2rpx 12rpx rgba(0,0,0,0.04);
-}
-
-.year-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 28rpx 28rpx;
-}
-
-.year-left {
-  flex: 1;
-}
-
-.year-label {
-  font-size: 34rpx;
-  font-weight: 700;
-  color: #333;
-}
-
-.year-meta {
-  font-size: 24rpx;
-  color: #999;
-  margin-top: 8rpx;
-}
-
-.year-meta .sep {
-  margin: 0 12rpx;
-  color: #DDD;
-}
-
-.year-arrow {
-  font-size: 36rpx;
-  color: #CCC;
-  transition: transform 0.25s;
-  transform: rotate(90deg);
-}
-
-.year-arrow.up {
-  transform: rotate(-90deg);
-}
-
-.month-list {
-  padding: 0 28rpx 8rpx;
-  border-top: 1rpx solid #F0F0F0;
-}
-
-.month-item {
-  display: flex;
-  align-items: center;
-  padding: 24rpx 0;
-  border-bottom: 1rpx solid #F5F5F5;
-}
-
-.month-name {
-  font-size: 28rpx;
-  color: #333;
-  font-weight: 600;
-  width: 160rpx;
-  flex-shrink: 0;
-}
-
-.month-meta {
-  flex: 1;
-  font-size: 24rpx;
-  color: #999;
-}
-
-.month-meta .sep {
-  margin: 0 10rpx;
-  color: #DDD;
-}
-
-.month-arrow {
-  font-size: 32rpx;
-  color: #CCC;
-  margin-left: 12rpx;
-}
-
-.no-month {
-  text-align: center;
-  color: #CCC;
-  padding: 20rpx 0;
-  font-size: 26rpx;
-}
-
-.pos { color: #27AE60; }
-.neg { color: #E74C3C; }
-.chart-card {
-  background: var(--bg-card);
-  border-radius: 16rpx;
-  padding: 28rpx 24rpx;
-  margin-bottom: 24rpx;
-  box-shadow: 0 2rpx 12rpx rgba(0,0,0,0.04);
-}
-.chart-title {
-  font-size: 30rpx;
-  font-weight: 600;
-  color: var(--text);
-  margin-bottom: 20rpx;
-}
-.chart-wrap {
-  display: flex;
-  justify-content: center;
-}
-.chart-wrap-pie {
-  display: flex;
-  justify-content: center;
-}
-.canvas-pie {
-  width: 260px;
-  height: 220px;
-}
-.canvas-bar {
-  width: 320px;
-  height: 190px;
-}
-.chart-legend {
-  margin-top: 16rpx;
-  display: flex;
-  flex-wrap: wrap;
-}
-.legend-item {
-  display: flex;
-  align-items: center;
-  width: 50%;
-  padding: 8rpx 0;
-  box-sizing: border-box;
-}
-.legend-dot {
-  width: 16rpx;
-  height: 16rpx;
-  border-radius: 50%;
-  margin-right: 12rpx;
-  flex-shrink: 0;
-}
-.legend-name {
-  flex: 1;
-  font-size: 24rpx;
-  color: var(--text-secondary);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.legend-val {
-  font-size: 24rpx;
-  color: var(--text);
-  font-weight: 500;
-}
-.chart-legend-inline {
-  display: flex;
-  gap: 32rpx;
-  margin-bottom: 8rpx;
-}
-.legend-inline-item {
-  display: flex;
-  align-items: center;
-  font-size: 24rpx;
-  color: var(--text-secondary);
-}
-.legend-inline-dot {
-  width: 16rpx;
-  height: 16rpx;
-  border-radius: 4rpx;
-  margin-right: 8rpx;
-}
-
+/* 月份列表 */
+.month-list { padding-bottom: var(--space-xs); border-top: 1rpx solid var(--border); }
+.month-item { display: flex; align-items: center; padding: 24rpx 0; border-bottom: 1rpx solid var(--border); }
+.month-name { font-size: var(--font-base); color: var(--text); font-weight: 600; width: 180rpx; flex-shrink: 0; }
+.month-meta { flex: 1; font-size: var(--font-sm); color: var(--text-3); }
+.month-meta .sep { margin: 0 10rpx; color: var(--border); }
+.month-arrow { font-size: var(--font-lg); color: var(--text-3); margin-left: 12rpx; }
+.no-month { text-align: center; color: var(--text-3); padding: 20rpx 0; font-size: var(--font-md); }

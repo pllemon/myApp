@@ -9,8 +9,10 @@ Page({
     isEdit: false,
     title: '',
     content: '',
-    mood: '😌',
+    mood: 'calm',
+    moodLabel: diaryUtil.MOOD_LABELS.calm,
     weather: '',
+    weatherLabel: '',
     date: '',
     location: '',
     tags: [],
@@ -28,7 +30,7 @@ Page({
 
   onLoad(options) {
     const today = dateUtil.today();
-    this.setData({ date: today });
+    this.setData({ date: options.date || today });
 
     if (options.id) {
       this.setData({ id: options.id, isEdit: true });
@@ -53,11 +55,16 @@ Page({
     try {
       const diary = await db.getById(db.COLLECTIONS.DIARY, id);
       if (diary) {
+        // 历史数据可能存中文 label，统一转成图标名再回显
+        const mood = diaryUtil.MOOD_VALUE_OF[diary.mood] || diary.mood || 'calm';
+        const weather = diaryUtil.WEATHER_VALUE_OF[diary.weather] || diary.weather || '';
         this.setData({
           title: diary.title || '',
           content: diary.content || '',
-          mood: diary.mood || '😌',
-          weather: diary.weather || '',
+          mood,
+          moodLabel: diaryUtil.MOOD_LABELS[mood] || '',
+          weather,
+          weatherLabel: diaryUtil.WEATHER_LABELS[weather] || '',
           date: diary.date || dateUtil.today(),
           location: diary.location || '',
           tags: diary.tags || [],
@@ -101,15 +108,21 @@ Page({
   },
 
   selectMood(e) {
-    this.setData({ mood: e.currentTarget.dataset.emoji, showMoodPicker: false });
+    const mood = e.currentTarget.dataset.value;
+    this.setData({ mood, moodLabel: diaryUtil.MOOD_LABELS[mood] || '', showMoodPicker: false });
   },
 
   selectWeather(e) {
-    this.setData({ weather: e.currentTarget.dataset.label, showWeatherPicker: false });
+    const weather = e.currentTarget.dataset.value;
+    this.setData({ weather, weatherLabel: diaryUtil.WEATHER_LABELS[weather] || '', showWeatherPicker: false });
+  },
+
+  clearMood() {
+    this.setData({ mood: '', moodLabel: '', showMoodPicker: false });
   },
 
   clearWeather() {
-    this.setData({ weather: '', showWeatherPicker: false });
+    this.setData({ weather: '', weatherLabel: '', showWeatherPicker: false });
   },
 
   toggleTag(e) {
@@ -148,33 +161,8 @@ Page({
     wx.setStorage({ key: 'diary_custom_tags', data: customTags });
   },
 
-  useCurrentLocation() {
-    wx.getLocation({
-      type: 'gcj02',
-      success: () => {
-        this.setData({ location: '📍 我在...' });
-      },
-      fail: () => {
-        wx.showToast({ title: '请输入地点', icon: 'none' });
-      }
-    });
-  },
-
-  async chooseImages() {
-    const paths = await imageUtil.chooseImages(this.data.images.length);
-    if (paths.length > 0) {
-      this.setData({ images: [...this.data.images, ...paths] });
-    }
-  },
-
-  previewImage(e) {
-    const idx = e.currentTarget.dataset.index;
-    imageUtil.preview(idx, this.data.images);
-  },
-
-  removeImage(e) {
-    const idx = e.currentTarget.dataset.index;
-    this.setData({ images: imageUtil.removeAt(this.data.images, idx) });
+  onImagesChange(e) {
+    this.setData({ images: e.detail.images });
   },
 
   async save() {
@@ -201,6 +189,7 @@ Page({
         mood,
         weather,
         date,
+        bizDate: date,
         location: location.trim(),
         tags: finalTags,
         images,

@@ -7,7 +7,7 @@
   align-items: center;
   justify-content: space-between;
   padding: 24rpx 28rpx;
-  border-bottom: 1rpx solid #f0f0f0;
+  border-bottom: 1rpx solid var(--surface-3);
 }
 
 .m-option-picker .m-form-item:last-child {
@@ -15,11 +15,11 @@
 }
 
 .m-option-picker .m-form-item.click:active {
-  background: #f9f9f9;
+  background: var(--surface-2);
 }
 
 .m-option-picker .m-form-key {
-  color: #666;
+  color: var(--text-2);
   flex-shrink: 0;
   margin-right: 20rpx;
   font-size: 28rpx;
@@ -31,12 +31,12 @@
   justify-content: flex-end;
   min-width: 0;
   gap: 8rpx;
-  color: #333;
+  color: var(--text);
 }
 
 .m-option-picker .m-picker-arrow {
   font-size: 24rpx;
-  color: #BBB;
+  color: var(--text-3);
 }
 
 .m-option-picker .option-row {
@@ -49,7 +49,7 @@
 .m-option-picker .option-item {
   padding: 10rpx 22rpx;
   border-radius: 24rpx;
-  background-color: #F5F5F5;
+  background-color: var(--surface-3);
   font-size: 26rpx;
   color: var(--text-secondary);
   border: 1rpx solid transparent;

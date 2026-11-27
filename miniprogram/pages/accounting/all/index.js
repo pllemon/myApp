@@ -47,7 +47,7 @@ Page({
     try {
       const res = await db.page(db.COLLECTIONS.ACCOUNTING, {
         filter: this.buildFilter(),
-        sortBy: { key: 'createdAt', order: 'desc' },
+        sortBy: { key: 'bizDate', order: 'desc' },
         page: 1,
         pageSize: this.data.pageSize
       });
@@ -73,7 +73,7 @@ Page({
       const nextPage = this.data.page + 1;
       const res = await db.page(db.COLLECTIONS.ACCOUNTING, {
         filter: this.buildFilter(),
-        sortBy: { key: 'createdAt', order: 'desc' },
+        sortBy: { key: 'bizDate', order: 'desc' },
         page: nextPage,
         pageSize: this.data.pageSize
       });
@@ -109,9 +109,9 @@ Page({
   groupByDay(records) {
     const groups = {};
     records.forEach(r => {
-      const date = dateUtil.formatDate(r.createdAt, 'YYYY-MM-DD');
+      const date = dateUtil.bizDateOf(r);
       if (!groups[date]) {
-        const d = new Date(r.createdAt);
+        const d = new Date(date + 'T00:00:00');
         groups[date] = {
           date,
           label: `${d.getMonth() + 1}月${d.getDate()}日`,

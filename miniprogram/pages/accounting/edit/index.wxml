@@ -1,109 +1,103 @@
-<view class="container">
-  <view class="type-switch">
-    <view 
-      class="type-btn {{type === 'expense' ? 'expense active' : ''}}"
-      data-type="expense"
-      bindtap="switchType"
-    >支出</view>
-    <view 
-      class="type-btn {{type === 'income' ? 'income active' : ''}}"
-      data-type="income"
-      bindtap="switchType"
-    >收入</view>
-  </view>
-
-  <view class="amount-section">
-    <view class="currency">¥</view>
-    <input 
-      class="amount-input" 
-      type="digit" 
-      placeholder="0.00" 
-      value="{{amount}}"
-      bindinput="onAmountInput"
-      focus="{{!isEdit}}"
-    />
-  </view>
-
-  <view class="section-header">
-    <view class="section-title">选择分类</view>
-    <view class="manage-btn" bindtap="goManageCategory">管理 ›</view>
-  </view>
-
-  <scroll-view class="parent-tabs" scroll-x scroll-with-animation>
-    <view 
-      wx:for="{{parents}}" 
-      wx:key="_id"
-      class="parent-tab {{currentParentId === item._id ? 'active' : ''}}"
-      data-id="{{item._id}}"
-      bindtap="selectParent"
-    >
-      <text class="parent-icon">{{item.icon}}</text>
-      <text class="parent-name">{{item.name}}</text>
+<view class="m2-page" style="{{themeStyle}}">
+  <!-- 页面标题 -->
+  <view class="m2-edit-hero">
+    <view class="m2-edit-hero-icon" style="background: var(--primary-light)">
+      <m-icon name="wallet" size="44" />
     </view>
-  </scroll-view>
-
-  <view class="child-grid">
-    <view 
-      wx:for="{{currentChildren}}" 
-      wx:key="_id"
-      class="child-item {{selectedChild === item._id ? 'active' : ''}}"
-      data-id="{{item._id}}"
-      data-parentid="{{currentParentId}}"
-      bindtap="selectChild"
-    >
-      <view class="child-icon">{{item.icon}}</view>
-      <view class="child-name">{{item.name}}</view>
-    </view>
-    <view class="child-item add-child" bindtap="goManageCategory">
-      <view class="child-icon">+</view>
-      <view class="child-name">添加</view>
+    <view class="m2-edit-main">
+      <view class="m2-edit-title">{{isEdit ? '编辑记录' : '记一笔'}}</view>
+      <view class="m2-edit-desc">{{type === 'expense' ? '支出' : '收入'}} · 选择分类并填写金额</view>
     </view>
   </view>
 
-  <view class="m-form-card">
-    <m-field label="日期">
-      <picker mode="date" value="{{dateStr}}" bindchange="onDateChange">
-        <view class="m-form-picker-value">{{dateStr}} ›</view>
-      </picker>
-    </m-field>
-    <m-field label="备注">
-      <input class="m-field-input" 
-        placeholder="记点什么..." 
+  <!-- 收支类型 -->
+  <view class="m2-segment">
+    <view class="m2-seg-item {{type === 'expense' ? 'active expense-active' : ''}}" data-type="expense" bindtap="switchType">支出</view>
+    <view class="m2-seg-item {{type === 'income' ? 'active income-active' : ''}}" data-type="income" bindtap="switchType">收入</view>
+  </view>
+
+  <!-- 金额 -->
+  <view class="m2-form-card">
+    <view class="m2-field amount-field">
+      <text class="amount-currency">¥</text>
+      <input
+        class="m2-amount amount-input"
+        type="digit"
+        placeholder="0.00"
+        value="{{amount}}"
+        bindinput="onAmountInput"
+        focus="{{!isEdit}}"
+      />
+    </view>
+  </view>
+
+  <!-- 分类 -->
+  <view class="m2-form-card">
+    <view class="m2-card-head">
+      <view class="m2-card-title">选择分类</view>
+      <view class="m2-card-action" bindtap="goManageCategory">管理</view>
+    </view>
+    <scroll-view class="parent-scroll" scroll-x scroll-with-animation>
+      <view
+        wx:for="{{parents}}"
+        wx:key="_id"
+        class="parent-chip {{currentParentId === item._id ? 'active' : ''}}"
+        data-id="{{item._id}}"
+        bindtap="selectParent"
+      >
+        <m-icon value="{{item.icon}}" flatKey="{{item.name}}" size="30" tone="flat" />
+        <text class="parent-chip-name">{{item.name}}</text>
+      </view>
+    </scroll-view>
+    <view class="child-grid">
+      <view
+        wx:for="{{currentChildren}}"
+        wx:key="_id"
+        class="child-item {{selectedChild === item._id ? 'active' : ''}}"
+        data-id="{{item._id}}"
+        data-parentid="{{currentParentId}}"
+        bindtap="selectChild"
+      >
+        <view class="child-icon"><m-icon value="{{item.icon}}" flatKey="{{item.name}}" size="40" tone="flat" /></view>
+        <view class="child-name">{{item.name}}</view>
+      </view>
+      <view class="child-item add" bindtap="goManageCategory">
+        <view class="child-icon"><m-icon name="add" size="40" /></view>
+        <view class="child-name">添加</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 日期 / 备注 -->
+  <view class="m2-form-card">
+    <picker mode="date" value="{{dateStr}}" bindchange="onDateChange">
+      <view class="m2-field">
+        <view class="m2-field-label">日期</view>
+        <view class="m2-field-value">{{dateStr}}</view>
+        <view class="m2-field-arrow">›</view>
+      </view>
+    </picker>
+    <view class="m2-field">
+      <view class="m2-field-label">备注</view>
+      <input
+        class="m2-field-value"
+        placeholder="记点什么..."
         value="{{note}}"
         bindinput="onNoteInput"
         maxlength="50"
       />
-    </m-field>
-  </view>
-
-  <view class="image-section">
-    <view class="section-title">小票图片（非必填）</view>
-    <view class="image-grid">
-      <view 
-        wx:for="{{images}}" 
-        wx:key="*this" 
-        class="image-item"
-      >
-        <image 
-          src="{{item}}" 
-          mode="aspectFill" 
-          class="image-thumb"
-          data-index="{{index}}"
-          bindtap="previewImage"
-        />
-        <view class="image-remove" data-index="{{index}}" catchtap="removeImage">×</view>
-      </view>
-      <view wx:if="{{images.length < 3}}" class="image-add" bindtap="chooseImage">
-        <view class="add-icon">+</view>
-        <view class="add-text">添加图片</view>
-      </view>
     </view>
   </view>
 
-  <view class="m-footer">
-    <view class="m-save-btn {{type === 'expense' ? 'expense-bg' : 'income-bg'}}" bindtap="save">
-      {{isEdit ? '保存修改' : '保存记录'}}
-    </view>
-    <view wx:if="{{isEdit}}" class="m-delete-btn" bindtap="deleteRecord">删除此记录</view>
+  <!-- 小票图片 -->
+  <view class="m2-form-card">
+    <view class="m2-form-title">小票图片（非必填）</view>
+    <m-image-picker images="{{images}}" max="3" bind:change="onImagesChange" />
+  </view>
+
+  <!-- 底部操作 -->
+  <view class="m2-footer">
+    <view class="m2-btn m2-btn-primary" bindtap="save">保存</view>
+    <view wx:if="{{isEdit}}" class="m2-btn m2-btn-danger" bindtap="deleteRecord">删除</view>
   </view>
 </view>

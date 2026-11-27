@@ -1,32 +1,38 @@
-<view class="container">
-  <view class="hint">点击切换账本，长按或点击右侧按钮管理</view>
+<view class="m2-page" style="{{themeStyle}}">
+  <view class="m2-wrap hint">点击切换账本，点击右侧按钮管理</view>
 
-  <view class="book-list">
-    <view 
-      wx:for="{{books}}" 
-      wx:key="_id" 
-      class="book-card {{item._id === currentId ? 'active' : ''}}"
-      data-id="{{item._id}}"
-      bindtap="switchBook"
-    >
+  <view wx:if="{{loading}}" class="m2-wrap">
+    <view class="m-skeleton skeleton-card"></view>
+    <view class="m-skeleton skeleton-card"></view>
+    <view class="m-skeleton skeleton-card"></view>
+  </view>
+
+  <view
+    class="m2-card book-card {{item._id === currentId ? 'active' : ''}}"
+    wx:for="{{books}}"
+    wx:key="_id"
+    data-id="{{item._id}}"
+    bindtap="switchBook"
+  >
+    <view class="m2-row-between">
       <view class="book-left">
-        <view class="book-icon" style="background: {{item.color || '#4A90D9'}}20;">
-          <text>{{item.icon || '💰'}}</text>
+        <view class="book-icon" style="background: {{item.color ? item.color + '20' : 'var(--primary-light)'}};">
+          <m-icon value="{{item.icon || 'wallet'}}" size="36" />
         </view>
         <view class="book-info">
           <view class="book-name">
             {{item.name}}
             <text wx:if="{{item._id === currentId}}" class="current-tag">当前</text>
           </view>
-          <view class="book-note" wx:if="{{item.note}}">{{item.note}}</view>
+          <view class="m2-row-sub" wx:if="{{item.note}}">{{item.note}}</view>
         </view>
       </view>
-      <view class="book-actions">
+      <view class="row-actions">
         <view class="action-btn" catchtap="goToEdit" data-id="{{item._id}}">编辑</view>
-        <view class="action-btn danger" catchtap="deleteBook" data-id="{{item._id}}">删除</view>
+        <view class="action-btn del" catchtap="deleteBook" data-id="{{item._id}}">删除</view>
       </view>
     </view>
   </view>
 
-  <view class="add-btn" bindtap="goToAdd">+ 新建账本</view>
+  <view class="m2-fab" bindtap="goToAdd"><m-icon name="add" size="44" inline /></view>
 </view>

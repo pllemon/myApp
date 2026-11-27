@@ -1,44 +1,42 @@
-<view class="container">
-  <view class="m-summary todo-summary">
-    <view class="todo-summary-top">
-      <view class="todo-summary-left">
-        <view class="todo-summary-num">{{todayDone}}<text class="todo-summary-total">/{{todayTotal}}</text></view>
-        <view class="todo-summary-label">今日待办完成</view>
+<view class="m2-page with-tabbar" style="{{themeStyle}}">
+  <view class="m2-hero">
+    <view class="m2-hero-head">
+      <view>
+        <view class="m2-hero-title">我的待办</view>
+        <view class="m2-hero-sub">一件一件来，今天也会很棒</view>
       </view>
-      <view class="todo-pomodoro-entry" bindtap="goPomodoro">
-        <text class="todo-pomodoro-ico">⏱</text>
-        <text class="todo-pomodoro-label">番茄钟</text>
-      </view>
+      <view class="m2-hero-action" bindtap="goPomodoro"><m-icon name="clock" size="26" inline /> 番茄钟</view>
     </view>
-    <view class="todo-summary-progress">
-      <view class="m-progress-bar">
-        <view class="m-progress-fill" style="width: {{todayTotal > 0 ? (todayDone / todayTotal * 100) : 0}}%;background:#FFFFFF"></view>
-      </view>
+    <view class="m2-hero-value">{{todayDone}}<text class="m2-hero-unit">/{{todayTotal}}</text></view>
+    <view class="m2-hero-note">今日待办完成</view>
+    <view class="hero-progress">
+      <view class="hero-progress-fill" style="width: {{todayTotal > 0 ? (todayDone / todayTotal * 100) : 0}}%;"></view>
     </view>
   </view>
 
   <scroll-view class="todo-list-tabs" scroll-x enable-flex>
     <view
-      class="todo-list-tab {{!listFilterId ? 'todo-list-tab-active' : ''}}"
+      class="m2-chip todo-list-tab {{!listFilterId ? 'todo-list-tab-active active' : ''}}"
       data-id=""
       data-name="全部"
       bindtap="selectListTab"
-    >📦 全部</view>
+    ><m-icon name="inbox" size="28" tone="system" inline />全部</view>
     <view
       wx:for="{{lists}}"
       wx:key="_id"
-      class="todo-list-tab {{listFilterId === item._id ? 'todo-list-tab-active' : ''}}"
+      class="m2-chip todo-list-tab {{listFilterId === item._id ? 'todo-list-tab-active active' : ''}}"
       data-id="{{item._id}}"
       data-name="{{item.name}}"
       bindtap="selectListTab"
-    >{{item.icon || '📋'}} {{item.name}}</view>
+    ><m-icon value="{{item.icon || 'note'}}" size="28" inline />{{item.name}}</view>
+    <view class="m2-chip todo-list-manage" bindtap="toggleListManager"><m-icon name="settings" size="28" inline />管理</view>
   </scroll-view>
 
-  <view class="m-filter">
+  <view class="m2-segment">
     <view
       wx:for="{{filters}}"
       wx:key="key"
-      class="m-filter-item {{activeFilter === item.key ? 'm-filter-active' : ''}}"
+      class="m2-seg-item {{activeFilter === item.key ? 'm-filter-active active' : ''}}"
       data-key="{{item.key}}"
       bindtap="switchFilter"
     >{{item.label}}</view>
@@ -48,21 +46,27 @@
     <view
       wx:for="{{availableTags}}"
       wx:key="*this"
-      class="todo-tag-chip {{tagFilter === item ? 'todo-tag-active' : ''}}"
+      class="m2-chip todo-tag-chip {{tagFilter === item ? 'todo-tag-active active' : ''}}"
       data-tag="{{item}}"
       bindtap="toggleTagFilter"
     >#{{item}}</view>
   </scroll-view>
 
-  <m-empty wx:if="{{showEmpty}}" icon="📋" title="暂无待办" desc="点击右下角 + 新建你的第一件事" />
+  <m-empty
+    wx:if="{{showEmpty}}"
+    title="暂无待办"
+    desc="点击右下角 + 新建你的第一件事"
+    action="去添加"
+    bindaction="goNew"
+  />
 
-  <view wx:else class="m-card-list todo-list">
+  <view wx:else class="m2-list todo-list">
     <view
       wx:for="{{list}}"
       wx:key="_id"
-      class="todo-card {{item.completed ? 'todo-done' : ''}} {{item.dueClass}}"
+      class="m2-row todo-card {{item.completed ? 'todo-done done' : ''}} {{item.dueClass}} {{item.overdue && !item.completed ? 'overdue' : ''}}"
       data-id="{{item._id}}"
-      bindtap="goEdit"
+      bindtap="goDetail"
     >
       <view
         class="todo-check {{item.completed ? 'todo-check-done' : ''}}"
@@ -70,22 +74,23 @@
         data-id="{{item._id}}"
         catchtap="toggleComplete"
       >
-        <text wx:if="{{item.completed}}" class="todo-check-icon">✓</text>
+        <m-icon wx:if="{{item.completed}}" name="check" size="28" color="#FFFFFF" />
       </view>
-      <view class="todo-body">
+      <view class="m2-row-body todo-body">
         <view class="todo-title-row">
-          <text class="todo-title">{{item.title}}</text>
+          <text class="m2-row-title todo-title">{{item.title}}</text>
           <text wx:if="{{item.soon}}" class="todo-soon-badge">即将到期</text>
         </view>
         <view class="todo-meta">
           <view class="todo-tag" style="color:{{item.priorityColor}};background:{{item.priorityBg}}">{{item.priorityLabel}}优先</view>
-          <text wx:if="{{item.listName}}" class="todo-listname">📋 {{item.listName}}</text>
-          <text wx:if="{{item.dueLabel}}" class="todo-due {{item.overdue ? 'todo-overdue' : ''}}">⏰ {{item.dueLabel}}</text>
+          <text wx:if="{{item.listName}}" class="todo-listname"><m-icon name="list" size="28" inline />{{item.listName}}</text>
+          <text wx:if="{{item.dueLabel}}" class="todo-due {{item.overdue ? 'todo-overdue' : ''}}"><m-icon name="clock" size="26" inline /> {{item.dueLabel}}</text>
+          <text wx:if="{{item.repeatLabel}}" class="todo-repeat"><m-icon name="refresh" size="28" inline />{{item.repeatLabel}}</text>
         </view>
         <view wx:if="{{item.tags && item.tags.length > 0}}" class="todo-tags">
           <text wx:for="{{item.tags}}" wx:for-item="tg" wx:key="*this" class="todo-tagitem">#{{tg}}</text>
         </view>
-        <view wx:if="{{item.subtaskTotal > 0}}" class="todo-subtasks-preview" catchtap="">
+        <view wx:if="{{item.subtaskTotal > 0}}" class="todo-subtasks-preview" catchtap="noop">
           <view wx:for="{{item.subtasks}}" wx:for-item="sub" wx:for-index="sidx" wx:key="sidx" class="sub-row">
             <switch
               checked="{{sub.done}}"
@@ -106,6 +111,25 @@
     </view>
   </view>
 
-  <view class="m-fab" bindtap="goNew">+</view>
+  <view class="m2-fab" bindtap="goNew"><m-icon name="add" size="48" color="#FFFFFF" /></view>
 </view>
+
+<m-modal show="{{showListManager}}" title="清单管理" position="bottom" bind:close="toggleListManager">
+  <scroll-view class="lm-list" scroll-y>
+    <view wx:for="{{lists}}" wx:key="_id" class="lm-row">
+      <view class="lm-icon"><m-icon value="{{item.icon || 'note'}}" size="36" /></view>
+      <text class="lm-name">{{item.name}}</text>
+      <text wx:if="{{item.builtin}}" class="lm-builtin">内置</text>
+      <text wx:else class="lm-count">{{item.todoCount || 0}} 项</text>
+      <view class="lm-act" data-id="{{item._id}}" data-name="{{item.name}}" bindtap="renameList"><m-icon name="edit" size="28" /></view>
+      <view wx:if="{{!item.builtin}}" class="lm-act lm-danger" data-id="{{item._id}}" data-name="{{item.name}}" bindtap="deleteList"><m-icon name="trash" size="36" /></view>
+    </view>
+  </scroll-view>
+
+  <view class="lm-add">
+    <input class="lm-input" placeholder="新清单名称" value="{{newListName}}" bindinput="onNewListInput" bindconfirm="addList" confirm-type="done" />
+    <view class="lm-add-btn" bindtap="addList">添加</view>
+  </view>
+</m-modal>
+
 <m-tab-bar id="tabbar" />

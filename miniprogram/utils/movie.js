@@ -1,16 +1,17 @@
 const db = require('./db.js');
+const dateUtil = require('./date.js');
 
 const CATEGORIES = {
-  drama:    { label: '剧情',   icon: '🎬', color: '#4A90D9' },
-  comedy:   { label: '喜剧',   icon: '😄', color: '#F5A623' },
-  action:   { label: '动作',   icon: '💥', color: '#E74C3C' },
-  romance:  { label: '爱情',   icon: '💕', color: '#FF6B81' },
-  scifi:    { label: '科幻',   icon: '🚀', color: '#9B59B6' },
-  animation:{ label: '动画',   icon: '🎨', color: '#2ECC71' },
-  doc:      { label: '纪录片', icon: '🌍', color: '#1ABC9C' },
-  suspense: { label: '悬疑',   icon: '🔍', color: '#8E44AD' },
-  horror:   { label: '恐怖',   icon: '👻', color: '#34495E' },
-  other:    { label: '其他',   icon: '✨', color: '#95A5A6' }
+  drama:    { label: '剧情',   icon: 'movie', color: '#4A90D9' },
+  comedy:   { label: '喜剧',   icon: 'happy', color: '#F5A623' },
+  action:   { label: '动作',   icon: 'flash', color: '#E74C3C' },
+  romance:  { label: '爱情',   icon: 'love', color: '#FF6B81' },
+  scifi:    { label: '科幻',   icon: 'travel', color: '#9B59B6' },
+  animation:{ label: '动画',   icon: 'fun', color: '#2ECC71' },
+  doc:      { label: '纪录片', icon: 'globe', color: '#1ABC9C' },
+  suspense: { label: '悬疑',   icon: 'search', color: '#8E44AD' },
+  horror:   { label: '恐怖',   icon: 'ghost', color: '#34495E' },
+  other:    { label: '其他',   icon: 'star', color: '#95A5A6' }
 };
 
 const CATEGORY_LIST = Object.keys(CATEGORIES);
@@ -57,7 +58,7 @@ async function toggleStatus(item) {
   const next = order[(idx + 1) % order.length];
   const patch = { status: next };
   if (next === 'watched' && !item.watchedDate) {
-    patch.watchedDate = new Date().toISOString().slice(0, 10);
+    patch.watchedDate = dateUtil.today();
   }
   if (next === 'plan') {
     patch.watchedDate = null;

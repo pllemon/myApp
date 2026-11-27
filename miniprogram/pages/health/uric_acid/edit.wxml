@@ -1,34 +1,45 @@
-<view class="container m-edit-page">
-  <view class="m-form-card">
-    <view class="m-form-title">💧 尿酸记录</view>
+<view class="m2-page m2-edit" style="{{themeStyle}}">
+  <view class="m2-edit-hero">
+    <view class="m2-edit-hero-icon" style="background: var(--primary-light)"><m-icon tone="health" healthKey="尿酸" size="44" /></view>
+    <view>
+      <view class="m2-edit-title">{{isEdit ? '编辑尿酸' : '新增尿酸'}}</view>
+      <view class="m2-edit-desc">记录尿酸值，结合性别自动判读</view>
+    </view>
+  </view>
 
-    <m-field label="日期">
-      <picker mode="date" value="{{date}}" bindchange="onDateChange">
-        <view class="m-form-picker-value">{{date}}</view>
-      </picker>
-    </m-field>
-
-    <m-field label="尿酸值 (μmol/L)">
-      <input class="m-form-input" type="number" value="{{uricAcid}}" placeholder="男性 < 420, 女性 < 360" bindinput="onUricAcidInput" />
-    </m-field>
-
-    <m-option-picker label="采血时机" options="{{mealOptions}}" currentValue="{{mealIdx}}" activeBy="index" bind:change="onMealIdxChange">
-      {{mealOptions[mealIdx].label}}
-    </m-option-picker>
-
-    <m-field wx:if="{{preview}}" label="状态预览">
-      <view class="m-form-picker-value">
-        <m-status-badge text="{{preview.label}}" color="{{preview.color}}" />
+  <view class="m2-form-card">
+    <view class="m2-form-title">尿酸数据</view>
+    <picker mode="date" value="{{date}}" bindchange="onDateChange">
+      <view class="m2-field">
+        <view class="m2-field-label">日期</view>
+        <view class="m2-field-value">{{date}}</view>
+        <view class="m2-field-arrow">›</view>
       </view>
-    </m-field>
+    </picker>
+    <view class="m2-field">
+      <view class="m2-field-label">尿酸值 (μmol/L)</view>
+      <input class="m2-field-value" type="number" value="{{uricAcid}}" placeholder="男性 < 420, 女性 < 360；范围 50-1500" bindinput="onUricInput" />
+    </view>
+    <m-option-picker label="采血时机" options="{{typeOptions}}" currentValue="{{typeIdx}}" activeBy="index" bind:change="onTypeChange">
+      {{typeLabel}}
+    </m-option-picker>
+    <view class="m2-field" wx:if="{{preview}}">
+      <view class="m2-field-label">状态预览</view>
+      <view class="m2-field-value"><m-status-badge text="{{preview.label}}" color="{{preview.color}}" /></view>
+    </view>
+    <view wx:if="{{preview && preview.basis}}" class="m-judge-meta">判定参考：{{preview.basis}}（{{preview.version}}）</view>
   </view>
 
-  <view class="m-form-card">
-    <view class="m-form-title">📝 备注</view>
-    <m-field block>
-      <textarea class="m-form-textarea" placeholder="选填" value="{{notes}}" bindinput="onNotesInput" auto-height maxlength="200" />
-    </m-field>
+  <view class="m2-form-card">
+    <view class="m2-form-title">备注</view>
+    <view class="m2-field textarea-field">
+      <view class="m2-field-label">备注</view>
+      <textarea class="m2-field-value" placeholder="选填" value="{{notes}}" bindinput="onNotesInput" auto-height maxlength="200" />
+    </view>
+    <view class="m-disclaimer">{{disclaimer}}</view>
   </view>
 
-  <m-save-bar save-text="{{isEdit ? '保存修改' : '保存记录'}}" bind:save="save" />
+  <view class="m2-footer">
+    <view class="m2-btn m2-btn-primary" bindtap="save">保存</view>
+  </view>
 </view>

@@ -1,32 +1,53 @@
-<view class="container m-edit-page">
-  <view class="m-form-card">
-    <view class="m-form-title">🍱 饮食记录</view>
+<view class="m2-page m2-edit" style="{{themeStyle}}">
+  <view class="m2-edit-hero">
+    <view class="m2-edit-hero-icon" style="background: var(--primary-light)"><m-icon tone="health" healthKey="饮食" size="44" /></view>
+    <view>
+      <view class="m2-edit-title">{{isEdit ? '编辑饮食' : '新增饮食'}}</view>
+      <view class="m2-edit-desc">记录每一餐，了解饮食习惯</view>
+    </view>
+  </view>
 
-    <m-field label="日期">
-      <picker mode="date" value="{{date}}" bindchange="onDateChange">
-        <view class="m-form-picker-value">{{date}}</view>
-      </picker>
-    </m-field>
-
+  <view class="m2-form-card">
+    <view class="m2-form-title">饮食数据</view>
+    <view class="m2-field-row">
+      <view class="m2-field half">
+        <view class="m2-field-label">日期</view>
+        <picker mode="date" value="{{date}}" bindchange="onDateChange">
+          <view class="m2-field-value">{{date}}</view>
+        </picker>
+        <view class="m2-field-arrow">›</view>
+      </view>
+      <view class="m2-field half">
+        <view class="m2-field-label">时间</view>
+        <picker mode="time" value="{{time}}" bindchange="onTimeChange">
+          <view class="m2-field-value">{{time}}</view>
+        </picker>
+        <view class="m2-field-arrow">›</view>
+      </view>
+    </view>
     <m-option-picker label="餐次" options="{{mealOptions}}" currentValue="{{mealType}}" bind:change="onMealChange">
-      {{mealIcon}} {{mealLabel}}
+      <m-icon name="{{mealIcon}}" size="30" tone="category" inline /> {{mealLabel}}
     </m-option-picker>
-
-    <m-field label="食物">
-      <input class="m-form-input" placeholder="例如：米饭 + 西红柿炒蛋" value="{{food}}" bindinput="onFoodInput" maxlength="50" />
-    </m-field>
-
-    <m-field label="热量 (kcal)">
-      <input class="m-form-input" type="number" placeholder="可选" value="{{calories}}" bindinput="onCaloriesInput" />
-    </m-field>
+    <view class="m2-field">
+      <view class="m2-field-label">食物</view>
+      <input class="m2-field-value" placeholder="例如：米饭 + 西红柿炒蛋" value="{{food}}" bindinput="onFoodInput" maxlength="50" />
+    </view>
+    <view class="m2-field">
+      <view class="m2-field-label">热量 (kcal)</view>
+      <input class="m2-field-value" type="number" placeholder="可选" value="{{calories}}" bindinput="onCaloriesInput" />
+    </view>
   </view>
 
-  <view class="m-form-card">
-    <view class="m-form-title">📝 备注</view>
-    <m-field block>
-      <textarea class="m-form-textarea" placeholder="选填" value="{{notes}}" bindinput="onNotesInput" auto-height maxlength="200" />
-    </m-field>
+  <view class="m2-form-card">
+    <view class="m2-form-title">备注</view>
+    <view class="m2-field textarea-field">
+      <view class="m2-field-label">备注</view>
+      <textarea class="m2-field-value" placeholder="选填" value="{{notes}}" bindinput="onNotesInput" auto-height maxlength="200" />
+    </view>
+    <view class="m-disclaimer">{{disclaimer}}</view>
   </view>
 
-  <m-save-bar save-text="{{isEdit ? '保存修改' : '保存记录'}}" bind:save="save" />
+  <view class="m2-footer">
+    <view class="m2-btn m2-btn-primary" bindtap="save">保存</view>
+  </view>
 </view>

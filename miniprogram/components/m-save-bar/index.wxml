@@ -1,8 +1,8 @@
 <view class="m-save-bar {{fixed ? 'm-save-bar-fixed' : ''}}">
   <view wx:if="{{showDelete}}" class="m-save-bar-delete" bindtap="onDelete">
-    <text class="m-save-bar-delete-text">🗑 删除</text>
+    <text class="m-save-bar-delete-text"> <m-icon name="trash" size="28" inline />删除</text>
   </view>
-  <view class="m-save-bar-save" bindtap="onSave">
+  <view class="m-save-bar-save {{variant ? 'm-save-bar-' + variant : ''}} {{saving || disabled ? 'm-save-bar-saving' : ''}}" bindtap="onSave">
     <text>{{saveText}}</text>
   </view>
 </view>

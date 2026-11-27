@@ -1,13 +1,6 @@
 const db = require('../../../utils/db.js');
 const healthUtil = require('../../../utils/health.js');
 
-const ITEM_OPTIONS = [
-  { value: 'total', label: '总胆固醇' },
-  { value: 'ldl', label: '低密度脂蛋白' },
-  { value: 'hdl', label: '高密度脂蛋白' },
-  { value: 'tg', label: '甘油三酯' }
-];
-
 Page({
   data: {
     profileId: '',
@@ -19,7 +12,8 @@ Page({
     hdl: '',
     tg: '',
     notes: '',
-    preview: null
+    preview: null,
+    disclaimer: healthUtil.MEDICAL_DISCLAIMER
   },
 
   onLoad(options) {
@@ -104,6 +98,13 @@ Page({
       wx.showToast({ title: '请至少填写一项指标', icon: 'none' });
       return;
     }
+    const err = healthUtil.validateFields([
+      { field: 'total', value: total },
+      { field: 'ldl', value: ldl },
+      { field: 'hdl', value: hdl },
+      { field: 'tg', value: tg }
+    ]);
+    if (err) { wx.showToast({ title: err.message, icon: 'none' }); return; }
 
     wx.showLoading({ title: '保存中', mask: true });
     try {
@@ -114,7 +115,9 @@ Page({
         ldl: ldl ? parseFloat(ldl) : '',
         hdl: hdl ? parseFloat(hdl) : '',
         tg: tg ? parseFloat(tg) : '',
-        notes: notes.trim()
+        notes: notes.trim(),
+        judgeVersion: healthUtil.JUDGE_VERSION,
+        updatedAt: Date.now()
       };
 
       if (isEdit) {

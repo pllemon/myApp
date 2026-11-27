@@ -14,20 +14,15 @@ const MODULE_COLORS = {
   wishlist: '#1ABC9C'
 };
 
-function dateKey(ts) {
-  return dateUtil.formatDate(ts, 'YYYY-MM-DD');
-}
-
 function monthPrefix(year, month) {
   return year + '-' + (month < 10 ? '0' + month : '' + month);
 }
 
 async function loadMonthData(year, month) {
   const prefix = monthPrefix(year, month);
-  const range = dateUtil.monthRange(year, month);
 
   const [accountingAll, diaryAll, checkinRecords, habits, todoAll, annivAll, wishAll] = await Promise.all([
-    db.query(db.COLLECTIONS.ACCOUNTING, { createdAt: range, bookId: bookUtil.getCurrentBookId() }),
+    db.query(db.COLLECTIONS.ACCOUNTING, { bookId: bookUtil.getCurrentBookId() }),
     db.list(db.COLLECTIONS.DIARY),
     db.list(db.COLLECTIONS.CHECKIN_RECORD),
     db.list(db.COLLECTIONS.CHECKIN_HABIT, { key: 'sortOrder', order: 'asc' }),
@@ -45,8 +40,8 @@ async function loadMonthData(year, month) {
   }
 
   accountingAll.forEach(item => {
-    const d = dateKey(item.createdAt);
-    if (d.indexOf(prefix) === 0) ensure(d).accounting.push(item);
+    const d = dateUtil.bizDateOf(item);
+    if (d && d.indexOf(prefix) === 0) ensure(d).accounting.push(item);
   });
 
   diaryAll.forEach(item => {
@@ -81,7 +76,7 @@ async function loadMonthData(year, month) {
   });
 
   wishAll.forEach(item => {
-    if (item.dueDate && item.dueDate.indexOf(prefix) === 0) ensure(item.dueDate).wishlist.push(item);
+    if (item.targetDate && item.targetDate.indexOf(prefix) === 0) ensure(item.targetDate).wishlist.push(item);
   });
 
   return { dailyMap, habits: habits || [] };
@@ -100,7 +95,7 @@ function getDayDetail(dailyMap, habits, date) {
   const checkinList = (habits || []).map(h => ({
     _id: h._id,
     name: h.name,
-    icon: h.icon || '🎯',
+    icon: h.icon || 'target',
     color: h.color || '#4A90D9',
     checked: !!checkedHabitIds[h._id]
   }));
@@ -125,7 +120,7 @@ function getDayDetail(dailyMap, habits, date) {
     _id: d._id,
     title: d.title || '无标题',
     summary: diaryUtil.getSummary(d.content, 50),
-    mood: d.mood || '😌',
+    mood: d.mood || 'calm',
     weather: d.weather || ''
   }));
 
@@ -134,14 +129,14 @@ function getDayDetail(dailyMap, habits, date) {
     type: it.type,
     amount: (it.amount || 0).toFixed(2),
     category: it.category || it.parentCategory || '未分类',
-    icon: it.categoryIcon || it.parentCategoryIcon || '💸',
+    icon: it.categoryIcon || it.parentCategoryIcon || 'wallet',
     note: it.note || ''
   }));
 
   const annivList = (day.anniversary || []).map(a => ({
     _id: a._id,
     title: a.title || '',
-    icon: a.icon || '🎈',
+    icon: a.icon || 'celebrate',
     color: a.color || '#FF6B6B',
     repeatLabel: a.repeat === 'annual' ? '每年' : '单次'
   }));
@@ -149,7 +144,7 @@ function getDayDetail(dailyMap, habits, date) {
   const wishList = (day.wishlist || []).map(w => ({
     _id: w._id,
     title: w.title || '',
-    icon: w.icon || '🌟',
+    icon: w.icon || 'star',
     category: w.category || '愿望',
     achieved: !!w.achieved
   }));

@@ -1,4 +1,6 @@
 const db = require('../../../utils/db.js');
+const ui = require('../../../utils/interaction.js');
+const imageUtil = require('../../../utils/image.js');
 
 const FREQUENCY_OPTIONS = ['每天一次', '每天两次', '每天三次', '每8小时', '每12小时', '饭前', '饭后', '睡前', '每周一次', '按需'];
 
@@ -17,7 +19,7 @@ Page({
     notes: '',
     reminderEnabled: false,
     reminderTimes: '',
-    reminderInput: ''
+    images: []
   },
 
   onLoad(options) {
@@ -53,11 +55,12 @@ Page({
           isOngoing: !m.endDate,
           notes: m.notes || '',
           reminderEnabled: !!m.reminderEnabled,
-          reminderTimes: m.reminderTimes || ''
+          reminderTimes: m.reminderTimes || '',
+          images: m.images || []
         });
       }
     } catch (err) {
-      wx.showToast({ title: '加载失败', icon: 'none' });
+      ui.toast('加载失败', 'none');
     }
     wx.hideLoading();
   },
@@ -88,12 +91,13 @@ Page({
   },
 
   onReminderInput(e) { this.setData({ reminderTimes: e.detail.value }); },
+  onImagesChange(e) { this.setData({ images: e.detail.images }); },
 
   async save() {
     const { name, dosage, frequency, startDate, endDate, isOngoing, notes, profileId, id, isEdit, reminderEnabled, reminderTimes } = this.data;
 
     if (!name.trim()) {
-      wx.showToast({ title: '请输入药品名称', icon: 'none' });
+      ui.toast('请输入药品名称', 'none');
       return;
     }
 
@@ -108,21 +112,41 @@ Page({
         endDate: isOngoing ? '' : endDate,
         notes: notes.trim(),
         reminderEnabled,
-        reminderTimes: reminderEnabled ? reminderTimes.trim() : ''
+        reminderTimes: reminderEnabled ? reminderTimes.trim() : '',
+        images: this.data.images,
+        updatedAt: Date.now()
       };
 
       if (isEdit) {
+        const old = await db.getById(db.COLLECTIONS.HEALTH_MEDICATION, id);
+        if (old) imageUtil.cleanOldImages(old.images || [], record.images);
         await db.update(db.COLLECTIONS.HEALTH_MEDICATION, id, record);
       } else {
         await db.add(db.COLLECTIONS.HEALTH_MEDICATION, record);
       }
 
       wx.hideLoading();
-      wx.showToast({ title: '保存成功', icon: 'success' });
+      ui.toast('保存成功');
       setTimeout(() => wx.navigateBack(), 500);
     } catch (err) {
       wx.hideLoading();
-      wx.showToast({ title: '保存失败', icon: 'none' });
+      ui.toast('保存失败', 'none');
+    }
+  },
+
+  async delete() {
+    if (!this.data.isEdit) return;
+    const res = await ui.confirmDeleteLegacy()
+    if (res.confirm) {
+      try {
+        const old = await db.getById(db.COLLECTIONS.HEALTH_MEDICATION, this.data.id);
+        if (old) imageUtil.cleanAllImages(old.images);
+        await db.remove(db.COLLECTIONS.HEALTH_MEDICATION, this.data.id);
+        ui.toast('已删除');
+        setTimeout(() => wx.navigateBack(), 500);
+      } catch (err) {
+        ui.toast('删除失败', 'none');
+      }
     }
   }
 });

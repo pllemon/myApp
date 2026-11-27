@@ -1,0 +1,65 @@
+<view class="m2-page" wx:if="{{item}}" style="{{themeStyle}}">
+  <!-- 详情 Hero -->
+  <view class="m2-detail-hero" style="background:{{item.colorSoft}}">
+    <view class="m2-detail-icon" style="color:{{item.color}}"><m-icon value="{{item.icon}}" size="56" /></view>
+    <view class="m2-detail-main">
+      <view class="m2-detail-title" style="color:{{item.color}}">{{item.title}}</view>
+      <view class="anni-countdown" style="color:{{item.color}}">{{item.countdownLabel}}</view>
+      <view class="m2-badge-row">
+        <view class="m2-badge" style="color:{{item.color}};background:{{item.colorSoft}}">{{item.repeat === 'annual' ? '每年重复' : '仅一次'}}</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 纪念信息 -->
+  <view class="m2-card">
+    <view class="m2-card-head"><view class="m2-card-title">纪念信息</view></view>
+    <view class="m2-detail-row">
+      <view class="m2-detail-label">原始日期</view>
+      <view class="m2-detail-value">{{item.date}}</view>
+    </view>
+    <view class="m2-detail-row">
+      <view class="m2-detail-label">下次纪念</view>
+      <view class="m2-detail-value">{{item.nextDate}}</view>
+    </view>
+    <view wx:if="{{item.years}}" class="m2-detail-row">
+      <view class="m2-detail-label">周年</view>
+      <view class="m2-detail-value">第 {{item.years}} 个</view>
+    </view>
+    <view wx:if="{{item.daysUntil === 0}}" class="m2-detail-row">
+      <view class="m2-detail-label">提醒</view>
+      <view class="m2-detail-value m-text-primary">就是今天</view>
+    </view>
+  </view>
+
+  <!-- 备注 -->
+  <view wx:if="{{item.note}}" class="m2-card">
+    <view class="m2-card-head"><view class="m2-card-title">备注</view></view>
+    <view class="m2-note">{{item.note}}</view>
+  </view>
+
+  <!-- 图片 -->
+  <view wx:if="{{item.images && item.images.length > 0}}" class="m2-card">
+    <view class="m2-card-head"><view class="m2-card-title">图片</view></view>
+    <view class="m2-detail-images">
+      <image wx:for="{{item.images}}" wx:for-item="img" wx:key="*this" class="m2-detail-image" src="{{img}}" mode="aspectFill" data-index="{{index}}" bindtap="previewImage" />
+    </view>
+  </view>
+
+  <!-- 时间信息 -->
+  <view class="m2-card">
+    <view class="m2-detail-row">
+      <view class="m2-detail-label">创建时间</view>
+      <view class="m2-detail-value">{{createdAtLabel || '—'}}</view>
+    </view>
+    <view wx:if="{{updatedAtLabel}}" class="m2-detail-row">
+      <view class="m2-detail-label">最近编辑</view>
+      <view class="m2-detail-value">{{updatedAtLabel}}</view>
+    </view>
+  </view>
+
+  <view class="m2-footer">
+    <view class="m2-btn m2-btn-primary" bindtap="goEdit"><m-icon name="edit" size="28" inline /> 编辑</view>
+    <view class="m2-btn m2-btn-danger" bindtap="deleteItem"><m-icon name="trash" size="28" inline /> 删除</view>
+  </view>
+</view>

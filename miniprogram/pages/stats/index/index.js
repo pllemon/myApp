@@ -1,11 +1,14 @@
+const tabState = require('../../../utils/tab-state.js');
 const db = require('../../../utils/db.js');
 const dateUtil = require('../../../utils/date.js');
 const checkinUtil = require('../../../utils/checkin.js');
 const bookUtil = require('../../../utils/book.js');
+const insightUtil = require('../../../utils/insight.js');
 
 const fmt = (n) => (n || 0).toFixed(2);
 
 Page({
+  behaviors: [tabState.behavior],
   data: {
     monthLabel: '',
     overview: {
@@ -26,6 +29,7 @@ Page({
       currentStreak: 0
     },
     recentTodos: [],
+    insights: [],
     loading: true
   },
 
@@ -37,32 +41,40 @@ Page({
     this.setData({ loading: true });
     try {
       const cm = dateUtil.currentMonth();
-      const range = dateUtil.monthRange(cm.year, cm.month);
+      const monthKey = cm.year + '-' + (cm.month < 10 ? '0' + cm.month : cm.month);
       const today = dateUtil.today();
       const bookId = bookUtil.getCurrentBookId();
 
-      const [accounting, diaryMonth, habits, records, todos] = await Promise.all([
-        db.query(db.COLLECTIONS.ACCOUNTING, { createdAt: range, bookId }),
-        db.count(db.COLLECTIONS.DIARY, { createdAt: range }),
+      const [accounting, diaryAll, habits, records, todos] = await Promise.all([
+        db.query(db.COLLECTIONS.ACCOUNTING, { bookId }),
+        db.list(db.COLLECTIONS.DIARY),
         db.list(db.COLLECTIONS.CHECKIN_HABIT),
         checkinUtil.loadAllCheckinRecords(),
         db.list(db.COLLECTIONS.TODO)
       ]);
 
+      const monthAccounting = accounting.filter(r => dateUtil.bizMonthOf(r) === monthKey);
+      const diaryMonth = diaryAll.filter(d => dateUtil.bizMonthOf(d) === monthKey).length;
+
       let mExpense = 0, mIncome = 0;
-      accounting.forEach(r => {
+      monthAccounting.forEach(r => {
         if (r.type === 'expense') mExpense += r.amount || 0;
         if (r.type === 'income') mIncome += r.amount || 0;
       });
 
       const bars = await this.buildWeekBars();
+      const insights = await insightUtil.buildInsights();
 
       const allDates = [...new Set(records.map(r => r.date))].sort();
       const streaks = checkinUtil.calcStreaks(allDates);
       const todayDone = new Set(records.filter(r => r.date === today).map(r => r.habitId)).size;
 
-      const doneTodos = todos.filter(t => t.completed);
-      const todoRate = todos.length > 0 ? Math.round(doneTodos.length / todos.length * 100) : 0;
+      const monthTodos = todos.filter(t => {
+        const biz = dateUtil.bizMonthOf(t);
+        return biz ? biz === monthKey : dateUtil.formatDate(t.createdAt, 'YYYY-MM') === monthKey;
+      });
+      const doneTodos = monthTodos.filter(t => t.completed);
+      const todoRate = monthTodos.length > 0 ? Math.round(doneTodos.length / monthTodos.length * 100) : 0;
 
       const recentTodos = todos
         .slice()
@@ -78,7 +90,7 @@ Page({
           monthBalance: fmt(mIncome - mExpense),
           diaryMonth,
           todoDone: doneTodos.length,
-          todoTotal: todos.length,
+          todoTotal: monthTodos.length,
           todoRate
         },
         bars,
@@ -90,6 +102,7 @@ Page({
           currentStreak: streaks.current
         },
         recentTodos,
+        insights,
         loading: false
       });
     } catch (e) {
@@ -98,16 +111,24 @@ Page({
     }
   },
 
+  goOverview(e) {
+    const path = e.currentTarget.dataset.path;
+    if (!path) return;
+    wx.reLaunch({ url: path });
+  },
+
   async buildWeekBars() {
     const bookId = bookUtil.getCurrentBookId();
+    const all = await db.query(db.COLLECTIONS.ACCOUNTING, { bookId });
     const days = [];
     for (let i = 6; i >= 0; i--) {
       const ts = Date.now() - i * 86400000;
       const label = dateUtil.formatDate(ts, 'MM-DD');
-      const range = { $gte: ts - ts % 86400000, $lte: ts - ts % 86400000 + 86399999 };
-      const list = await db.query(db.COLLECTIONS.ACCOUNTING, { createdAt: range, bookId });
+      const key = dateUtil.formatDate(ts, 'YYYY-MM-DD');
       let expense = 0;
-      list.forEach(r => { if (r.type === 'expense') expense += r.amount || 0; });
+      all.forEach(r => {
+        if (r.type === 'expense' && dateUtil.bizDateOf(r) === key) expense += r.amount || 0;
+      });
       days.push({ label, value: expense });
     }
     const max = Math.max(...days.map(d => d.value), 0.01);

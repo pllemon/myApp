@@ -1,56 +1,65 @@
-<view class="container">
-  <view class="goal-card">
-    <view class="goal-header">
-      <text class="goal-label">今日目标</text>
-      <text class="goal-set" bindtap="onGoalEdit">{{goal}}ml ›</text>
+<view class="m2-page" style="{{themeStyle}}">
+  <!-- 今日饮水 Hero -->
+  <view class="m2-hero">
+    <view class="m2-hero-head">
+      <view>
+        <view class="m2-hero-title">今日饮水</view>
+        <view class="m2-hero-sub">多喝水，保持好状态</view>
+      </view>
+      <view class="m2-hero-action" bindtap="onGoalEdit">目标 {{goal}}ml ›</view>
     </view>
-    <view class="goal-bar-wrap">
-      <view class="goal-bar" style="width: {{goal > 0 ? (todayTotal / goal * 100 > 100 ? 100 : todayTotal / goal * 100) : 0}}%;"></view>
+    <view class="m2-hero-value"><text class="m2-hero-unit">{{todayTotal}}</text>ml</view>
+    <view class="m2-hero-note" wx:if="{{todayTotal >= goal}}">目标已达成！今日喝了 {{todayTotal}}ml</view>
+    <view class="m2-hero-note" wx:else>还差 {{goal - todayTotal}}ml 加油！</view>
+    <view class="hero-progress">
+      <view class="hero-progress-fill" style="width: {{goal > 0 ? (todayTotal / goal * 100 > 100 ? 100 : todayTotal / goal * 100) : 0}}%;"></view>
     </view>
-    <view class="goal-text">
-      <text class="goal-current">{{todayTotal}}</text>
-      <text class="goal-unit">ml</text>
-      <text class="goal-divider">/</text>
-      <text class="goal-target">{{goal}}ml</text>
-    </view>
-    <view class="goal-status">
-      <text wx:if="{{todayTotal >= goal}}">🎉 目标已达成！今日喝了 {{todayTotal}}ml</text>
-      <text wx:else>还差 {{goal - todayTotal}}ml 加油！</text>
-    </view>
+  </view>
+
+  <!-- 快捷添加 -->
+  <view class="m2-card quick-card">
+    <view class="m2-card-head"><view class="m2-card-title">快捷添加</view></view>
     <view class="quick-row">
-      <view class="quick-btn" wx:for="{{quickAmounts}}" wx:key="*this"
-            data-val="{{item}}" bindtap="onAddQuick">+{{item}}</view>
+      <view class="quick-btn" wx:for="{{quickAmounts}}" wx:key="*this" data-val="{{item}}" bindtap="onAddQuick">+{{item}}</view>
     </view>
   </view>
 
-  <view class="section-title">今日饮水</view>
-  <m-empty compact wx:if="{{todayRecords.length === 0}}" title="还没喝水哦，快去添加吧" />
-  <view wx:else class="water-list">
-    <view class="water-item" wx:for="{{todayRecords}}" wx:key="_id" bindtap="goEdit" data-id="{{item._id}}" bindlongpress="deleteItem">
-      <view class="w-ico">💧</view>
-      <view class="w-info">
-        <text class="w-time">{{item.time || ''}}</text>
-        <text wx:if="{{item.note}}" class="w-note">{{item.note}}</text>
+  <!-- 今日饮水 -->
+  <view class="m2-group">
+    <view class="m2-group-head"><view class="m2-group-title">今日饮水</view></view>
+    <m-empty wx:if="{{todayRecords.length === 0}}" title="还没喝水哦，快去添加吧" />
+    <view wx:else class="m2-list">
+      <view class="m2-row" wx:for="{{todayRecords}}" wx:key="_id" bindtap="goEdit" data-id="{{item._id}}" bindlongpress="onItemLongPress">
+        <view class="m2-row-icon" style="background:var(--primary-light)"><m-icon name="droplet" size="36" tone="health" healthKey="饮水" /></view>
+        <view class="m2-row-body">
+          <view class="m2-row-title">{{item.time || ''}}</view>
+          <view wx:if="{{item.note}}" class="m2-row-sub">{{item.note}}</view>
+        </view>
+        <view class="m2-row-value m-text-primary">+{{item.amount}}ml</view>
       </view>
-      <view class="w-amount">+{{item.amount}}ml</view>
     </view>
   </view>
 
-  <view wx:if="{{monthGroups.length > 0}}" class="section-title">历史记录</view>
-  <view wx:for="{{monthGroups}}" wx:for-item="group" wx:key="month" class="month-group">
-    <view class="month-header">
-      <text class="month-label">{{group.month}}</text>
-      <text class="month-total">共 {{group.total}}ml</text>
-    </view>
-    <view class="water-item" wx:for="{{group.items}}" wx:for-item="item" wx:key="_id" bindtap="goEdit" data-id="{{item._id}}" bindlongpress="deleteItem">
-      <view class="w-ico">💧</view>
-      <view class="w-info">
-        <text class="w-date">{{item.date}} {{item.time || ''}}</text>
-        <text wx:if="{{item.note}}" class="w-note">{{item.note}}</text>
+  <!-- 历史记录 -->
+  <block wx:if="{{monthGroups.length > 0}}">
+    <view class="m2-group-head"><view class="m2-group-title">历史记录</view></view>
+    <view class="m2-group" wx:for="{{monthGroups}}" wx:for-item="group" wx:key="month">
+      <view class="m2-group-head">
+        <view class="m2-group-title">{{group.month}}</view>
+        <view class="m2-group-count">共 {{group.total}}ml</view>
       </view>
-      <view class="w-amount">+{{item.amount}}ml</view>
+      <view class="m2-list">
+        <view class="m2-row" wx:for="{{group.items}}" wx:for-item="item" wx:key="_id" bindtap="goEdit" data-id="{{item._id}}" bindlongpress="onItemLongPress">
+          <view class="m2-row-icon" style="background:var(--primary-light)"><m-icon name="droplet" size="36" tone="health" healthKey="饮水" /></view>
+          <view class="m2-row-body">
+            <view class="m2-row-title">{{item.date}} {{item.time || ''}}</view>
+            <view wx:if="{{item.note}}" class="m2-row-sub">{{item.note}}</view>
+          </view>
+          <view class="m2-row-value m-text-primary">+{{item.amount}}ml</view>
+        </view>
+      </view>
     </view>
-  </view>
+  </block>
 
-  <view class="m-fab" bindtap="goNew">+</view>
+  <view class="m2-fab" bindtap="goNew"><m-icon name="add" size="44" inline /></view>
 </view>

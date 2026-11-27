@@ -1,0 +1,16 @@
+<view class="m-color-picker {{size ? 'is-' + size : ''}}">
+  <view
+    wx:for="{{_items}}"
+    wx:key="key"
+    class="m-color-cell {{color === item.value ? 'is-active' : ''}}"
+    style="background: {{item.value}}"
+    aria-label="{{item.label || item.value}}"
+    data-value="{{item.value}}"
+    data-label="{{item.label}}"
+    bindtap="selectColor"
+  >
+    <view wx:if="{{color === item.value}}" class="m-color-check" style="filter: {{item.checkShadow}}">
+      <m-icon name="check" size="28" color="{{item.checkColor}}" />
+    </view>
+  </view>
+</view>

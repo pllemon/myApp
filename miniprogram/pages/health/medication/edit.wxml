@@ -1,55 +1,74 @@
-<view class="container m-edit-page">
-  <view class="m-form-card">
-    <view class="m-form-title">💊 用药记录</view>
+<view class="m2-page m2-edit" style="{{themeStyle}}">
+  <view class="m2-edit-hero">
+    <view class="m2-edit-hero-icon" style="background: var(--primary-light)"><m-icon tone="health" healthKey="用药" size="44" /></view>
+    <view>
+      <view class="m2-edit-title">{{isEdit ? '编辑用药' : '新增用药'}}</view>
+      <view class="m2-edit-desc">记录药品与提醒，按时服药不遗漏</view>
+    </view>
+  </view>
 
-    <m-field label="药品名称">
-      <input class="m-form-input" placeholder="例如：阿司匹林" value="{{name}}" bindinput="onNameInput" maxlength="30" />
-    </m-field>
-
-    <m-field label="剂量">
-      <input class="m-form-input" placeholder="例如：100mg" value="{{dosage}}" bindinput="onDosageInput" maxlength="20" />
-    </m-field>
-
+  <view class="m2-form-card">
+    <view class="m2-form-title">用药信息</view>
+    <view class="m2-field">
+      <view class="m2-field-label">药品名称</view>
+      <input class="m2-field-value" placeholder="例如：阿司匹林" value="{{name}}" bindinput="onNameInput" maxlength="30" />
+    </view>
+    <view class="m2-field">
+      <view class="m2-field-label">剂量</view>
+      <input class="m2-field-value" placeholder="例如：100mg" value="{{dosage}}" bindinput="onDosageInput" maxlength="20" />
+    </view>
     <m-option-picker label="频次" options="{{frequencyOptions}}" currentValue="{{frequency}}" bind:change="onFrequencyChange">
       {{frequency || '选择频次'}}
     </m-option-picker>
-
-    <view class="m-form-row">
-      <m-field label="开始日期" half>
+    <view class="m2-field-row">
+      <view class="m2-field half">
+        <view class="m2-field-label">开始日期</view>
         <picker mode="date" value="{{startDate}}" bindchange="onStartDateChange">
-          <view class="m-form-picker-value">{{startDate || '选择'}}</view>
+          <view class="m2-field-value {{startDate ? '' : 'placeholder'}}">{{startDate || '选择'}}</view>
         </picker>
-      </m-field>
-      <m-field label="结束日期" half>
+        <view class="m2-field-arrow">›</view>
+      </view>
+      <view class="m2-field half">
+        <view class="m2-field-label">结束日期</view>
         <picker mode="date" value="{{endDate}}" bindchange="onEndDateChange" disabled="{{isOngoing}}">
-          <view class="m-form-picker-value">{{isOngoing ? '进行中' : (endDate || '选择')}}</view>
+          <view class="m2-field-value {{isOngoing ? '' : 'placeholder'}}">{{isOngoing ? '进行中' : (endDate || '选择')}}</view>
         </picker>
-      </m-field>
+        <view class="m2-field-arrow">›</view>
+      </view>
     </view>
-
-    <view class="m-form-item switch">
-      <text class="m-form-key">长期用药</text>
-      <switch checked="{{isOngoing}}" bindchange="onOngoingToggle" color="#4A90D9" />
+    <view class="m2-field">
+      <view class="m2-field-label">长期用药</view>
+      <switch checked="{{isOngoing}}" bindchange="toggleOngoing" color="var(--primary)" />
     </view>
   </view>
 
-  <view class="m-form-card">
-    <view class="m-form-title">⏰ 提醒设置</view>
-    <view class="m-form-item switch">
-      <text class="m-form-key">开启提醒</text>
-      <switch checked="{{reminderEnabled}}" bindchange="onReminderToggle" color="#4A90D9" />
+  <view class="m2-form-card">
+    <view class="m2-form-title">提醒设置</view>
+    <view class="m2-field">
+      <view class="m2-field-label">开启提醒</view>
+      <switch checked="{{reminderEnabled}}" bindchange="toggleReminder" color="var(--primary)" />
     </view>
-    <m-field wx:if="{{reminderEnabled}}" label="提醒时间">
-      <input class="m-form-input" placeholder="例如 08:00, 20:00" value="{{reminderInput}}" bindinput="onReminderInput" />
-    </m-field>
+    <view class="m2-field" wx:if="{{reminderEnabled}}">
+      <view class="m2-field-label">提醒时间</view>
+      <input class="m2-field-value" placeholder="例如 08:00, 20:00" value="{{reminderTimes}}" bindinput="onReminderInput" />
+    </view>
   </view>
 
-  <view class="m-form-card">
-    <view class="m-form-title">📝 备注</view>
-    <m-field block>
-      <textarea class="m-form-textarea" placeholder="选填" value="{{notes}}" bindinput="onNotesInput" auto-height maxlength="200" />
-    </m-field>
+  <view class="m2-form-card">
+    <view class="m2-form-title">备注</view>
+    <view class="m2-field textarea-field">
+      <view class="m2-field-label">备注</view>
+      <textarea class="m2-field-value" placeholder="选填" value="{{notes}}" bindinput="onNotesInput" auto-height maxlength="200" />
+    </view>
   </view>
 
-  <m-save-bar save-text="{{isEdit ? '保存修改' : '添加用药'}}" show-delete="{{isEdit}}" bind:save="save" bind:delete="delete" />
+  <view class="m2-form-card">
+    <view class="m2-form-title">药盒 / 处方照片</view>
+    <m-image-picker images="{{images}}" max="6" bind:change="onImagesChange" />
+  </view>
+
+  <view class="m2-footer">
+    <view class="m2-btn m2-btn-primary" bindtap="save">保存</view>
+    <view wx:if="{{isEdit}}" class="m2-btn m2-btn-danger" bindtap="delete">删除</view>
+  </view>
 </view>

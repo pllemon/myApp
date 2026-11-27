@@ -4,6 +4,7 @@ const checkinUtil = require('../../../utils/checkin.js');
 const imageUtil = require('../../../utils/image.js');
 
 Page({
+  noop() {},
   data: {
     viewType: 'month',
     habitId: '',
@@ -16,6 +17,7 @@ Page({
     heatmap: [],
     monthStats: { checkedDays: 0, totalDays: 0, recordsCount: 0 },
     habitRecords: [],
+    habits: [],
     today: dateUtil.today(),
     selectedRecord: null,
     showRecordDetail: false
@@ -35,6 +37,8 @@ Page({
       }
     } else {
       wx.setNavigationBarTitle({ title: '打卡日历' });
+      const habits = await checkinUtil.loadHabits();
+      this.setData({ habits: habits || [] });
     }
 
     const now = new Date();
@@ -46,10 +50,6 @@ Page({
       monthLabel: `${now.getFullYear()}年${now.getMonth() + 1}月`
     });
     this.loadMonth();
-  },
-
-  switchView(e) {
-    this.setData({ viewType: e.currentTarget.dataset.view });
   },
 
   async loadMonth() {
@@ -132,6 +132,33 @@ Page({
     wx.hideLoading();
   },
 
+  async selectHabit(e) {
+    const id = e.currentTarget.dataset.id;
+    const habit = (this.data.habits || []).find(h => h._id === id);
+    if (!habit) return;
+    this.setData({
+      habitId: id,
+      habitName: habit.name,
+      habitColor: habit.color || '#4A90D9'
+    });
+    wx.setNavigationBarTitle({ title: (habit.icon ? habit.icon + ' ' : '') + habit.name });
+    await this.loadMonth();
+  },
+
+  async onHeatmapDay(e) {
+    const date = e.currentTarget.dataset.date;
+    if (!date || !this.data.habitId) return;
+    const [y, m] = date.split('-');
+    this.setData({ viewType: 'month', monthYear: y + '-' + Number(m) });
+    await this.loadMonth();
+    const record = (this.data.habitRecords || []).find(r => r.date === date);
+    if (record) {
+      this.setData({ selectedRecord: record, showRecordDetail: true });
+    } else {
+      wx.showToast({ title: '当日暂无该习惯的打卡记录', icon: 'none' });
+    }
+  },
+
   onSwitchView(e) {
     const view = e.currentTarget.dataset.view;
     this.setData({ viewType: view });
@@ -163,7 +190,10 @@ Page({
   },
 
   async toggleDay(e) {
-    if (!this.data.habitId) return;
+    if (!this.data.habitId) {
+      wx.showToast({ title: '请先选择习惯', icon: 'none' });
+      return;
+    }
     const { date } = e.currentTarget.dataset;
     if (!date || date > this.data.today) return;
 
@@ -181,31 +211,11 @@ Page({
     this.setData({ showRecordDetail: false, selectedRecord: null });
   },
 
-  async previewRecordImage(e) {
+  async onRecordImagesChange(e) {
     if (!this.data.selectedRecord) return;
-    const idx = e.currentTarget.dataset.index;
-    imageUtil.preview(idx, this.data.selectedRecord.images || []);
-  },
-
-  async addRecordImages() {
-    if (!this.data.selectedRecord) return;
-    const paths = await imageUtil.chooseImages((this.data.selectedRecord.images || []).length);
-    if (paths.length === 0) return;
-    const newImages = [...(this.data.selectedRecord.images || []), ...paths];
+    const newImages = e.detail.images;
     const oldImages = this.data.selectedRecord.images || [];
     imageUtil.cleanOldImages(oldImages, newImages);
-    await db.update(db.COLLECTIONS.CHECKIN_RECORD, this.data.selectedRecord._id, { images: newImages });
-    const updated = { ...this.data.selectedRecord, images: newImages };
-    this.setData({ selectedRecord: updated });
-    this.loadMonth();
-  },
-
-  async removeRecordImage(e) {
-    if (!this.data.selectedRecord) return;
-    const idx = e.currentTarget.dataset.index;
-    const images = this.data.selectedRecord.images || [];
-    const newImages = imageUtil.removeAt(images, idx);
-    imageUtil.cleanOldImages(images, newImages);
     await db.update(db.COLLECTIONS.CHECKIN_RECORD, this.data.selectedRecord._id, { images: newImages });
     const updated = { ...this.data.selectedRecord, images: newImages };
     this.setData({ selectedRecord: updated });

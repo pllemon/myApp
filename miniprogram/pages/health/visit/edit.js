@@ -1,5 +1,6 @@
 const db = require('../../../utils/db.js');
-const dateUtil = require('../../../utils/date.js');
+const imageUtil = require('../../../utils/image.js');
+const ui = require('../../../utils/interaction.js');
 
 const VISIT_TYPES = ['门诊', '住院', '急诊', '体检', '复查', '疫苗', '其他'];
 
@@ -18,14 +19,12 @@ Page({
     diagnosis: '',
     treatment: '',
     cost: '',
-    notes: ''
+    notes: '',
+    images: []
   },
 
   onLoad(options) {
-    this.setData({
-      profileId: options.profileId,
-      date: this.formatToday()
-    });
+    this.setData({ profileId: options.profileId, date: this.formatToday() });
     if (options.id) {
       this.setData({ id: options.id, isEdit: true });
       wx.setNavigationBarTitle({ title: '编辑看诊' });
@@ -55,7 +54,8 @@ Page({
           diagnosis: v.diagnosis || '',
           treatment: v.treatment || '',
           cost: v.cost || '',
-          notes: v.notes || ''
+          notes: v.notes || '',
+          images: v.images || []
         });
       }
     } catch (err) {
@@ -72,31 +72,40 @@ Page({
   onTreatmentInput(e) { this.setData({ treatment: e.detail.value }); },
   onCostInput(e) { this.setData({ cost: e.detail.value.replace(/[^\d.]/g, '') }); },
   onNotesInput(e) { this.setData({ notes: e.detail.value }); },
+  onImagesChange(e) { this.setData({ images: e.detail.images }); },
 
   onTypeChange(e) { this.setData({ visitType: e.detail.value }); },
   onDateChange(e) { this.setData({ date: e.detail.value }); },
 
   async save() {
-    const { date, visitType, diagnosis, profileId, id, isEdit, title, hospital, department, doctor, treatment, cost, notes } = this.data;
+    const d = this.data;
+    // 必填：医院或诊断至少一项，否则这条看诊没有可识别信息
+    if (!d.hospital.trim() && !d.diagnosis.trim()) {
+      wx.showToast({ title: '请填写医院或诊断', icon: 'none' });
+      return;
+    }
 
     wx.showLoading({ title: '保存中', mask: true });
     try {
       const record = {
-        profileId,
-        title: title.trim() || visitType + '记录',
-        visitType,
-        date,
-        hospital: hospital.trim(),
-        department: department.trim(),
-        doctor: doctor.trim(),
-        diagnosis: diagnosis.trim(),
-        treatment: treatment.trim(),
-        cost: cost ? parseFloat(cost) : null,
-        notes: notes.trim()
+        profileId: d.profileId,
+        title: d.title.trim() || d.visitType + '记录',
+        visitType: d.visitType,
+        date: d.date,
+        hospital: d.hospital.trim(),
+        department: d.department.trim(),
+        doctor: d.doctor.trim(),
+        diagnosis: d.diagnosis.trim(),
+        treatment: d.treatment.trim(),
+        cost: d.cost ? parseFloat(d.cost) : null,
+        notes: d.notes.trim(),
+        images: d.images,
+        updatedAt: Date.now()
       };
-
-      if (isEdit) {
-        await db.update(db.COLLECTIONS.HEALTH_VISIT, id, record);
+      if (d.isEdit) {
+        const old = await db.getById(db.COLLECTIONS.HEALTH_VISIT, d.id);
+        if (old) imageUtil.cleanOldImages(old.images || [], record.images);
+        await db.update(db.COLLECTIONS.HEALTH_VISIT, d.id, record);
       } else {
         await db.add(db.COLLECTIONS.HEALTH_VISIT, record);
       }
@@ -107,6 +116,21 @@ Page({
     } catch (err) {
       wx.hideLoading();
       wx.showToast({ title: '保存失败', icon: 'none' });
+    }
+  },
+
+  async remove() {
+    if (!this.data.isEdit) return;
+    const res = await ui.confirmDeleteLegacy();
+    if (!res.confirm) return;
+    try {
+      const old = await db.getById(db.COLLECTIONS.HEALTH_VISIT, this.data.id);
+      if (old) imageUtil.cleanAllImages(old.images);
+      await db.remove(db.COLLECTIONS.HEALTH_VISIT, this.data.id);
+      ui.toast('已删除');
+      setTimeout(() => wx.navigateBack(), 500);
+    } catch (err) {
+      ui.toast('删除失败', 'none');
     }
   }
 });

@@ -1,69 +1,67 @@
-<view class="container m-edit-page">
-  <view class="m-form-card">
-    <m-field label="账本名称">
-      <input 
-        class="m-form-input" 
-        placeholder="如：家庭账本" 
+<view class="m2-page" style="{{themeStyle}}">
+  <!-- 页面标题 -->
+  <view class="m2-edit-hero">
+    <view class="m2-edit-hero-icon" style="background: var(--primary-light)">
+      <m-icon name="wallet" size="44" />
+    </view>
+    <view class="m2-edit-main">
+      <view class="m2-edit-title">{{isEdit ? '编辑账本' : '新建账本'}}</view>
+      <view class="m2-edit-desc">设置名称、图标与颜色</view>
+    </view>
+  </view>
+
+  <!-- 基本信息 -->
+  <view class="m2-form-card">
+    <view class="m2-field">
+      <view class="m2-field-label">账本名称</view>
+      <input
+        class="m2-field-value"
+        placeholder="如：家庭账本"
         value="{{name}}"
         bindinput="onNameInput"
         maxlength="20"
       />
-    </m-field>
-
-    <m-field label="备注（可选）">
-      <input 
-        class="m-form-input" 
-        placeholder="账本说明" 
+    </view>
+    <view class="m2-field">
+      <view class="m2-field-label">备注</view>
+      <input
+        class="m2-field-value"
+        placeholder="账本说明（可选）"
         value="{{note}}"
         bindinput="onNoteInput"
         maxlength="50"
       />
-    </m-field>
-  </view>
-
-  <view class="m-form-card">
-    <view class="m-form-title">选择图标</view>
-    <view class="icon-grid">
-      <view 
-        wx:for="{{iconChoices}}" 
-        wx:key="*this" 
-        class="icon-item {{item === icon ? 'active' : ''}}"
-        data-icon="{{item}}"
-        bindtap="selectIcon"
-      >
-        <text>{{item}}</text>
-      </view>
     </view>
   </view>
 
-  <view class="m-form-card">
-    <view class="m-form-title">选择颜色</view>
-    <view class="color-grid">
-      <view 
-        wx:for="{{colorChoices}}" 
-        wx:key="value" 
-        class="color-item {{item.value === color ? 'active' : ''}}"
-        style="background: {{item.value}};"
-        data-value="{{item.value}}"
-        bindtap="selectColor"
-      >
-        <view class="color-check" wx:if="{{item.value === color}}">✓</view>
-      </view>
-    </view>
+  <!-- 图标 -->
+  <view class="m2-form-card">
+    <view class="m2-form-title">选择图标</view>
+    <m-icon-picker icons="{{iconChoices}}" value="{{icon}}" bind:select="selectIcon" />
   </view>
 
-  <view class="preview-section">
-    <view class="m-form-title">预览</view>
+  <!-- 颜色 -->
+  <view class="m2-form-card">
+    <view class="m2-form-title">选择颜色</view>
+    <m-color-picker colors="{{colorChoices}}" color="{{color}}" bind:change="selectColor" />
+  </view>
+
+  <!-- 预览 -->
+  <view class="m2-form-card">
+    <view class="m2-form-title">预览</view>
     <view class="preview-card" style="background: {{color}}15; border-color: {{color}};">
       <view class="preview-icon" style="background: {{color}}20;">
-        <text>{{icon}}</text>
+        <m-icon value="{{icon}}" size="36" />
       </view>
       <view class="preview-info">
         <view class="preview-name" style="color: {{color}};">{{name || '账本名称'}}</view>
-        <view class="preview-note" wx:if="{{note}}">{{note}}</view>
+        <view class="m2-row-sub" wx:if="{{note}}">{{note}}</view>
       </view>
     </view>
   </view>
 
-  <m-save-bar save-text="保存" bind:save="save" />
+  <!-- 底部操作 -->
+  <view class="m2-footer">
+    <view class="m2-btn m2-btn-primary" bindtap="save">保存</view>
+  </view>
 </view>

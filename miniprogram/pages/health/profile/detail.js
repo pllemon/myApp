@@ -1,12 +1,13 @@
 const db = require('../../../utils/db.js');
-const dateUtil = require('../../../utils/date.js');
+const ui = require('../../../utils/interaction.js');
 const healthUtil = require('../../../utils/health.js');
+const reportUtil = require('../../../utils/health-report.js');
 
 const TABS = [
-  { key: 'overview', label: '概览', icon: '📋' },
-  { key: 'medication', label: '用药', icon: '💊' },
-  { key: 'visit', label: '看诊', icon: '🏥' },
-  { key: 'period', label: '生理期', icon: '🌸' }
+  { key: 'overview', label: '概览', icon: 'note' },
+  { key: 'medication', label: '用药', icon: 'medicine' },
+  { key: 'visit', label: '看诊', icon: 'hospital' },
+  { key: 'period', label: '生理期', icon: 'flower' }
 ];
 
 Page({
@@ -34,7 +35,10 @@ Page({
     periods: [],
     periodCount: 0,
     latestPeriod: null,
-    cycleInfo: null
+    cycleInfo: null,
+    showReport: false,
+    reportName: '',
+    reportContent: ''
   },
 
   onLoad(options) {
@@ -50,7 +54,7 @@ Page({
     try {
       const profile = await db.getById(db.COLLECTIONS.HEALTH_PROFILE, this.data.id);
       if (!profile) {
-        wx.showToast({ title: '档案不存在', icon: 'none' });
+        ui.toast('档案不存在', 'none');
         setTimeout(() => wx.navigateBack(), 1000);
         wx.hideLoading();
         return;
@@ -76,7 +80,12 @@ Page({
       const medGroups = healthUtil.groupByDate(myMeds, 'startDate');
       
       for (const v of myVisits) {
-        v._dateLabel = dateUtil.friendlyTime(v.date);
+        // date 是业务日期字符串，friendlyTime 按时间戳算会得到 NaN
+        v._dateLabel = v.date || '';
+        v._visitType = v.visitType || '';
+        v._department = v.department || '';
+        v._treatment = v.treatment || '';
+        v._costText = v.cost != null && v.cost !== '' ? '¥' + Number(v.cost).toFixed(2) : '';
       }
       const visitGroups = healthUtil.groupByDate(myVisits, 'date');
       
@@ -96,10 +105,10 @@ Page({
       if (profile.gender === 'female' && latestPeriod && latestPeriod.startDate && profile.cycleLength) {
         cycleInfo = healthUtil.calcCycleInfo(latestPeriod.startDate, profile.cycleLength);
         if (cycleInfo) {
-          if (cycleInfo.stage === 'period') { cycleStageText = '🩸 经期中'; cycleStageClass = 'period'; }
-          else if (cycleInfo.stage === 'ovulation') { cycleStageText = '🌟 排卵日'; cycleStageClass = 'ovulation'; }
-          else if (cycleInfo.stage === 'fertile') { cycleStageText = '💚 易孕期'; cycleStageClass = 'fertile'; }
-          else { cycleStageText = '💙 安全期'; cycleStageClass = 'safe'; }
+if (cycleInfo.stage === 'period') { cycleStageText = '经期中'; cycleStageClass = 'period'; }
+    else if (cycleInfo.stage === 'ovulation') { cycleStageText = '排卵日'; cycleStageClass = 'ovulation'; }
+    else if (cycleInfo.stage === 'fertile') { cycleStageText = '易孕期'; cycleStageClass = 'fertile'; }
+    else { cycleStageText = '安全期'; cycleStageClass = 'safe'; }
         }
       }
 
@@ -130,7 +139,7 @@ Page({
 
       wx.setNavigationBarTitle({ title: profile.name + '的档案' });
     } catch (err) {
-      wx.showToast({ title: '加载失败', icon: 'none' });
+      ui.toast('加载失败', 'none');
     }
     wx.hideLoading();
   },
@@ -143,6 +152,28 @@ Page({
     wx.navigateTo({ url: `/pages/health/profile/edit?id=${this.data.id}` });
   },
 
+  async exportReport() {
+    wx.showLoading({ title: '生成中', mask: true });
+    try {
+      const report = await reportUtil.buildReport(this.data.id);
+      wx.hideLoading();
+      if (!report) { ui.toast('档案不存在', 'none'); return; }
+      this.setData({ showReport: true, reportName: report.name, reportContent: report.content });
+    } catch (err) {
+      wx.hideLoading();
+      ui.toast('生成失败', 'none');
+    }
+  },
+
+  closeReport() { this.setData({ showReport: false }); },
+
+  copyReport() {
+    wx.setClipboardData({
+      data: this.data.reportContent,
+      success: () => { ui.toast('已复制，可粘贴发送'); this.setData({ showReport: false }); }
+    });
+  },
+
   addMed() {
     wx.navigateTo({ url: `/pages/health/medication/edit?profileId=${this.data.id}` });
   },
@@ -153,10 +184,10 @@ Page({
 
   async deleteMed(e) {
     const { id } = e.currentTarget.dataset;
-    const res = await wx.showModal({ title: '删除用药记录', content: '确认删除？', confirmColor: '#E74C3C' });
+    const res = await ui.confirmDeleteLegacy()
     if (!res.confirm) return;
     await db.remove(db.COLLECTIONS.HEALTH_MEDICATION, id);
-    wx.showToast({ title: '已删除', icon: 'success' });
+    ui.toast('已删除');
     this.loadAll();
   },
 
@@ -170,10 +201,10 @@ Page({
 
   async deleteVisit(e) {
     const { id } = e.currentTarget.dataset;
-    const res = await wx.showModal({ title: '删除看诊记录', content: '确认删除？', confirmColor: '#E74C3C' });
+    const res = await ui.confirmDeleteLegacy()
     if (!res.confirm) return;
     await db.remove(db.COLLECTIONS.HEALTH_VISIT, id);
-    wx.showToast({ title: '已删除', icon: 'success' });
+    ui.toast('已删除');
     this.loadAll();
   },
 
@@ -187,10 +218,10 @@ Page({
 
   async deletePeriod(e) {
     const { id } = e.currentTarget.dataset;
-    const res = await wx.showModal({ title: '删除生理期记录', content: '确认删除？', confirmColor: '#E74C3C' });
+    const res = await ui.confirmDeleteLegacy()
     if (!res.confirm) return;
     await db.remove(db.COLLECTIONS.HEALTH_PERIOD, id);
-    wx.showToast({ title: '已删除', icon: 'success' });
+    ui.toast('已删除');
     this.loadAll();
   }
 });

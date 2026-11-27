@@ -9,49 +9,62 @@ function contains(arr, key) {
 module.exports = { contains: contains };
 </wxs>
 
-<view class="container m-edit-page">
-  <view class="avatar-section">
-    <view class="avatar-circle" bindtap="toggleAvatars">
-      <text class="avatar-big">{{avatar}}</text>
+<view class="m2-page m2-edit" style="{{themeStyle}}">
+  <view class="m2-edit-hero">
+    <view class="m2-edit-hero-icon" style="background: var(--primary-light)"><m-icon name="user" size="44" /></view>
+    <view>
+      <view class="m2-edit-title">{{isEdit ? '编辑档案' : '新建档案'}}</view>
+      <view class="m2-edit-desc">记录家人健康信息，数据分组管理</view>
     </view>
-    <view class="avatar-hint">点击更换头像</view>
   </view>
 
-  <view wx:if="{{showAvatars}}" class="avatar-picker">
-    <view 
-      wx:for="{{avatarPresets}}" 
+  <!-- 头像 -->
+  <view class="m2-card avatar-section">
+    <view class="avatar-circle" bindtap="toggleAvatars">
+      <m-icon name="{{avatar}}" size="88" />
+    </view>
+    <view class="m2-edit-desc">点击更换头像</view>
+  </view>
+
+  <view wx:if="{{showAvatars}}" class="m2-card avatar-picker">
+    <view
+      wx:for="{{avatarPresets}}"
       wx:key="*this"
       class="avatar-item {{avatar === item ? 'active' : ''}}"
       data-icon="{{item}}"
       bindtap="selectAvatar"
-    >{{item}}</view>
+    ><m-icon name="{{item}}" size="40" /></view>
   </view>
 
-  <view class="m-form-card">
-    <view class="m-form-title">📝 基础信息</view>
+  <!-- 基础信息 -->
+  <view class="m2-form-card">
+    <view class="m2-form-title">基础信息</view>
 
-    <m-field label="姓名">
-      <input class="m-form-input" placeholder="请输入姓名" value="{{name}}" bindinput="onNameInput" maxlength="12" />
-    </m-field>
+    <view class="m2-field">
+      <view class="m2-field-label">姓名</view>
+      <input class="m2-field-value" placeholder="请输入姓名" value="{{name}}" bindinput="onNameInput" maxlength="12" />
+    </view>
 
     <m-option-picker label="性别" options="{{genders}}" currentValue="{{gender}}" bind:change="onGenderChange">
-      {{gender === 'female' ? '👩 女' : '👨 男'}}
+      <m-icon name="user" size="28" inline />{{gender === 'female' ? '女' : '男'}}
     </m-option-picker>
 
-    <m-field label="出生年月">
-      <picker mode="date" value="{{birthDate}}" bindchange="onBirthDateChange">
-        <view class="m-form-picker-value">{{birthDate || '请选择'}}</view>
-      </picker>
-    </m-field>
-
-    <view class="m-form-row">
-      <view class="m-form-item-half">
-        <text class="m-form-key">身高 (cm)</text>
-        <input class="m-form-input" type="digit" placeholder="例如 170" value="{{height}}" bindinput="onHeightInput" />
+    <picker mode="date" value="{{birthDate}}" bindchange="onBirthDateChange">
+      <view class="m2-field">
+        <view class="m2-field-label">出生年月</view>
+        <view class="m2-field-value {{birthDate ? '' : 'placeholder'}}">{{birthDate || '未选择'}}</view>
+        <view class="m2-field-arrow">›</view>
       </view>
-      <view class="m-form-item-half">
-        <text class="m-form-key">体重 (kg)</text>
-        <input class="m-form-input" type="digit" placeholder="例如 65" value="{{weight}}" bindinput="onWeightInput" />
+    </picker>
+
+    <view class="m2-field-row">
+      <view class="m2-field half">
+        <view class="m2-field-label">身高 (cm)</view>
+        <input class="m2-field-value" type="digit" placeholder="例如 170" value="{{height}}" bindinput="onHeightInput" />
+      </view>
+      <view class="m2-field half">
+        <view class="m2-field-label">体重 (kg)</view>
+        <input class="m2-field-value" type="digit" placeholder="例如 65" value="{{weight}}" bindinput="onWeightInput" />
       </view>
     </view>
 
@@ -67,83 +80,110 @@ module.exports = { contains: contains };
     </m-option-picker>
   </view>
 
-  <view class="m-form-card">
-    <view class="m-form-title">📋 健康状况</view>
+  <!-- 健康状况 -->
+  <view class="m2-form-card">
+    <view class="m2-form-title">健康状况</view>
+    <view class="m2-form-title sub">过敏史</view>
+    <textarea class="m2-note" placeholder="对哪些食物或药物过敏？（选填）" value="{{allergies}}" bindinput="onAllergiesInput" auto-height maxlength="200" />
+    <view class="m2-form-title sub">既往病史</view>
+    <textarea class="m2-note" placeholder="曾经患过什么疾病？（选填）" value="{{medicalHistory}}" bindinput="onHistoryInput" auto-height maxlength="300" />
+    <view class="m2-form-title sub">备注</view>
+    <textarea class="m2-note" placeholder="其他需要记录的信息（选填）" value="{{notes}}" bindinput="onNotesInput" auto-height maxlength="300" />
+  </view>
 
-    <view class="m-form-item-full">
-      <text class="m-form-key">过敏史</text>
-      <textarea 
-        class="m-form-textarea" 
-        placeholder="对哪些食物或药物过敏？（选填）" 
-        value="{{allergies}}"
-        bindinput="onAllergiesInput"
-        auto-height
-        maxlength="200"
-      />
+  <!-- 单位与目标区间 -->
+  <view class="m2-form-card">
+    <view class="m2-form-title">单位与目标区间</view>
+    <view class="m2-edit-desc">单位偏好影响展示；目标区间用于个性化判读，留空则用通用参考值</view>
+
+    <m-option-picker label="单位制式" options="{{unitOptions}}" currentValue="{{unitSystem}}" bind:change="onUnitSystemChange">
+      {{unitSystem === 'imperial' ? '英制（mg/dL·lbs·in）' : '公制（mmol/L·kg·cm）'}}
+    </m-option-picker>
+
+    <view class="m2-field-row">
+      <view class="m2-field half">
+        <view class="m2-field-label">血压目标-收缩压 (mmHg)</view>
+        <input class="m2-field-value" type="number" placeholder="如 130" value="{{targetBpSys}}" data-field="targetBpSys" bindinput="onTargetInput" />
+      </view>
+      <view class="m2-field half">
+        <view class="m2-field-label">血压目标-舒张压 (mmHg)</view>
+        <input class="m2-field-value" type="number" placeholder="如 85" value="{{targetBpDia}}" data-field="targetBpDia" bindinput="onTargetInput" />
+      </view>
     </view>
-
-    <view class="m-form-item-full">
-      <text class="m-form-key">既往病史</text>
-      <textarea 
-        class="m-form-textarea" 
-        placeholder="曾经患过什么疾病？（选填）" 
-        value="{{medicalHistory}}"
-        bindinput="onHistoryInput"
-        auto-height
-        maxlength="300"
-      />
+    <view class="m2-field-row">
+      <view class="m2-field half">
+        <view class="m2-field-label">空腹血糖目标 ({{glucoseUnitLabel}})</view>
+        <input class="m2-field-value" type="digit" placeholder="如 6.1" value="{{targetGlucoseFasting}}" data-field="targetGlucoseFasting" bindinput="onTargetInput" />
+      </view>
+      <view class="m2-field half">
+        <view class="m2-field-label">餐后血糖目标 ({{glucoseUnitLabel}})</view>
+        <input class="m2-field-value" type="digit" placeholder="如 7.8" value="{{targetGlucosePost}}" data-field="targetGlucosePost" bindinput="onTargetInput" />
+      </view>
     </view>
+    <view class="m2-field">
+      <view class="m2-field-label">体重目标 ({{weightUnitLabel}})</view>
+      <input class="m2-field-value" type="digit" placeholder="选填" value="{{targetWeight}}" data-field="targetWeight" bindinput="onTargetInput" />
+    </view>
+    <view class="m-disclaimer">目标区间请遵医嘱设置，此处仅用于记录的个性化标记，不构成诊疗建议。</view>
+  </view>
 
-    <view class="m-form-item-full">
-      <text class="m-form-key">备注</text>
-      <textarea 
-        class="m-form-textarea" 
-        placeholder="其他需要记录的信息（选填）" 
-        value="{{notes}}"
-        bindinput="onNotesInput"
-        auto-height
-        maxlength="300"
-      />
+  <!-- 紧急联系人 -->
+  <view class="m2-form-card">
+    <view class="m2-form-title">紧急联系人</view>
+    <view class="m2-field">
+      <view class="m2-field-label">姓名</view>
+      <input class="m2-field-value" placeholder="选填" value="{{emergencyName}}" bindinput="onEmergencyNameInput" maxlength="20" />
+    </view>
+    <view class="m2-field">
+      <view class="m2-field-label">电话</view>
+      <input class="m2-field-value" type="number" placeholder="选填" value="{{emergencyPhone}}" bindinput="onEmergencyPhoneInput" maxlength="20" />
     </view>
   </view>
 
-  <view class="m-form-card">
-    <view class="m-form-title">⚙️ 显示指标配置</view>
-    <view class="m-form-hint">勾选要在健康总览显示的指标（概览始终显示），已选 {{enabledTabs.length}} 项</view>
-    <view class="tab-pick-grid">
+  <!-- 显示指标配置 -->
+  <view class="m2-form-card">
+    <view class="m2-form-title">显示指标配置</view>
+    <view class="m2-edit-desc">勾选要在健康总览显示的指标（概览始终显示），已选 {{enabledTabs.length}} 项</view>
+    <view class="m2-chip-row tab-pick-grid">
       <view
         wx:for="{{tabOptions}}"
         wx:key="key"
-        class="tab-pick-item {{u.contains(enabledTabs, item.key) ? 'on' : ''}}"
+        class="m2-chip tab-pick-item {{u.contains(enabledTabs, item.key) ? 'active' : ''}}"
         data-key="{{item.key}}"
         bindtap="toggleTab"
       >
-        <text class="tp-ico">{{item.icon}}</text>
+        <view class="tp-ico"><m-icon value="{{item.icon}}" healthKey="{{item.label}}" tone="health" size="32" /></view>
         <text class="tp-label">{{item.label}}</text>
-        <text wx:if="{{u.contains(enabledTabs, item.key)}}" class="tp-check">✓</text>
+        <view wx:if="{{u.contains(enabledTabs, item.key)}}" class="tp-check"><m-icon name="check" size="28" inline /></view>
       </view>
     </view>
   </view>
 
-  <view wx:if="{{showPeriodSection}}" class="m-form-card">
-    <view class="m-form-title">🌸 生理期设置</view>
-    <view class="m-form-hint">记录生理期信息可自动推算周期</view>
+  <!-- 生理期设置 -->
+  <view wx:if="{{showPeriodSection}}" class="m2-form-card">
+    <view class="m2-form-title"><m-icon tone="health" healthKey="生理期" size="28" inline />生理期设置</view>
+    <view class="m2-edit-desc">记录生理期信息可自动推算周期</view>
 
-    <m-field label="上次开始">
-      <picker mode="date" value="{{lastPeriodStart}}" bindchange="onLastPeriodChange">
-        <view class="m-form-picker-value">{{lastPeriodStart || '请选择日期'}}</view>
-      </picker>
-    </m-field>
+    <picker mode="date" value="{{lastPeriodStart}}" bindchange="onLastPeriodChange">
+      <view class="m2-field">
+        <view class="m2-field-label">上次开始</view>
+        <view class="m2-field-value {{lastPeriodStart ? '' : 'placeholder'}}">{{lastPeriodStart || '未选择'}}</view>
+        <view class="m2-field-arrow">›</view>
+      </view>
+    </picker>
 
-    <m-field label="周期天数">
+    <view class="m2-field">
+      <view class="m2-field-label">周期天数</view>
       <view class="cycle-adjuster">
         <view class="cycle-btn" data-v="{{cycleLength - 1}}" catchtap="onCycleLengthInput">－</view>
         <input class="cycle-input" type="number" value="{{cycleLength}}" bindinput="onCycleLengthInput" />
         <view class="cycle-btn" data-v="{{cycleLength + 1}}" catchtap="onCycleLengthInput">＋</view>
         <text class="cycle-unit">天</text>
       </view>
-    </m-field>
+    </view>
   </view>
 
-  <m-save-bar save-text="{{isEdit ? '保存修改' : '创建档案'}}" bind:save="save" />
+  <view class="m2-footer">
+    <view class="m2-btn m2-btn-primary" bindtap="save">保存</view>
+  </view>
 </view>

@@ -1,0 +1,30 @@
+<block wx:if="{{mode === 'inline'}}">
+  <view class="m-icon-grid" style="grid-template-columns: repeat({{columns}}, 1fr);">
+    <view
+      wx:for="{{_items}}"
+      wx:key="key"
+      class="m-icon-cell {{_activeFlags[index] ? 'active' : ''}}"
+      data-index="{{index}}"
+      catchtap="onSelect"
+    ><m-icon value="{{item.raw}}" size="36" tone="flat" /></view>
+  </view>
+</block>
+
+<m-modal
+  wx:else
+  show="{{show}}"
+  title="{{title}}"
+  showCancel="{{showCancel}}"
+  bind:close="onClose"
+  bind:cancel="onClose"
+>
+  <view class="m-icon-grid" style="grid-template-columns: repeat({{columns}}, 1fr);">
+    <view
+      wx:for="{{_items}}"
+      wx:key="key"
+      class="m-icon-cell {{_activeFlags[index] ? 'active' : ''}}"
+      data-index="{{index}}"
+      catchtap="onSelect"
+    ><m-icon value="{{item.raw}}" size="36" tone="flat" /></view>
+  </view>
+</m-modal>

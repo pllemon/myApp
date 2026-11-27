@@ -67,9 +67,9 @@ Page({
     this.loadList();
   },
 
-  goEdit(e) {
+  goDetail(e) {
     const id = e.currentTarget.dataset.id;
-    wx.navigateTo({ url: '/pages/anniversary/edit/index?id=' + (id || '') });
+    wx.navigateTo({ url: '/pages/anniversary/detail/index?id=' + (id || '') });
   },
 
   goNew() {

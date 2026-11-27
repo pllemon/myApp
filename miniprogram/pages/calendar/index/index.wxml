@@ -1,9 +1,10 @@
-<view class="container" style="{{themeStyle}}">
-  <view class="cal-card">
-    <view class="cal-header">
-      <view class="nav-btn" bindtap="prevMonth">‹</view>
-      <view class="month-label" bindtap="goToday">{{monthLabel}}</view>
-      <view class="nav-btn" bindtap="nextMonth">›</view>
+<view class="m2-page with-tabbar" style="{{themeStyle}}">
+  <!-- 月历卡 -->
+  <view class="m2-card cal-card">
+    <view class="m2-card-head cal-header">
+      <view class="nav-btn" bindtap="prevMonth"><m-icon name="chevronRight" size="32" class="nav-prev" /></view>
+      <view class="m2-card-title" bindtap="goToday">{{monthLabel}}</view>
+      <view class="nav-btn" bindtap="nextMonth"><m-icon name="chevronRight" size="32" /></view>
     </view>
 
     <view class="weekday-row">
@@ -28,128 +29,139 @@
     </view>
 
     <view class="cal-legend">
-      <view class="legend-item"><view class="dot" style="background:#F5A623"></view>记账</view>
-      <view class="legend-item"><view class="dot" style="background:#9B59B6"></view>日记</view>
-      <view class="legend-item"><view class="dot" style="background:#52C41A"></view>打卡</view>
-      <view class="legend-item"><view class="dot" style="background:#4A90D9"></view>待办</view>
-      <view class="legend-item"><view class="dot" style="background:#FF6B6B"></view>纪念日</view>
-      <view class="legend-item"><view class="dot" style="background:#1ABC9C"></view>愿望</view>
+      <view class="legend-item"><view class="dot" style="background:var(--warning)"></view>记账</view>
+      <view class="legend-item"><view class="dot" style="background:var(--primary-dark)"></view>日记</view>
+      <view class="legend-item"><view class="dot" style="background:var(--success)"></view>打卡</view>
+      <view class="legend-item"><view class="dot" style="background:var(--primary)"></view>待办</view>
+      <view class="legend-item"><view class="dot" style="background:var(--danger)"></view>纪念日</view>
+      <view class="legend-item"><view class="dot" style="background:var(--accent)"></view>愿望</view>
     </view>
   </view>
 
-  <view class="detail" wx:if="{{detail}}">
-    <view class="detail-header">
-      <view class="detail-date">{{detail.dateLabel}}</view>
+  <block wx:if="{{detail}}">
+    <!-- 当日概览 -->
+    <view class="m2-card detail-header">
+      <view class="m2-card-title">{{detail.dateLabel}}</view>
       <view class="detail-summary">
         <view class="sum-item">
           <text class="sum-label">支出</text>
-          <text class="sum-val expense">-¥{{detail.expense}}</text>
+          <text class="sum-val m-text-danger">-¥{{detail.expense}}</text>
         </view>
         <view class="sum-item">
           <text class="sum-label">收入</text>
-          <text class="sum-val income">+¥{{detail.income}}</text>
+          <text class="sum-val m-text-success">+¥{{detail.income}}</text>
         </view>
       </view>
     </view>
 
-    <view wx:if="{{detail.isEmpty}}" class="empty-day">
-      <view class="empty-emoji">🍃</view>
-      <view class="empty-text">这一天还没有记录</view>
-      <view class="empty-actions">
-        <view class="empty-btn" bindtap="goNewAccounting">记一笔</view>
-        <view class="empty-btn" bindtap="goNewDiary">写日记</view>
+    <!-- 当日空态 -->
+    <m-empty
+      wx:if="{{detail.isEmpty}}"
+      title="这一天还没有记录"
+    >
+      <view slot="extra" class="empty-actions">
+        <view class="empty-action-btn" bindtap="goNewAccounting">记一笔</view>
+        <view class="empty-action-btn" bindtap="goNewDiary">写日记</view>
       </view>
-    </view>
+    </m-empty>
 
-    <view class="section" wx:if="{{detail.anniversaryCount}}">
-      <view class="section-title">🎈 纪念日 · {{detail.anniversaryCount}} 个</view>
-      <view class="section-list">
+    <!-- 纪念日 -->
+    <view class="m2-card" wx:if="{{detail.anniversaryCount}}">
+      <view class="m2-card-head"><view class="m2-card-title"><m-icon name="celebrate" size="28" tone="category" inline />纪念日 · {{detail.anniversaryCount}} 个</view></view>
+      <view class="m2-list inner-list">
         <view
           wx:for="{{detail.anniversary}}"
           wx:key="_id"
-          class="row"
+          class="m2-row"
           data-id="{{item._id}}"
           bindtap="goAnniversary"
         >
-          <view class="row-icon" style="color:{{item.color}}">{{item.icon}}</view>
-          <view class="row-body">
-            <view class="row-title">{{item.title}}</view>
-            <view class="row-sub">{{item.repeatLabel}}</view>
+          <view class="m2-row-icon" style="color:{{item.color}}"><m-icon value="{{item.icon}}" size="36" /></view>
+          <view class="m2-row-body">
+            <view class="m2-row-title">{{item.title}}</view>
+            <view class="m2-row-sub">{{item.repeatLabel}}</view>
           </view>
         </view>
       </view>
     </view>
 
-    <view class="section" wx:if="{{detail.accountingCount}}">
-      <view class="section-title">💰 记账 · {{detail.accountingCount}} 笔</view>
-      <view class="section-list">
+    <!-- 记账 -->
+    <view class="m2-card" wx:if="{{detail.accountingCount}}">
+      <view class="m2-card-head"><view class="m2-card-title"><m-icon name="wallet" size="28" tone="system" inline />记账 · {{detail.accountingCount}} 笔</view></view>
+      <view class="m2-list inner-list">
         <view
           wx:for="{{detail.accounting}}"
           wx:key="_id"
-          class="row"
+          class="m2-row"
           data-id="{{item._id}}"
           bindtap="goAccounting"
         >
-          <view class="row-icon">{{item.icon}}</view>
-          <view class="row-body">
-            <view class="row-title">{{item.category}}</view>
-            <view class="row-sub" wx:if="{{item.note}}">{{item.note}}</view>
+          <view class="m2-row-icon"><m-icon value="{{item.icon}}" flatKey="{{item.category}}" size="36" tone="flat" /></view>
+          <view class="m2-row-body">
+            <view class="m2-row-title">{{item.category}}</view>
+            <view class="m2-row-sub" wx:if="{{item.note}}">{{item.note}}</view>
           </view>
-          <view class="row-amount {{item.type === 'expense' ? 'expense' : 'income'}}">
+          <view class="m2-row-value {{item.type === 'expense' ? 'm-text-danger' : 'm-text-success'}}">
             {{item.type === 'expense' ? '-' : '+'}}¥{{item.amount}}
           </view>
         </view>
       </view>
     </view>
 
-    <view class="section" wx:if="{{detail.diaryCount}}">
-      <view class="section-title">📝 日记 · {{detail.diaryCount}} 篇</view>
-      <view class="section-list">
+    <!-- 日记 -->
+    <view class="m2-card" wx:if="{{detail.diaryCount}}">
+      <view class="m2-card-head"><view class="m2-card-title"><m-icon name="note" size="28" inline />日记 · {{detail.diaryCount}} 篇</view></view>
+      <view class="m2-list inner-list">
         <view
           wx:for="{{detail.diary}}"
           wx:key="_id"
-          class="row diary-item"
+          class="m2-row"
           data-id="{{item._id}}"
           bindtap="goDiary"
         >
-          <view class="row-icon">{{item.mood}}</view>
-          <view class="row-body">
-            <view class="row-title">{{item.title}}</view>
-            <view class="row-sub">{{item.summary}}</view>
+          <view class="m2-row-icon" style="background:var(--primary-light)"><m-icon value="{{item.mood}}" tone="category" size="36" /></view>
+          <view class="m2-row-body">
+            <view class="m2-row-title">{{item.title}}</view>
+            <view class="m2-row-sub">{{item.summary}}</view>
           </view>
-          <view class="row-arrow">›</view>
+          <view class="m2-row-arrow">›</view>
         </view>
       </view>
     </view>
 
-    <view class="section" wx:if="{{detail.checkinTotal}}">
-      <view class="section-title" bindtap="goCheckin">✅ 打卡 · {{detail.checkinDone}}/{{detail.checkinTotal}}</view>
+    <!-- 打卡 -->
+    <view class="m2-card" wx:if="{{detail.checkinTotal}}">
+      <view class="m2-card-head"><view class="m2-card-title" bindtap="goCheckin"><m-icon name="check" size="28" inline />打卡 · {{detail.checkinDone}}/{{detail.checkinTotal}}</view></view>
       <view class="checkin-grid">
         <view
           wx:for="{{detail.checkin}}"
           wx:key="_id"
           class="checkin-chip {{item.checked ? 'on' : 'off'}}"
           style="{{item.checked ? 'border-color:' + item.color + ';color:' + item.color : ''}}"
+          data-id="{{item._id}}"
+          data-checked="{{item.checked}}"
+          bindtap="toggleCheckinDay"
         >
-          <text class="chip-icon">{{item.icon}}</text>
+          <view class="chip-icon"><m-icon value="{{item.icon}}" size="36" /></view>
           <text class="chip-name">{{item.name}}</text>
         </view>
       </view>
     </view>
 
-    <view class="section" wx:if="{{detail.todoTotal}}">
-      <view class="section-title">📋 待办 · {{detail.todoDone}}/{{detail.todoTotal}}</view>
-      <view class="section-list">
-        <view wx:for="{{detail.todo}}" wx:key="_id" class="row todo-row">
+    <!-- 待办 -->
+    <view class="m2-card" wx:if="{{detail.todoTotal}}">
+      <view class="m2-card-head"><view class="m2-card-title"><m-icon name="list" size="28" inline />待办 · {{detail.todoDone}}/{{detail.todoTotal}}</view></view>
+      <view class="m2-list inner-list">
+        <view wx:for="{{detail.todo}}" wx:key="_id" class="m2-row todo-row">
           <view
             class="todo-check {{item.completed ? 'checked' : ''}}"
             data-id="{{item._id}}"
             catchtap="toggleTodo"
           >
-            <text wx:if="{{item.completed}}" class="check-icon">✓</text>
+            <m-icon wx:if="{{item.completed}}" name="check" size="28" />
           </view>
-          <view class="row-body todo-body" data-id="{{item._id}}" bindtap="goTodo">
-            <view class="row-title {{item.completed ? 'done' : ''}} {{item.overdue && !item.completed ? 'overdue' : ''}}">{{item.title}}</view>
+          <view class="m2-row-body" data-id="{{item._id}}" bindtap="goTodo">
+            <view class="m2-row-title {{item.completed ? 'done' : ''}} {{item.overdue && !item.completed ? 'overdue' : ''}}">{{item.title}}</view>
             <view class="todo-tags">
               <view class="todo-tag" style="color:{{item.priorityColor}};background:{{item.priorityBg}}">{{item.priorityLabel}}优先</view>
               <text wx:if="{{item.overdue && !item.completed}}" class="todo-overdue">已逾期</text>
@@ -159,24 +171,26 @@
       </view>
     </view>
 
-    <view class="section" wx:if="{{detail.wishlistCount}}">
-      <view class="section-title">🌟 愿望 · {{detail.wishlistCount}} 项</view>
-      <view class="section-list">
+    <!-- 愿望 -->
+    <view class="m2-card" wx:if="{{detail.wishlistCount}}">
+      <view class="m2-card-head"><view class="m2-card-title"><m-icon name="star" size="28" tone="system" inline />愿望 · {{detail.wishlistCount}} 项</view></view>
+      <view class="m2-list inner-list">
         <view
           wx:for="{{detail.wishlist}}"
           wx:key="_id"
-          class="row"
+          class="m2-row"
           data-id="{{item._id}}"
           bindtap="goWishlist"
         >
-          <view class="row-icon">{{item.icon}}</view>
-          <view class="row-body">
-            <view class="row-title {{item.achieved ? 'done' : ''}}">{{item.title}}</view>
-            <view class="row-sub">{{item.category}}</view>
+          <view class="m2-row-icon"><m-icon value="{{item.icon}}" size="36" /></view>
+          <view class="m2-row-body">
+            <view class="m2-row-title {{item.achieved ? 'done' : ''}}">{{item.title}}</view>
+            <view class="m2-row-sub">{{item.category}}</view>
           </view>
-          <view wx:if="{{item.achieved}}" class="row-amount" style="color:var(--success)">已实现</view>
+          <view wx:if="{{item.achieved}}" class="m2-row-value m-text-success">已实现</view>
         </view>
       </view>
     </view>
-  </view>
+  </block>
 </view>
+<m-tab-bar id="tabbar" />

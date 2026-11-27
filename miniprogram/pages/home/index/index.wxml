@@ -1,16 +1,207 @@
-<view class="container tabbar-page" bindtap="hideAddMenu">
+<view class="page" style="{{themeStyle}}">
 
-  <view class="greet-header">
-    <view class="greet-left">
-      <view class="greet-hello">{{greeting}}！</view>
-      <view class="greet-date">{{today}} · {{weekday}}</view>
+  <!-- ① 驾驶舱：一眼看完今天 -->
+  <view class="cockpit" bindtap="goStats">
+    <view class="glow glow-1"></view>
+    <view class="glow glow-2"></view>
+
+    <view class="cockpit-head">
+      <view class="head-left">
+        <view class="hello">{{greeting}}</view>
+        <view class="date-line">{{dateLabel}} · {{weekday}}</view>
+      </view>
+      <view class="mode-pill">{{mode === 'cloud' ? '云端' : '本地'}}</view>
     </view>
-    <view class="greet-right">
-      <view class="greet-mode">📦 {{mode === 'cloud' ? '云端' : '本地'}}</view>
+
+    <view class="cockpit-main">
+      <view class="main-label">今日支出</view>
+      <view class="main-value"><text class="currency">¥</text>{{cockpit.expense}}</view>
+      <view class="main-income">收入 +¥{{cockpit.income}}</view>
+    </view>
+
+    <view class="budget-strip" wx:if="{{cockpit.hasBudget}}">
+      <view class="budget-line">
+        <text>本月预算剩余 ¥{{cockpit.budgetLeft}}</text>
+        <text>已用 {{cockpit.budgetPercent}}%</text>
+      </view>
+      <view class="budget-track">
+        <view class="budget-fill" style="width:{{cockpit.budgetPercent > 100 ? 100 : cockpit.budgetPercent}}%"></view>
+      </view>
+    </view>
+    <view class="budget-strip" wx:else>
+      <view class="budget-line"><text>还没设置本月预算，点这里看看</text><text>›</text></view>
+    </view>
+
+    <view class="cockpit-stats">
+      <view
+        class="cstat"
+        wx:for="{{cockpitStats}}"
+        wx:key="key"
+        data-path="{{item.path}}"
+        catchtap="goPage"
+      >
+        <view class="cs-icon" style="background:{{item.color}}">
+          <m-icon name="{{item.icon}}" size="28" color="#FFFFFF" />
+        </view>
+        <view class="cs-value">{{item.value}}</view>
+        <view class="cs-label">{{item.label}}</view>
+      </view>
     </view>
   </view>
 
-  <view class="section-card more-section">
+  <!-- ② 速记条：想到就记 -->
+  <view class="quick-bar">
+    <view
+      class="quick-item"
+      wx:for="{{quickActions}}"
+      wx:key="id"
+      data-path="{{item.path}}"
+      catchtap="goPage"
+    >
+      <view class="quick-icon"><m-icon moduleKey="{{item.id}}" size="46" tone="module" /></view>
+      <view class="quick-label">{{item.label}}</view>
+    </view>
+  </view>
+
+  <!-- ③ 今日进度 -->
+  <view class="card">
+    <view class="card-head">
+      <view class="card-title">今日进度</view>
+      <view class="card-sub">完成一点点，也很好</view>
+    </view>
+
+    <view class="metric" bindtap="goCheckinFull">
+      <view class="metric-icon" style="background:{{palette[3]}}">
+        <m-icon name="check" size="30" color="#FFFFFF" />
+      </view>
+      <view class="metric-body">
+        <view class="metric-top">
+          <text class="metric-name">习惯打卡</text>
+          <text class="metric-num">{{checkinDone}}/{{checkinTotal}}</text>
+        </view>
+        <view class="metric-track">
+          <view class="metric-fill" style="width:{{checkinPercent}}%;background:{{palette[3]}}"></view>
+        </view>
+        <view class="habit-row" wx:if="{{checkinTotal > 0}}">
+          <view
+            class="habit-chip {{h.done ? 'done' : ''}}"
+            wx:for="{{checkinHabits}}"
+            wx:for-item="h"
+            wx:key="_id"
+            data-id="{{h._id}}"
+            catchtap="toggleCheckin"
+          >
+            <view class="hc-dot" wx:if="{{h.done}}" style="background:{{palette[3]}}"></view>
+            <text>{{h.name}}</text>
+          </view>
+        </view>
+        <view class="empty-habit" wx:else catchtap="goHabitCreate">+ 创建第一个习惯</view>
+      </view>
+    </view>
+
+    <view class="metric metric-todo" bindtap="goTodoFull">
+      <view class="metric-icon" style="background:{{palette[5]}}">
+        <m-icon name="list" size="30" color="#FFFFFF" />
+      </view>
+      <view class="metric-body">
+        <view class="metric-top">
+          <text class="metric-name">今日待办</text>
+          <text class="metric-num">{{todoDone}}/{{todoTotal}}</text>
+        </view>
+        <view class="metric-track">
+          <view class="metric-fill" style="width:{{todoPercent}}%;background:{{palette[5]}}"></view>
+        </view>
+        <view class="todo-row" wx:for="{{todoList}}" wx:key="_id" data-id="{{item._id}}" catchtap="toggleTodo">
+          <view class="todo-check {{item.completed ? 'done' : ''}}" style="{{item.checkStyle}}">
+            <m-icon wx:if="{{item.completed}}" name="check" size="20" color="#FFFFFF" />
+          </view>
+          <text class="todo-title {{item.completed ? 'done' : ''}} {{item.overdue && !item.completed ? 'overdue' : ''}}">{{item.title}}</text>
+          <text class="todo-tag" wx:if="{{item.overdue && !item.completed}}">逾期</text>
+        </view>
+        <view class="empty-habit" wx:if="{{todoTotal === 0}}">今天没有待办，轻松一点</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- ④ 本月小报 -->
+  <view class="card">
+    <view class="card-head">
+      <view class="card-title">{{monthLabel}}小报</view>
+      <view class="card-sub" bindtap="goStats">查看统计 ›</view>
+    </view>
+    <view class="digest-grid">
+      <view class="digest-cell" wx:for="{{monthDigest}}" wx:key="label">
+        <view class="dig-icon" style="background:{{item.color}}">
+          <m-icon name="{{item.icon}}" size="26" color="#FFFFFF" />
+        </view>
+        <view class="dig-value">{{item.value}}</view>
+        <view class="dig-label">{{item.label}}</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- ⑤ 今日时间线 -->
+  <view class="card">
+    <view class="card-head">
+      <view class="card-title">今日时间线</view>
+      <view class="card-sub" bindtap="goTimeline">全部 ›</view>
+    </view>
+
+    <view class="tl" wx:if="{{timeline.length > 0}}">
+      <view
+        class="tl-item"
+        wx:for="{{timeline}}"
+        wx:key="key"
+        data-path="{{item.path}}"
+        catchtap="goPage"
+      >
+        <view class="tl-time">{{item.time}}</view>
+        <view class="tl-rail">
+          <view class="tl-dot" style="background:{{item.color}}"></view>
+        </view>
+        <view class="tl-icon" style="color:{{item.color}}">
+          <m-icon name="{{item.icon}}" size="28" color="{{item.color}}" />
+        </view>
+        <view class="tl-body">
+          <view class="tl-title">{{item.title}}</view>
+          <view class="tl-sub" wx:if="{{item.subtitle}}">{{item.subtitle}}</view>
+        </view>
+        <view class="tl-amount" wx:if="{{item.amount}}" style="color:{{item.color}}">{{item.amount}}</view>
+        <view class="tl-arrow"><m-icon name="chevronRight" size="24" /></view>
+      </view>
+    </view>
+    <view class="empty-line" wx:else>今天还没有记录，随手记一笔吧</view>
+  </view>
+
+  <!-- ⑥ 近期日子 -->
+  <view class="card" wx:if="{{upcomingAnniversaries.length > 0}}">
+    <view class="card-head">
+      <view class="card-title">近期日子</view>
+      <view class="card-sub" bindtap="goAnni">全部 ›</view>
+    </view>
+    <scroll-view class="anni-scroll" scroll-x enhanced show-scrollbar="{{false}}">
+      <view class="anni-track">
+        <view
+          class="anni-chip {{item.daysUntil === 0 ? 'today' : ''}}"
+          wx:for="{{upcomingAnniversaries}}"
+          wx:key="_id"
+          data-id="{{item._id}}"
+          catchtap="goAnniDetail"
+        >
+          <view class="anni-name">{{item.title}}</view>
+          <view class="anni-days">
+            <block wx:if="{{item.daysUntil === 0}}">就是今天</block>
+            <block wx:elif="{{item.daysUntil === 1}}">明天</block>
+            <block wx:else>{{item.daysUntil}} 天后</block>
+          </view>
+        </view>
+      </view>
+    </scroll-view>
+  </view>
+
+  <!-- ⑦ 更多入口 -->
+  <view class="card" wx:if="{{moreModules.length > 0}}">
+    <view class="card-head"><view class="card-title">更多</view></view>
     <view class="more-grid">
       <view
         class="more-item"
@@ -19,147 +210,8 @@
         data-path="{{item.path}}"
         catchtap="goPage"
       >
-        <view class="mi-icon">{{item.icon}}</view>
-        <view class="mi-label">{{item.title}}</view>
-      </view>
-    </view>
-  </view>
-
-  <view class="section-card checkin-section" wx:if="{{checkinTotal > 0 || checkinDone > 0}}">
-    <view class="sec-head">
-      <view class="sec-title">✅ 今日打卡</view>
-      <view class="sec-more" bindtap="goCheckinFull">{{checkinDone}}/{{checkinTotal}} →</view>
-    </view>
-    <view class="progress-bar" wx:if="{{checkinTotal > 0}}">
-      <view class="progress-fill" style="width: {{checkinDone / checkinTotal * 100}}%"></view>
-    </view>
-    <view class="habit-row" wx:if="{{checkinTotal > 0}}">
-      <view
-        class="habit-chip {{item.done ? 'done' : ''}}"
-        wx:for="{{checkinHabits}}"
-        wx:for-item="h"
-        wx:key="_id"
-        data-id="{{h._id}}"
-        catchtap="toggleCheckin"
-      >
-        <text class="hc-icon">{{h.icon || '⭕'}}</text>
-        <text class="hc-name">{{h.name}}</text>
-        <text class="hc-mark">{{h.done ? '✓' : ''}}</text>
-      </view>
-    </view>
-    <view class="empty-chip" wx:else bindtap="goHabitCreate">+ 创建习惯</view>
-  </view>
-
-  <view class="section-card todo-section" wx:if="{{todoTotal > 0 || todoDone > 0}}">
-    <view class="sec-head">
-      <view class="sec-title">📋 今日待办</view>
-      <view class="sec-more" bindtap="goTodoFull">{{todoDone}}/{{todoTotal}} →</view>
-    </view>
-    <view class="progress-bar todo-progress" wx:if="{{todoTotal > 0}}">
-      <view class="progress-fill todo-fill" style="width: {{todoTotal > 0 ? (todoDone / todoTotal * 100) : 0}}%"></view>
-    </view>
-    <view class="todo-rows" wx:if="{{todoTotal > 0}}">
-      <view
-        class="todo-row {{item.completed ? 'done' : ''}} {{item.overdue && !item.completed ? 'overdue' : ''}}"
-        wx:for="{{todoList}}"
-        wx:key="_id"
-        data-id="{{item._id}}"
-        catchtap="toggleTodo"
-      >
-        <view class="tr-check">{{item.completed ? '✓' : ''}}</view>
-        <view class="tr-title">{{item.title}}</view>
-        <view class="tr-tag" wx:if="{{item.overdue && !item.completed}}">逾期</view>
-      </view>
-    </view>
-  </view>
-
-  <view class="section-card diary-section">
-    <view class="sec-head">
-      <view class="sec-title">📝 今日日记</view>
-      <view class="sec-more" bindtap="goDiaryEditor">
-        <block wx:if="{{todayDiary}}">继续写 ›</block>
-        <block wx:else>写一篇 ✎</block>
-      </view>
-    </view>
-    <view wx:if="{{todayDiary}}" class="diary-today" bindtap="goDiaryDetail">
-      <view class="dt-mood">{{todayDiary.mood || '📝'}}</view>
-      <view class="dt-body">
-        <view class="dt-title">{{todayDiary.title || '无标题'}}</view>
-        <view class="dt-preview">{{todayDiary.preview}}...</view>
-      </view>
-    </view>
-    <view wx:else class="diary-empty" bindtap="goDiaryEditor">今天还没写日记呢 ✎</view>
-  </view>
-
-  <view class="section-card acct-section">
-    <view class="sec-head">
-      <view class="sec-title">💰 今日记账</view>
-      <view class="sec-summary">
-        <text class="acct-exp">-¥{{todayExpense}}</text>
-        <text class="acct-sep">|</text>
-        <text class="acct-inc">+¥{{todayIncome}}</text>
-      </view>
-    </view>
-    <view wx:if="{{todayAccounting.length > 0}}" class="acct-rows">
-      <view
-        class="acct-row"
-        wx:for="{{todayAccounting}}"
-        wx:key="_id"
-        data-id="{{item._id}}"
-        catchtap="goAccountingEdit"
-      >
-        <view class="ar-icon">{{item.icon}}</view>
-        <view class="ar-body">
-          <view class="ar-cat">{{item.category || '未分类'}}</view>
-          <view class="ar-note" wx:if="{{item.note}}">{{item.note}}</view>
-        </view>
-        <view class="ar-amt {{item.type === 'expense' ? 'exp' : 'inc'}}">{{item.displayAmount}}</view>
-      </view>
-    </view>
-    <view wx:else class="acct-empty">今天还没有记账</view>
-  </view>
-
-  <view class="section-card life-section" wx:if="{{todayMovie || todayReading}}">
-    <view class="sec-head">
-      <view class="sec-title">🎬 今日痕迹</view>
-    </view>
-    <view class="life-items">
-      <view wx:if="{{todayMovie}}" class="life-item movie">
-        <view class="li-icon">🎬</view>
-        <view class="li-body">
-          <view class="li-title">{{todayMovie.title || ''}}</view>
-          <view class="li-sub">已观影</view>
-        </view>
-      </view>
-      <view wx:if="{{todayReading}}" class="life-item reading">
-        <view class="li-icon">📚</view>
-        <view class="li-body">
-          <view class="li-title">{{todayReading.title || ''}}</view>
-          <view class="li-sub">读书笔记</view>
-        </view>
-      </view>
-    </view>
-  </view>
-
-  <view class="section-card anni-section" wx:if="{{upcomingAnniversaries.length > 0}}">
-    <view class="sec-head">
-      <view class="sec-title">🎈 近期日子</view>
-      <view class="sec-more" bindtap="goAnni">全部 →</view>
-    </view>
-    <view class="anni-row">
-      <view
-        class="anni-chip {{item.daysUntil === 0 ? 'today' : ''}} {{item.daysUntil < 0 ? 'passed' : ''}}"
-        wx:for="{{upcomingAnniversaries}}"
-        wx:key="_id"
-        data-id="{{item._id}}"
-        catchtap="goAnni"
-      >
-        <view class="anni-name">{{item.title}}</view>
-        <view class="anni-days">
-          <block wx:if="{{item.daysUntil === 0}}">🎉 今天</block>
-          <block wx:elif="{{item.daysUntil === 1}}">明天</block>
-          <block wx:else>{{item.daysUntil}}天后</block>
-        </view>
+        <view class="more-icon"><m-icon moduleKey="{{item.id}}" size="42" tone="module" /></view>
+        <view class="more-label">{{item.title}}</view>
       </view>
     </view>
   </view>
@@ -167,25 +219,4 @@
   <view class="bottom-space"></view>
 </view>
 
-<view class="fab {{showAddMenu ? 'open' : ''}}" catchtap="toggleAddMenu">
-  <view class="fab-icon">{{showAddMenu ? '×' : '+'}}</view>
-</view>
-
-<view class="fab-menu {{showAddMenu ? 'show' : ''}}" catchtap="hideAddMenu">
-  <view class="fab-menu-bg"></view>
-  <view class="fab-menu-items" catchtap="">
-    <view class="fab-mi" data-type="accounting" catchtap="quickAdd">
-      <view class="fab-mi-icon" style="background:#FFF3E0;color:#F57C00">💰</view>
-      <view class="fab-mi-label">记账</view>
-    </view>
-    <view class="fab-mi" data-type="todo" catchtap="quickAdd">
-      <view class="fab-mi-icon" style="background:#FFF8E1;color:#F9A825">📋</view>
-      <view class="fab-mi-label">待办</view>
-    </view>
-    <view class="fab-mi" data-type="diary" catchtap="quickAdd">
-      <view class="fab-mi-icon" style="background:#F3E5F5;color:#9B59B6">📝</view>
-      <view class="fab-mi-label">日记</view>
-    </view>
-  </view>
-</view>
 <m-tab-bar id="tabbar" />

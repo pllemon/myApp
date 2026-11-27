@@ -1,18 +1,8 @@
-@import "../period/edit.wxss";
-
-.bp-preview {
-  margin-top: 8rpx;
-  padding: 16rpx 20rpx;
-  background: linear-gradient(135deg, #FFF5F5 0%, #FFF0F0 100%);
-  border-radius: 12rpx;
-}
-
-.bp-preview-value {
-  font-size: 36rpx;
-  font-weight: 700;
-}
-
-.bp-preview-label {
-  font-size: 26rpx;
-  margin-top: 4rpx;
-}
+/* 血压编辑 · 仅保留独有样式 */
+.m2-field-row { display: flex; gap: 16rpx; }
+.m2-field.half { flex: 1; min-width: 0; flex-direction: column; align-items: stretch; }
+.m2-field.half .m2-field-label { margin-right: 0; margin-bottom: 6rpx; font-size: 23rpx; }
+.m2-field.half .m2-field-value { text-align: left; font-size: 26rpx; }
+.m2-field.half picker { flex: 1; min-width: 0; }
+.textarea-field { align-items: flex-start; }
+.textarea-field .m2-field-value { text-align: left; line-height: 1.6; }

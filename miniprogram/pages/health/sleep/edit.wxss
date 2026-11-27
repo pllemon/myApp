@@ -1,7 +1,3 @@
-@import "../period/edit.wxss";
-
-.highlight {
-  color: #E91E63;
-  font-weight: 600;
-  font-size: 32rpx;
-}
+/* 睡眠编辑 · 仅保留独有样式 */
+.textarea-field { align-items: flex-start; }
+.textarea-field .m2-field-value { text-align: left; line-height: 1.6; }

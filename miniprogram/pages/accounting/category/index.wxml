@@ -1,71 +1,64 @@
-<view class="container">
-  <view class="type-switch">
-    <view 
-      class="type-btn {{type === 'expense' ? 'expense active' : ''}}"
-      data-type="expense"
-      bindtap="switchType"
-    >支出类目</view>
-    <view 
-      class="type-btn {{type === 'income' ? 'income active' : ''}}"
-      data-type="income"
-      bindtap="switchType"
-    >收入类目</view>
+<view class="m2-page" style="{{themeStyle}}">
+  <!-- 收支类目切换 -->
+  <view class="m2-segment">
+    <view class="m2-seg-item {{type === 'expense' ? 'active expense-active' : ''}}" data-type="expense" bindtap="switchType">支出类目</view>
+    <view class="m2-seg-item {{type === 'income' ? 'active income-active' : ''}}" data-type="income" bindtap="switchType">收入类目</view>
   </view>
 
-  <view class="section-bar">
-    <view class="section-title">共 {{parents.length}} 个一级类目</view>
-    <view class="bar-btns">
-      <view class="bar-btn" bindtap="addParent">+ 新建类目</view>
-      <view class="bar-btn danger" bindtap="resetAll">恢复默认</view>
+  <!-- 操作栏 -->
+  <view class="m2-wrap bar-wrap">
+    <view class="m2-row-between">
+      <view class="m2-card-title">共 {{parents.length}} 个一级类目</view>
+      <view class="bar-actions">
+        <view class="m2-card-action" bindtap="addParent">新建类目</view>
+        <view class="bar-action-danger" bindtap="resetAll">恢复默认</view>
+      </view>
     </view>
   </view>
 
-  <view class="parent-list">
-    <view wx:for="{{parents}}" wx:key="_id" class="parent-card">
-      <view class="parent-header">
-        <view class="parent-main">
-          <view class="parent-icon-box" data-id="{{item._id}}" catchtap="pickParentIcon">{{item.icon}}</view>
-          <view class="parent-info">
-            <view class="parent-name">{{item.name}}</view>
-            <view class="parent-count">{{item.children.length}} 个子类目</view>
-          </view>
+  <!-- 类目列表 -->
+  <view class="m2-card parent-card" wx:for="{{parents}}" wx:key="_id">
+    <view class="m2-row-between parent-head">
+      <view class="parent-main">
+        <view class="parent-icon-box" data-id="{{item._id}}" catchtap="pickParentIcon">
+          <m-icon value="{{item.icon}}" flatKey="{{item.name}}" size="36" tone="flat" />
         </view>
-        <view class="parent-actions">
-          <view class="action-btn edit" data-id="{{item._id}}" catchtap="editParent">改名称</view>
-          <view wx:if="{{!item.isDefault}}" class="action-btn del" data-id="{{item._id}}" catchtap="deleteParent">删除</view>
+        <view class="parent-info">
+          <view class="parent-name">{{item.name}}</view>
+          <view class="m2-row-sub">{{item.children.length}} 个子类目</view>
         </view>
       </view>
+      <view class="row-actions">
+        <view class="action-btn" data-id="{{item._id}}" catchtap="editParent">编辑</view>
+        <view wx:if="{{!item.isDefault}}" class="action-btn del" data-id="{{item._id}}" catchtap="deleteParent">删除</view>
+      </view>
+    </view>
 
-      <view class="child-list">
-        <view wx:for="{{item.children}}" wx:for-item="child" wx:key="_id" class="child-row">
-          <view class="child-icon-box" data-parentid="{{item._id}}" data-id="{{child._id}}" catchtap="pickChildIcon">{{child.icon}}</view>
-          <view class="child-name">{{child.name}}</view>
-          <view class="child-actions">
-            <view class="action-btn small" data-parentid="{{item._id}}" data-id="{{child._id}}" catchtap="editChild">改</view>
-            <view class="action-btn small del" data-parentid="{{item._id}}" data-id="{{child._id}}" catchtap="deleteChild">删</view>
-          </view>
+    <view class="child-list">
+      <view class="m2-row child-row" wx:for="{{item.children}}" wx:for-item="child" wx:key="_id">
+        <view class="child-icon-box" data-parentid="{{item._id}}" data-id="{{child._id}}" catchtap="pickChildIcon">
+          <m-icon value="{{child.icon}}" flatKey="{{child.name}}" size="36" tone="flat" />
         </view>
-        <view class="child-row add" data-parentid="{{item._id}}" catchtap="addChild">
-          <view class="child-icon-box">➕</view>
-          <view class="child-name">添加子类目</view>
+        <view class="m2-row-body child-name">{{child.name}}</view>
+        <view class="row-actions">
+          <view class="action-btn small" data-parentid="{{item._id}}" data-id="{{child._id}}" catchtap="editChild">编辑</view>
+          <view class="action-btn small del" data-parentid="{{item._id}}" data-id="{{child._id}}" catchtap="deleteChild">删除</view>
         </view>
+      </view>
+      <view class="m2-row child-row add" data-parentid="{{item._id}}" catchtap="addChild">
+        <view class="child-icon-box"><m-icon name="add" size="36" /></view>
+        <view class="m2-row-body child-name">添加子类目</view>
       </view>
     </view>
   </view>
 </view>
 
-<view wx:if="{{showIconPicker}}" class="icon-picker-mask" bindtap="closeIconPicker">
-  <view class="icon-picker" catchtap="">
-    <view class="picker-title">选择图标</view>
-    <view class="icon-grid">
-      <view 
-        wx:for="{{currentIcons}}" 
-        wx:key="*this"
-        class="icon-cell"
-        data-icon="{{item}}"
-        catchtap="selectIcon"
-      >{{item}}</view>
-    </view>
-    <view class="picker-cancel" bindtap="closeIconPicker">取消</view>
-  </view>
-</view>
+<m-icon-picker
+  mode="popup"
+  show="{{showIconPicker}}"
+  title="选择图标"
+  icons="{{currentIcons}}"
+  value="{{currentIcon}}"
+  bind:select="selectIcon"
+  bind:close="closeIconPicker"
+/>

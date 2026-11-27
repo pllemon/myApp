@@ -1,16 +1,17 @@
 const db = require('./db.js');
+const dateUtil = require('./date.js');
 
 const CATEGORIES = {
-  literature:{ label: '文学',   icon: '📖', color: '#4A90D9' },
-  history:   { label: '历史',   icon: '🏛️', color: '#8E44AD' },
-  social:    { label: '社科',   icon: '🌐', color: '#16A085' },
-  economy:   { label: '经济',   icon: '📈', color: '#2ECC71' },
-  science:   { label: '科技',   icon: '🔬', color: '#3498DB' },
-  psychology:{ label: '心理',   icon: '🧠', color: '#9B59B6' },
-  education: { label: '教育',   icon: '🎓', color: '#F5A623' },
-  art:       { label: '艺术',   icon: '🎨', color: '#FF6B81' },
-  comic:     { label: '漫画',   icon: '🖼️', color: '#E67E22' },
-  other:     { label: '其他',   icon: '✨', color: '#95A5A6' }
+  literature:{ label: '文学',   icon: 'book', color: '#4A90D9' },
+  history:   { label: '历史',   icon: 'education', color: '#8E44AD' },
+  social:    { label: '社科',   icon: 'globe', color: '#16A085' },
+  economy:   { label: '经济',   icon: 'chart', color: '#2ECC71' },
+  science:   { label: '科技',   icon: 'test', color: '#3498DB' },
+  psychology:{ label: '心理',   icon: 'brain', color: '#9B59B6' },
+  education: { label: '教育',   icon: 'education', color: '#F5A623' },
+  art:       { label: '艺术',   icon: 'fun', color: '#FF6B81' },
+  comic:     { label: '漫画',   icon: 'image', color: '#E67E22' },
+  other:     { label: '其他',   icon: 'star', color: '#95A5A6' }
 };
 
 const CATEGORY_LIST = Object.keys(CATEGORIES);
@@ -69,7 +70,7 @@ async function toggleStatus(item) {
   const idx = order.indexOf(item.status);
   const next = order[(idx + 1) % order.length];
   const patch = { status: next };
-  const today = new Date().toISOString().slice(0, 10);
+  const today = dateUtil.today();
   if (next === 'reading' && !item.startDate) {
     patch.startDate = today;
   }

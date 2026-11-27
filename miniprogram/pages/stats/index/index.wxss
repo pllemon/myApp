@@ -1,39 +1,44 @@
-.page-title { font-size: 32rpx; font-weight: 600; color: var(--text); margin: 8rpx 0 24rpx; }
+/* 统计页独有：骨架屏尺寸 / 柱状图 / 打卡栅格 / 完成率环形 / 洞察条目（骨架走全局 m-skeleton） */
+.skeleton-hero { height: 300rpx; border-radius: 36rpx; margin-bottom: 20rpx; }
+.skeleton-grid { height: 240rpx; border-radius: 28rpx; margin-bottom: 20rpx; }
+.skeleton-card { height: 300rpx; border-radius: 28rpx; margin-bottom: 20rpx; }
 
-.overview-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20rpx; margin-bottom: 8rpx; }
-.overview-card { background: var(--bg-card); border-radius: 16rpx; padding: 28rpx; box-shadow: 0 2rpx 12rpx rgba(0,0,0,0.04); }
-.ov-label { font-size: 24rpx; color: var(--text-secondary); margin-bottom: 12rpx; }
-.ov-value { font-size: 38rpx; font-weight: 600; color: var(--text); }
-.ov-value.expense { color: var(--danger); }
-.ov-value.income { color: var(--success); }
-.ov-unit { font-size: 24rpx; color: var(--text-secondary); font-weight: 400; margin-left: 6rpx; }
-
-.card { background: var(--bg-card); border-radius: 16rpx; padding: 32rpx; margin-bottom: 24rpx; box-shadow: 0 2rpx 12rpx rgba(0,0,0,0.04); }
-.card-title { font-size: 30rpx; font-weight: 600; color: var(--text); margin-bottom: 24rpx; }
+.overview-grid { margin: 0 0 20rpx; }
+.overview-cell { text-align: center; }
+.stat-unit { font-size: 22rpx; color: var(--text-3); font-weight: 400; margin-left: 4rpx; }
 
 .chart { display: flex; align-items: flex-end; justify-content: space-between; height: 300rpx; }
 .bar-col { flex: 1; display: flex; flex-direction: column; align-items: center; margin: 0 6rpx; }
-.bar-value { font-size: 20rpx; color: var(--text-secondary); margin-bottom: 8rpx; min-height: 28rpx; }
+.bar-value { font-size: 20rpx; color: var(--text-3); margin-bottom: 8rpx; min-height: 28rpx; }
 .bar-track { width: 100%; height: 220rpx; display: flex; align-items: flex-end; justify-content: center; }
-.bar-fill { width: 70%; background: linear-gradient(180deg, var(--primary) 0%, var(--primary-dark) 100%); border-radius: 8rpx 8rpx 0 0; min-height: 6rpx; transition: height 0.4s; }
-.bar-label { font-size: 20rpx; color: var(--text-secondary); margin-top: 10rpx; }
+.bar-fill { width: 70%; background: linear-gradient(180deg, var(--primary), var(--primary-dark)); border-radius: 8rpx 8rpx 0 0; min-height: 6rpx; transition: height .4s var(--ease); }
+.bar-label { font-size: 20rpx; color: var(--text-3); margin-top: 10rpx; }
 
-.stat-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12rpx; }
-.stat-cell { display: flex; flex-direction: column; align-items: center; padding: 16rpx 0; }
-.stat-num { font-size: 40rpx; font-weight: 600; color: var(--text); }
-.stat-num.accent { color: var(--accent); }
-.stat-cap { font-size: 22rpx; color: var(--text-secondary); margin-top: 8rpx; }
+.checkin-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12rpx; }
+.checkin-cell { display: flex; flex-direction: column; align-items: center; padding: 8rpx 0; }
+.checkin-cell .m2-stat-num.accent { color: var(--accent); }
+.checkin-cell .m2-stat-label { text-align: center; }
 
 .todo-summary { display: flex; align-items: center; }
 .todo-ring { width: 180rpx; height: 180rpx; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-.todo-ring-inner { width: 130rpx; height: 130rpx; border-radius: 50%; background: var(--bg-card); display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.todo-ring-inner { width: 130rpx; height: 130rpx; border-radius: 50%; background: var(--surface); display: flex; flex-direction: column; align-items: center; justify-content: center; }
 .todo-rate { font-size: 34rpx; font-weight: 600; color: var(--primary); }
-.todo-rate-sub { font-size: 20rpx; color: var(--text-secondary); }
+.todo-rate-sub { font-size: 20rpx; color: var(--text-3); }
 .todo-recent { flex: 1; margin-left: 28rpx; min-width: 0; }
-.recent-empty { font-size: 26rpx; color: var(--text-secondary); text-align: center; }
-.recent-item { display: flex; align-items: center; padding: 10rpx 0; border-bottom: 1rpx solid var(--divider); }
+.recent-item { display: flex; align-items: center; padding: 10rpx 0; border-bottom: 1rpx solid var(--border); }
 .recent-item:last-child { border-bottom: none; }
-.recent-dot { width: 36rpx; color: var(--text-secondary); font-size: 26rpx; }
+.recent-dot { display: flex; align-items: center; justify-content: center; width: 36rpx; color: var(--text-3); }
 .recent-done .recent-dot { color: var(--success); }
-.recent-done .recent-text { text-decoration: line-through; color: var(--text-secondary); }
+.recent-done .recent-text { text-decoration: line-through; color: var(--text-3); }
 .recent-text { font-size: 26rpx; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.insight-item { display: flex; align-items: flex-start; gap: 16rpx; padding: 20rpx 0; border-bottom: 2rpx solid var(--border); }
+.insight-item:last-of-type { border-bottom: none; }
+.insight-icon { width: 56rpx; height: 56rpx; border-radius: 16rpx; background: var(--surface-2); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.insight-item.positive .insight-icon { background: var(--success-light); }
+.insight-item.warning .insight-icon { background: var(--warning-light); }
+.insight-body { flex: 1; min-width: 0; }
+.insight-title { font-size: 28rpx; font-weight: 600; color: var(--text); }
+.insight-detail { font-size: 24rpx; color: var(--text-2); margin-top: 6rpx; line-height: 1.6; }
+.insight-sample { font-size: 20rpx; color: var(--text-3); margin-top: 6rpx; }
+.insight-disclaimer { font-size: 20rpx; color: var(--text-3); text-align: center; margin-top: 16rpx; padding-top: 16rpx; border-top: 2rpx dashed var(--border); }

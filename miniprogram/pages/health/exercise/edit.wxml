@@ -1,44 +1,59 @@
-<view class="container m-edit-page">
-  <view class="m-form-card">
-    <view class="m-form-title">🏃 运动记录</view>
+<view class="m2-page m2-edit" style="{{themeStyle}}">
+  <view class="m2-edit-hero">
+    <view class="m2-edit-hero-icon" style="background: var(--primary-light)"><m-icon tone="health" healthKey="运动" size="44" /></view>
+    <view>
+      <view class="m2-edit-title">{{isEdit ? '编辑运动' : '新增运动'}}</view>
+      <view class="m2-edit-desc">记录运动时长与消耗，坚持好习惯</view>
+    </view>
+  </view>
 
-    <m-field label="日期">
+  <view class="m2-form-card">
+    <view class="m2-form-title">运动数据</view>
+    <view class="m2-field">
+      <view class="m2-field-label">日期</view>
       <picker mode="date" value="{{date}}" bindchange="onDateChange">
-        <view class="m-form-picker-value">{{date}}</view>
+        <view class="m2-field-value">{{date}}</view>
       </picker>
-    </m-field>
-
-    <m-field label="时间">
+      <view class="m2-field-arrow">›</view>
+    </view>
+    <view class="m2-field">
+      <view class="m2-field-label">时间</view>
       <picker mode="time" value="{{time}}" bindchange="onTimeChange">
-        <view class="m-form-picker-value">{{time}}</view>
+        <view class="m2-field-value">{{time}}</view>
       </picker>
-    </m-field>
-
-    <m-field label="运动类型">
+      <view class="m2-field-arrow">›</view>
+    </view>
+    <view class="m2-field">
+      <view class="m2-field-label">运动类型</view>
       <picker mode="selector" range="{{typeOptions}}" range-key="label" value="{{typeIdx}}" bindchange="onTypeChange">
-        <view class="m-form-picker-value">{{typeOptions[typeIdx].label}}</view>
+        <view class="m2-field-value">{{typeOptions[typeIdx].label}}</view>
       </picker>
-    </m-field>
-
-    <m-field label="时长 (分钟)">
-      <input class="m-form-input" type="number" value="{{duration}}" placeholder="请输入" bindinput="onDurationInput" />
-    </m-field>
-
-    <m-field label="距离 (km)">
-      <input class="m-form-input" type="digit" value="{{distance}}" placeholder="选填" bindinput="onDistanceInput" />
-    </m-field>
-
-    <m-field label="消耗卡路里 (kcal)">
-      <input class="m-form-input" type="number" value="{{calories}}" placeholder="自动估算" bindinput="onCaloriesInput" />
-    </m-field>
+      <view class="m2-field-arrow">›</view>
+    </view>
+    <view class="m2-field">
+      <view class="m2-field-label">时长 (分钟)</view>
+      <input class="m2-field-value" type="number" value="{{duration}}" placeholder="请输入" bindinput="onDurationInput" />
+    </view>
+    <view class="m2-field">
+      <view class="m2-field-label">距离 (km)</view>
+      <input class="m2-field-value" type="digit" value="{{distance}}" placeholder="选填" bindinput="onDistanceInput" />
+    </view>
+    <view class="m2-field">
+      <view class="m2-field-label">消耗卡路里 (kcal)</view>
+      <input class="m2-field-value" type="number" value="{{calories}}" placeholder="自动估算" bindinput="onCaloriesInput" />
+    </view>
+    <view wx:if="{{caloriesEstimated && calories}}" class="m-judge-meta">按默认体重 60kg 估算，可在健康档案填写体重提高准确度</view>
   </view>
 
-  <view class="m-form-card">
-    <view class="m-form-title">📝 备注</view>
-    <m-field block>
-      <textarea class="m-form-textarea" placeholder="选填" value="{{note}}" bindinput="onNoteInput" auto-height maxlength="200" />
-    </m-field>
+  <view class="m2-form-card">
+    <view class="m2-form-title">备注</view>
+    <view class="m2-field textarea-field">
+      <view class="m2-field-label">备注</view>
+      <textarea class="m2-field-value" placeholder="选填" value="{{notes}}" bindinput="onNoteInput" auto-height maxlength="200" />
+    </view>
   </view>
 
-  <m-save-bar save-text="{{isEdit ? '保存修改' : '保存记录'}}" bind:save="save" />
+  <view class="m2-footer">
+    <view class="m2-btn m2-btn-primary" bindtap="save">保存</view>
+  </view>
 </view>

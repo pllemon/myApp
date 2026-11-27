@@ -5,7 +5,7 @@ const config = {
 
   COLLECTIONS: {
     ACCOUNTING: 'accounting',
-    ACCOUNTING_CATEGORY: 'accounting_category',
+    BUDGET: 'budget',
     DIARY: 'diary',
     CHECKIN_HABIT: 'checkin_habit',
     CHECKIN_RECORD: 'checkin_record',
@@ -30,8 +30,6 @@ const config = {
     HEALTH_CHOLESTEROL: 'health_cholesterol',
     HEALTH_HEART_RATE: 'health_heart_rate',
     HEALTH_DIET: 'health_diet',
-    STATS_DAILY: 'stats_daily',
-    SETTINGS: 'settings',
     MOVIE: 'movie',
     READING: 'reading',
     ACCOUNTING_BOOK: 'accounting_book'

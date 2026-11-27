@@ -1,0 +1,4 @@
+<view class="m-loading-wrap">
+  <view class="m-loading-spinner"></view>
+  <text class="m-loading-text">{{text}}</text>
+</view>

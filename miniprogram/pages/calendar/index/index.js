@@ -2,6 +2,7 @@ const calendar = require('../../../utils/calendar.js');
 const dateUtil = require('../../../utils/date.js');
 const theme = require('../../../utils/theme.js');
 const todoUtil = require('../../../utils/todo.js');
+const checkinUtil = require('../../../utils/checkin.js');
 
 Page({
   data: {
@@ -99,13 +100,39 @@ Page({
     this.refreshDetail();
   },
 
+  async toggleCheckinDay(e) {
+    const { id, checked } = e.currentTarget.dataset;
+    const date = this.data.selectedDate;
+    if (!id || !date) return;
+    if (date > this.data.today) {
+      wx.showToast({ title: '不能给未来日期打卡', icon: 'none' });
+      return;
+    }
+    try {
+      if (checked) {
+        await checkinUtil.uncheckin(id, date);
+        wx.showToast({ title: '已取消打卡', icon: 'none' });
+      } else {
+        const habit = (this._habits || []).find(h => h._id === id);
+        await checkinUtil.checkin(id, habit ? habit.name : '', date);
+        wx.showToast({ title: '打卡成功', icon: 'success' });
+      }
+      await this.loadMonth();
+    } catch (err) {
+      wx.showToast({ title: '操作失败', icon: 'none' });
+    }
+  },
+
   async toggleTodo(e) {
     const id = e.currentTarget.dataset.id;
     const day = this._dailyMap && this._dailyMap[this.data.selectedDate];
     const todo = day && day.todo && day.todo.find(t => t._id === id);
     if (!todo) return;
     try {
-      await todoUtil.toggleComplete(todo);
+      const patch = await todoUtil.toggleComplete(todo);
+      if (patch && patch.cycleCount && patch.dueDate) {
+        wx.showToast({ title: '下次：' + patch.dueDate.slice(5), icon: 'none' });
+      }
       this.loadMonth();
     } catch (err) {
       console.error('toggle todo error:', err);
@@ -125,17 +152,17 @@ Page({
 
   goTodo(e) {
     const id = e.currentTarget.dataset.id;
-    wx.navigateTo({ url: '/pages/todo/edit/index?id=' + id });
+    wx.navigateTo({ url: '/pages/todo/detail/index?id=' + id });
   },
 
   goAnniversary(e) {
     const id = e.currentTarget.dataset.id;
-    wx.navigateTo({ url: '/pages/anniversary/edit/index?id=' + id });
+    wx.navigateTo({ url: '/pages/anniversary/detail/index?id=' + id });
   },
 
   goWishlist(e) {
     const id = e.currentTarget.dataset.id;
-    wx.navigateTo({ url: '/pages/wishlist/edit/index?id=' + id });
+    wx.navigateTo({ url: '/pages/wishlist/detail/index?id=' + id });
   },
 
   goCheckin() {
@@ -143,10 +170,10 @@ Page({
   },
 
   goNewAccounting() {
-    wx.reLaunch({ url: '/pages/accounting/index/index' });
+    wx.navigateTo({ url: '/pages/accounting/edit/index' });
   },
 
   goNewDiary() {
-    wx.reLaunch({ url: '/pages/diary/index/index' });
+    wx.navigateTo({ url: '/pages/diary/editor/index' });
   }
 });

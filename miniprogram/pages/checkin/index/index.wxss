@@ -1,227 +1,29 @@
-.header {
-  padding: 16rpx 8rpx 24rpx;
-}
+/* 打卡列表独有：进度条 / 打卡圈 / 连击信息（页面骨架走 m2-* 全局类） */
+.hero-progress { position: relative; z-index: 1; height: 14rpx; border-radius: var(--radius-full); background: var(--surface-3); overflow: hidden; margin-top: 24rpx; opacity: .6; }
+.hero-progress-fill { height: 100%; border-radius: var(--radius-full); background: var(--text-inverse); transition: width .4s var(--ease); }
+.hero-all-done { position: relative; z-index: 1; margin-top: 16rpx; font-size: var(--font-md); font-weight: 600; color: var(--text-inverse); }
 
-.greeting-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-end;
-  margin-bottom: 24rpx;
-}
+.section-header { display: flex; align-items: center; justify-content: space-between; padding: 8rpx 28rpx 16rpx; }
 
-.greeting {
-  font-size: 40rpx;
-  font-weight: 700;
-  color: var(--text);
-}
-
-.today {
-  font-size: 24rpx;
-  color: var(--text-secondary);
-}
-
-.progress-card {
-  background: linear-gradient(135deg, var(--primary-light) 0%, #FFFFFF 100%);
-  border-radius: 20rpx;
-  padding: 28rpx 32rpx;
-  box-shadow: 0 4rpx 20rpx rgba(74, 144, 217, 0.08);
-}
-
-.progress-info {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  margin-bottom: 16rpx;
-}
-
-.progress-text {
-  font-size: 26rpx;
-  color: var(--text-secondary);
-}
-
-.progress-num {
-  font-size: 48rpx;
-  font-weight: 700;
-  color: var(--primary);
-}
-
-.progress-bar {
-  height: 12rpx;
-  background-color: rgba(74, 144, 217, 0.15);
-  border-radius: 6rpx;
-  overflow: hidden;
-}
-
-.progress-fill {
-  height: 100%;
-  background: linear-gradient(90deg, var(--primary) 0%, #357ABD 100%);
-  border-radius: 6rpx;
-  transition: width 0.4s ease;
-}
-
-.all-done {
-  margin-top: 16rpx;
-  font-size: 26rpx;
-  color: var(--success);
-  text-align: center;
-  font-weight: 600;
-}
-
-.section-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 16rpx 8rpx 20rpx;
-}
-
-.section-title {
-  font-size: 32rpx;
-  font-weight: 600;
-  color: var(--text);
-}
-
-.section-action {
-  font-size: 26rpx;
-  color: var(--primary);
-}
-
-.habit-card {
-  display: flex;
-  align-items: center;
-  background-color: #FFFFFF;
-  border-radius: 20rpx;
-  padding: 24rpx 20rpx;
-  margin-bottom: 20rpx;
-  border-left: 8rpx solid var(--primary);
-  box-shadow: 0 2rpx 16rpx rgba(0, 0, 0, 0.04);
-  transition: all 0.2s ease;
-}
-
-.habit-card.checked {
-  background-color: #FAFFFA;
-}
-
+.habit-card { display: flex; align-items: center; gap: 18rpx; border-left: 8rpx solid var(--primary); }
+.habit-card.checked { background: var(--success-light); }
 .check-btn {
-  width: 80rpx;
-  height: 80rpx;
-  border-radius: 50%;
-  border: 3rpx solid var(--primary);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 36rpx;
-  font-weight: 700;
-  color: var(--primary);
-  margin-right: 20rpx;
-  flex-shrink: 0;
-  transition: all 0.2s ease;
+  width: 88rpx; height: 88rpx; border-radius: 50%; border: 4rpx solid var(--primary);
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  transition: all .2s var(--ease);
 }
-
-.check-btn.checked {
-  color: #FFFFFF;
-  transform: scale(1.05);
-  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.15);
-}
-
-.check-plus {
-  font-size: 44rpx;
-  line-height: 1;
-}
-
-.habit-main {
-  flex: 1;
-  min-width: 0;
-}
-
-.habit-name-row {
-  display: flex;
-  align-items: center;
-  margin-bottom: 12rpx;
-}
-
-.habit-icon {
-  font-size: 36rpx;
-  margin-right: 10rpx;
-}
-
-.habit-name {
-  font-size: 32rpx;
-  font-weight: 600;
-  color: var(--text);
-}
-
-.habit-meta {
-  font-size: 22rpx;
-  color: var(--text-secondary);
-}
-
-.streak-row {
-  display: flex;
-  align-items: center;
-  gap: 12rpx;
-  flex-wrap: wrap;
-  margin-bottom: 8rpx;
-}
-
-.streak {
-  color: #E67E22;
-  font-weight: 600;
-}
-
-.longest {
-  color: #F39C12;
-}
-
-.total {
-  color: var(--text-secondary);
-}
-
-.target-row {
-  display: flex;
-  align-items: center;
-  gap: 12rpx;
-}
-
-.target-bar {
-  flex: 1;
-  height: 8rpx;
-  background-color: #F0F0F0;
-  border-radius: 4rpx;
-  overflow: hidden;
-  max-width: 160rpx;
-}
-
-.target-fill {
-  height: 100%;
-  border-radius: 4rpx;
-}
-
-.target-text {
-  font-size: 22rpx;
-  color: var(--text-secondary);
-  flex-shrink: 0;
-}
-
-.habit-actions {
-  display: flex;
-  flex-direction: column;
-  gap: 8rpx;
-  margin-left: 12rpx;
-}
-
-.act-btn {
-  width: 56rpx;
-  height: 56rpx;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 28rpx;
-  border-radius: 12rpx;
-  background-color: #F8F8F8;
-}
-
-.bottom-space {
-  height: 160rpx;
-}
-
-
+.check-btn.checked { transform: scale(1.06); box-shadow: var(--shadow-md); }
+.check-plus { font-size: 52rpx; font-weight: 300; line-height: 1; color: var(--primary-dark); }
+.habit-main { flex: 1; min-width: 0; }
+.habit-name-row { display: flex; align-items: center; gap: 10rpx; margin-bottom: 10rpx; }
+.habit-name { font-size: var(--font-lg); font-weight: 600; color: var(--text); }
+.habit-meta { font-size: var(--font-sm); color: var(--text-3); }
+.streak-row { display: flex; align-items: center; gap: 12rpx; flex-wrap: wrap; margin-bottom: 8rpx; }
+.streak { color: var(--warning-dark); font-weight: 600; }
+.longest { color: var(--warning-dark); }
+.target-row { display: flex; align-items: center; gap: 12rpx; }
+.target-bar { flex: 1; height: 8rpx; background: var(--surface-3); border-radius: var(--radius-full); overflow: hidden; max-width: 200rpx; }
+.target-fill { height: 100%; border-radius: var(--radius-full); }
+.target-text { font-size: var(--font-sm); color: var(--text-3); flex-shrink: 0; }
+.habit-actions { display: flex; flex-direction: column; gap: 8rpx; flex-shrink: 0; }
+.act-btn { width: 60rpx; height: 60rpx; display: flex; align-items: center; justify-content: center; border-radius: var(--radius-sm); background: var(--surface-2); }

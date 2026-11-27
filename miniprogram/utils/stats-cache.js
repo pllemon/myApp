@@ -3,6 +3,8 @@
 //   业务侧所有调用 statsCache.xxx() 的代码无需改动。
 //   同时需要处理：云端存全量 monthly key，设备首次启动拉取覆盖本地。
 
+const dateUtil = require('./date.js');
+
 const STATS_KEY = '__stats_accounting';
 
 function loadCache() {
@@ -39,16 +41,20 @@ function mutateAmount(cache, type, amount, year, month, delta) {
 function addRecord(record) {
   if (!record || (record.type !== 'expense' && record.type !== 'income')) return;
   const cache = loadCache();
-  const d = new Date(record.createdAt);
-  mutateAmount(cache, record.type, record.amount || 0, d.getFullYear(), d.getMonth() + 1, 1);
+  const month = dateUtil.bizMonthOf(record);
+  if (!month) return;
+  const [y, m] = month.split('-').map(Number);
+  mutateAmount(cache, record.type, record.amount || 0, y, m, 1);
   saveCache(cache);
 }
 
 function removeRecord(record) {
   if (!record || (record.type !== 'expense' && record.type !== 'income')) return;
   const cache = loadCache();
-  const d = new Date(record.createdAt);
-  mutateAmount(cache, record.type, record.amount || 0, d.getFullYear(), d.getMonth() + 1, -1);
+  const month = dateUtil.bizMonthOf(record);
+  if (!month) return;
+  const [y, m] = month.split('-').map(Number);
+  mutateAmount(cache, record.type, record.amount || 0, y, m, -1);
   saveCache(cache);
 }
 
@@ -65,8 +71,10 @@ function rebuildFromRecords(records) {
   const cache = { months: {}, total: { expense: 0, income: 0, count: 0 } };
   (records || []).forEach(r => {
     if (r.type !== 'expense' && r.type !== 'income') return;
-    const d = new Date(r.createdAt);
-    mutateAmount(cache, r.type, r.amount || 0, d.getFullYear(), d.getMonth() + 1, 1);
+    const month = dateUtil.bizMonthOf(r);
+    if (!month) return;
+    const [y, m] = month.split('-').map(Number);
+    mutateAmount(cache, r.type, r.amount || 0, y, m, 1);
   });
   saveCache(cache);
   return cache;

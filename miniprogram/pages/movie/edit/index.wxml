@@ -1,96 +1,105 @@
-<view class="container m-edit-page" style="{{themeStyle}}">
-  <view class="m-form-card">
-    <m-field label="封面/剧照" block>
-      <view class="img-grid">
-        <view wx:for="{{images}}" wx:key="*this" class="img-item">
-          <image class="img-thumb" src="{{item}}" mode="aspectFill" data-index="{{index}}" bindtap="previewImage" />
-          <view class="img-remove" data-index="{{index}}" catchtap="removeImage">×</view>
-        </view>
-        <view wx:if="{{images.length < 9}}" class="img-add" bindtap="chooseImages">
-          <text class="img-add-icon">+</text>
-          <text class="img-add-text">添加图片</text>
-        </view>
-      </view>
-    </m-field>
+<view class="m2-page m2-edit" style="{{themeStyle}}">
+  <!-- 编辑 Hero -->
+  <view class="m2-edit-hero">
+    <view class="m2-edit-hero-icon" style="background: var(--primary-light)"><m-icon name="play" size="48" /></view>
+    <view>
+      <view class="m2-edit-title">{{isEdit ? '编辑影片' : '添加影片'}}</view>
+      <view class="m2-edit-desc">记录影片信息与你的观影感受</view>
+    </view>
+  </view>
 
-    <m-field label="影片名称" block>
-      <input class="m-title-input" placeholder="例如：肖申克的救赎" value="{{title}}" maxlength="50" bindinput="onTitleInput" focus="{{!isEdit}}" />
-    </m-field>
+  <view class="m2-form-card">
+    <view class="m2-form-title">封面 / 剧照</view>
+    <m-image-picker images="{{images}}" bind:change="onImagesChange" />
+  </view>
 
-    <m-field label="类型" block>
-      <view class="m-chip-row">
+  <view class="m2-form-card">
+    <view class="m2-form-title">影片信息</view>
+    <view class="m2-field">
+      <view class="m2-field-label">影片名称</view>
+      <input class="m2-field-value" placeholder="例如：肖申克的救赎" value="{{title}}" maxlength="50" bindinput="onTitleInput" focus="{{!isEdit}}" />
+    </view>
+    <view class="m2-field">
+      <view class="m2-field-label">类型</view>
+      <view class="m2-chip-row">
         <view
           wx:for="{{categoryOptions}}"
           wx:key="key"
-          class="chip {{category === item.key ? 'chip-active' : ''}}"
+          class="m2-chip {{category === item.key ? 'active' : ''}}"
           style="{{category === item.key ? 'color:' + item.color + ';border-color:' + item.color + ';background:' + item.soft : ''}}"
           data-key="{{item.key}}"
           bindtap="selectCategory"
         >{{item.label}}</view>
       </view>
-    </m-field>
-
-    <m-field label="观看状态" block>
-      <view class="m-chip-row">
+    </view>
+    <view class="m2-field">
+      <view class="m2-field-label">观看状态</view>
+      <view class="m2-chip-row">
         <view
           wx:for="{{statusOptions}}"
           wx:key="key"
-          class="chip {{status === item.key ? 'chip-active' : ''}}"
+          class="m2-chip {{status === item.key ? 'active' : ''}}"
           style="{{status === item.key ? 'color:' + item.color + ';border-color:' + item.color + ';background:' + item.soft : ''}}"
           data-key="{{item.key}}"
           bindtap="selectStatus"
         >{{item.label}}</view>
       </view>
-    </m-field>
-
-    <m-field label="导演">
-      <input class="m-field-input" placeholder="可选" value="{{director}}" maxlength="30" bindinput="onDirectorInput" />
-    </m-field>
-
-    <m-field label="主演">
-      <input class="m-field-input" placeholder="可选，多个用逗号分隔" value="{{actors}}" maxlength="80" bindinput="onActorsInput" />
-    </m-field>
-
-    <view class="m-form-row">
-      <m-field label="上映年份" half>
-        <input class="m-field-input" type="number" placeholder="例如：1994" value="{{releaseYear}}" maxlength="4" bindinput="onYearInput" />
-      </m-field>
-      <m-field label="时长（分钟）" half>
-        <input class="m-field-input" type="number" placeholder="可选" value="{{duration}}" maxlength="4" bindinput="onDurationInput" />
-      </m-field>
     </view>
+    <view class="m2-field">
+      <view class="m2-field-label">导演</view>
+      <input class="m2-field-value" placeholder="可选" value="{{director}}" maxlength="30" bindinput="onDirectorInput" />
+    </view>
+    <view class="m2-field">
+      <view class="m2-field-label">主演</view>
+      <input class="m2-field-value" placeholder="可选，多个用逗号分隔" value="{{actors}}" maxlength="80" bindinput="onActorsInput" />
+    </view>
+    <view class="field-row">
+      <view class="m2-field">
+        <view class="m2-field-label">上映年份</view>
+        <input class="m2-field-value" type="number" placeholder="例如：1994" value="{{releaseYear}}" maxlength="4" bindinput="onYearInput" />
+      </view>
+      <view class="m2-field">
+        <view class="m2-field-label">时长（分钟）</view>
+        <input class="m2-field-value" type="number" placeholder="可选" value="{{duration}}" maxlength="4" bindinput="onDurationInput" />
+      </view>
+    </view>
+  </view>
 
-    <m-field wx:if="{{status === 'watched' || status === 'watching'}}" label="观看日期">
+  <view class="m2-form-card" wx:if="{{status === 'watched' || status === 'watching'}}">
+    <view class="m2-form-title">观看记录</view>
+    <view class="m2-field">
+      <view class="m2-field-label">观看日期</view>
       <picker mode="date" value="{{watchedDate}}" bindchange="onDateChange">
-        <view class="m-form-picker-value {{watchedDate ? '' : 'date-placeholder'}}">
-          {{watchedDate || '选择日期'}}
-        </view>
+        <view class="m2-field-value {{watchedDate ? '' : 'placeholder'}}">{{watchedDate || '选填'}}</view>
       </picker>
-      <view wx:if="{{watchedDate}}" class="date-clear" catchtap="clearDate">清除</view>
-    </m-field>
+      <view wx:if="{{watchedDate}}" class="date-clear" catchtap="clearDate"><m-icon name="close" size="24" inline /> 清除</view>
+    </view>
+  </view>
 
-    <m-field wx:if="{{status === 'watched'}}" label="评分">
-      <view class="m-rating-row">
+  <view class="m2-form-card" wx:if="{{status === 'watched'}}">
+    <view class="m2-form-title">评分 · {{rating > 0 ? rating + ' / 5' : '未评分'}}</view>
+    <view class="m2-field">
+      <view class="m2-field-label">我的评分</view>
+      <view class="rating-row">
         <view
           wx:for="{{stars}}"
           wx:key="*this"
-          class="m-rating-star {{item <= rating ? 'star-on' : ''}}"
+          class="star-wrap {{item <= rating ? 'star-on' : ''}}"
           data-r="{{item}}"
           bindtap="selectRating"
-        >★</view>
-        <text class="m-rating-num" wx:if="{{rating > 0}}">{{rating}} / 5</text>
+        ><m-icon name="star" size="44" tone="system" /></view>
+        <text wx:if="{{rating > 0}}" class="rating-num">{{rating}} / 5</text>
       </view>
-    </m-field>
-
-    <m-field label="短评" block>
-      <textarea class="m-note-input" placeholder="记录你的感想（可选）" value="{{note}}" maxlength="300" bindinput="onNoteInput" auto-height />
-    </m-field>
+    </view>
   </view>
 
-  <m-save-bar
-    save-text="保存"
-    show-delete="{{isEdit}}"
-    bind:save="save"
-    bind:delete="remove"
-  />
+  <view class="m2-form-card">
+    <view class="m2-form-title">短评</view>
+    <textarea class="m2-field-value" placeholder="记录你的感想（可选）" value="{{note}}" maxlength="300" bindinput="onNoteInput" auto-height />
+  </view>
+
+  <view class="m2-footer">
+    <view class="m2-btn m2-btn-primary" bindtap="save">保存</view>
+    <view wx:if="{{isEdit}}" class="m2-btn m2-btn-danger" bindtap="remove">删除</view>
+  </view>
 </view>

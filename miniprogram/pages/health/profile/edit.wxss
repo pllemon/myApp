@@ -1,41 +1,18 @@
-.avatar-section {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 32rpx 0 24rpx;
-}
+/* 档案编辑页 · 仅保留 m2-* 全局构件之外的独有样式 */
 
+.avatar-section { display: flex; flex-direction: column; align-items: center; padding: 16rpx 0 8rpx; }
 .avatar-circle {
   width: 160rpx;
   height: 160rpx;
   border-radius: 50%;
-  background: linear-gradient(135deg, #FFE8EC 0%, #E8F0FA 100%);
+  background: var(--primary-light);
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.08);
+  box-shadow: var(--shadow-sm);
 }
-
-.avatar-big {
-  font-size: 88rpx;
-}
-
-.avatar-hint {
-  font-size: 24rpx;
-  color: var(--text-secondary);
-  margin-top: 12rpx;
-}
-
-.avatar-picker {
-  display: grid;
-  grid-template-columns: repeat(8, 1fr);
-  gap: 12rpx;
-  padding: 20rpx;
-  background-color: #FFFFFF;
-  border-radius: 16rpx;
-  margin-bottom: 20rpx;
-}
-
+.avatar-big { font-size: 88rpx; }
+.avatar-picker { display: grid; grid-template-columns: repeat(8, 1fr); gap: 12rpx; }
 .avatar-item {
   width: 64rpx;
   height: 64rpx;
@@ -43,124 +20,54 @@
   align-items: center;
   justify-content: center;
   font-size: 40rpx;
-  border-radius: 12rpx;
+  border-radius: 14rpx;
   border: 2rpx solid transparent;
+  background: var(--surface-2);
 }
+.avatar-item.active { border-color: var(--primary); background: var(--primary-light); }
 
-.avatar-item.active {
-  border-color: var(--primary);
-  background-color: var(--primary-light);
-}
+.m2-form-title.sub { font-size: 24rpx; color: var(--text-3); padding: 20rpx 0 6rpx; font-weight: 500; }
 
+/* 半宽字段 */
+.m2-field-row { display: flex; gap: 16rpx; }
+.m2-field.half { flex: 1; min-width: 0; flex-direction: column; align-items: stretch; }
+.m2-field.half .m2-field-label { margin-right: 0; margin-bottom: 6rpx; font-size: 23rpx; }
+.m2-field.half .m2-field-value { text-align: left; font-size: 26rpx; }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
+/* BMI 概览条 */
 .bmi-bar {
   display: flex;
   align-items: center;
   gap: 12rpx;
   padding: 16rpx 20rpx;
-  background-color: #F5F9FF;
-  border-radius: 12rpx;
-  margin-bottom: 16rpx;
+  background: var(--surface-2);
+  border-radius: 18rpx;
+  margin: 12rpx 0;
 }
+.bmi-label { font-size: 25rpx; color: var(--text-3); }
+.bmi-value { font-size: 36rpx; font-weight: 700; color: var(--primary); }
+.bmi-status { font-size: 25rpx; color: var(--success); font-weight: 600; }
+.bmi-age { font-size: 23rpx; color: var(--text-3); }
 
-.bmi-label {
-  font-size: 26rpx;
-  color: var(--text-secondary);
-}
+/* 指标勾选 */
+.tab-pick-grid { gap: 14rpx; }
+.tab-pick-item { gap: 8rpx; font-size: 26rpx; }
+.tab-pick-item .tp-ico { display: flex; align-items: center; justify-content: center; }
+.tab-pick-item .tp-label { font-size: 26rpx; }
+.tab-pick-item .tp-check { display: flex; align-items: center; justify-content: center; margin-left: 4rpx; }
 
-.bmi-value {
-  font-size: 36rpx;
-  font-weight: 700;
-  color: var(--primary);
-}
-
-.bmi-status {
-  font-size: 26rpx;
-  color: var(--success);
-  font-weight: 600;
-}
-
-.bmi-age {
-  font-size: 24rpx;
-  color: var(--text-secondary);
-}
-
-.cycle-adjuster {
-  display: flex;
-  align-items: center;
-  gap: 12rpx;
-}
-
+/* 周期天数调节 */
+.cycle-adjuster { display: flex; align-items: center; gap: 12rpx; margin-left: auto; }
 .cycle-btn {
   width: 56rpx;
   height: 56rpx;
   border-radius: 50%;
-  background-color: #F5F5F5;
+  background: var(--surface-2);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 36rpx;
+  font-size: 34rpx;
   color: var(--text);
 }
-
-.cycle-input {
-  width: 100rpx;
-  text-align: center;
-  font-size: 32rpx;
-  font-weight: 600;
-  color: var(--text);
-}
-
-.cycle-unit {
-  font-size: 26rpx;
-  color: var(--text-secondary);
-}
-
-
-.tab-pick-grid {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 16rpx;
-  padding: 8rpx 0 8rpx;
-}
-
-.tab-pick-item {
-  display: flex;
-  align-items: center;
-  gap: 8rpx;
-  padding: 14rpx 24rpx;
-  border-radius: 28rpx;
-  background-color: #F5F5F5;
-  font-size: 28rpx;
-  color: var(--text-secondary);
-  border: 2rpx solid transparent;
-  position: relative;
-}
-
-.tab-pick-item .tp-ico { font-size: 32rpx; }
-.tab-pick-item .tp-label { font-size: 28rpx; }
-.tab-pick-item .tp-check {
-  margin-left: 4rpx;
-  font-size: 24rpx;
-  font-weight: 700;
-}
-
-.tab-pick-item.on {
-  background-color: var(--primary-light);
-  color: var(--primary);
-  border-color: var(--primary);
-  font-weight: 600;
-}
+.cycle-input { width: 100rpx; text-align: center; font-size: 32rpx; font-weight: 600; color: var(--text); }
+.cycle-unit { font-size: 25rpx; color: var(--text-3); }

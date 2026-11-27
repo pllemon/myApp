@@ -14,6 +14,12 @@ Page({
     activeFilter: 'all',
     list: [],
     summary: { total: 0, watched: 0, watching: 0, plan: 0, avgRating: '0.0' },
+    summaryItems: [
+      { label: '已看过', value: 0, total: 0 },
+      { label: '观看中', value: 0, total: null },
+      { label: '想看', value: 0, total: null },
+      { label: '平均评分', value: '0.0', total: null }
+    ],
     showEmpty: false
   },
 
@@ -46,10 +52,17 @@ Page({
         return bd - ad;
       });
 
+      const summary = util.calcStats(all);
       this.setData({
         list: sorted,
         showEmpty: sorted.length === 0,
-        summary: util.calcStats(all)
+        summary,
+        summaryItems: [
+          { label: '已看过', value: summary.watched, total: summary.total },
+          { label: '观看中', value: summary.watching, total: null },
+          { label: '想看', value: summary.plan, total: null },
+          { label: '平均评分', value: summary.avgRating, total: null }
+        ]
       });
     } catch (e) {
       console.error('movie loadList error:', e);
@@ -73,9 +86,9 @@ Page({
     }
   },
 
-  goEdit(e) {
+  goDetail(e) {
     const id = e.currentTarget.dataset.id;
-    wx.navigateTo({ url: '/pages/movie/edit/index?id=' + (id || '') });
+    wx.navigateTo({ url: '/pages/movie/detail/index?id=' + (id || '') });
   },
 
   goNew() {

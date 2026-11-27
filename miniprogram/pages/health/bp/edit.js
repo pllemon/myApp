@@ -1,7 +1,9 @@
 const db = require('../../../utils/db.js');
 const healthUtil = require('../../../utils/health.js');
 
-const SOURCE_OPTIONS = ['手动测量', '电子血压计', '手环/手表', '医院测量'];
+const SOURCE_OPTIONS = healthUtil.BP_SOURCE_OPTIONS;
+const POSITION_OPTIONS = healthUtil.BODY_POSITION_OPTIONS;
+const ARM_OPTIONS = healthUtil.ARM_OPTIONS;
 
 Page({
   data: {
@@ -13,10 +15,19 @@ Page({
     systolic: '',
     diastolic: '',
     pulse: '',
-    source: '手动测量',
+    source: 'manual',
+    sourceLabel: '手动测量',
     sourceOptions: SOURCE_OPTIONS,
+    position: 'sitting',
+    positionLabel: '坐位',
+    positionOptions: POSITION_OPTIONS,
+    arm: 'left',
+    armLabel: '左臂',
+    armOptions: ARM_OPTIONS,
+    isRepeat: false,
     notes: '',
-    preview: null
+    preview: null,
+    disclaimer: healthUtil.MEDICAL_DISCLAIMER
   },
 
   onLoad(options) {
@@ -49,13 +60,23 @@ Page({
     try {
       const r = await db.getById(db.COLLECTIONS.HEALTH_BP, id);
       if (r) {
+        // 老数据 source 为中文字符串，用 normalizeEnum 兼容成 value
+        const src = healthUtil.normalizeEnum(r.source, SOURCE_OPTIONS);
+        const pos = healthUtil.normalizeEnum(r.bodyPosition, POSITION_OPTIONS);
+        const arm = healthUtil.normalizeEnum(r.arm, ARM_OPTIONS);
         this.setData({
           date: r.date || this.formatToday(),
           time: r.time || this.formatNow(),
           systolic: r.systolic || '',
           diastolic: r.diastolic || '',
           pulse: r.pulse || '',
-          source: r.source || '手动测量',
+          source: src ? src.value : 'manual',
+          sourceLabel: src ? src.label : '手动测量',
+          position: pos ? pos.value : 'sitting',
+          positionLabel: pos ? pos.label : '坐位',
+          arm: arm ? arm.value : 'left',
+          armLabel: arm ? arm.label : '左臂',
+          isRepeat: !!r.isRepeat,
           notes: r.notes || ''
         });
         this.updatePreview(r.systolic, r.diastolic);
@@ -68,8 +89,7 @@ Page({
 
   updatePreview(sys, dia) {
     if (sys && dia) {
-      const p = healthUtil.judgeBP(parseFloat(sys), parseFloat(dia));
-      this.setData({ preview: p });
+      this.setData({ preview: healthUtil.judgeBP(parseFloat(sys), parseFloat(dia)) });
     } else {
       this.setData({ preview: null });
     }
@@ -90,31 +110,44 @@ Page({
   onPulseInput(e) { this.setData({ pulse: e.detail.value }); },
   onNotesInput(e) { this.setData({ notes: e.detail.value }); },
 
-  onSourceChange(e) { this.setData({ source: e.detail.value }); },
+  onSourceChange(e) { this.setData({ source: e.detail.value, sourceLabel: e.detail.option.label }); },
+  onPositionChange(e) { this.setData({ position: e.detail.value, positionLabel: e.detail.option.label }); },
+  onArmChange(e) { this.setData({ arm: e.detail.value, armLabel: e.detail.option.label }); },
+  onRepeatChange() { this.setData({ isRepeat: !this.data.isRepeat }); },
 
   async save() {
-    const { date, time, systolic, diastolic, pulse, source, notes, profileId, id, isEdit } = this.data;
-
-    if (!systolic || !diastolic) {
+    const d = this.data;
+    if (!d.systolic || !d.diastolic) {
       wx.showToast({ title: '请输入收缩压和舒张压', icon: 'none' });
       return;
     }
+    const err = healthUtil.validateFields([
+      { field: 'systolic', value: d.systolic, required: true },
+      { field: 'diastolic', value: d.diastolic, required: true },
+      { field: 'pulse', value: d.pulse }
+    ]);
+    if (err) { wx.showToast({ title: err.message, icon: 'none' }); return; }
 
     wx.showLoading({ title: '保存中', mask: true });
     try {
       const record = {
-        profileId,
-        date,
-        time,
-        systolic: parseFloat(systolic),
-        diastolic: parseFloat(diastolic),
-        pulse: pulse ? parseFloat(pulse) : '',
-        source,
-        notes: notes.trim()
+        profileId: d.profileId,
+        date: d.date,
+        time: d.time,
+        systolic: parseFloat(d.systolic),
+        diastolic: parseFloat(d.diastolic),
+        pulse: d.pulse ? parseFloat(d.pulse) : '',
+        source: d.source,
+        bodyPosition: d.position,
+        arm: d.arm,
+        isRepeat: d.isRepeat,
+        notes: d.notes.trim(),
+        judgeVersion: healthUtil.JUDGE_VERSION,
+        updatedAt: Date.now()
       };
 
-      if (isEdit) {
-        await db.update(db.COLLECTIONS.HEALTH_BP, id, record);
+      if (d.isEdit) {
+        await db.update(db.COLLECTIONS.HEALTH_BP, d.id, record);
       } else {
         await db.add(db.COLLECTIONS.HEALTH_BP, record);
       }

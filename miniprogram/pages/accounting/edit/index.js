@@ -1,4 +1,5 @@
 const db = require('../../../utils/db.js');
+const ui = require('../../../utils/interaction.js');
 const dateUtil = require('../../../utils/date.js');
 const categoryUtil = require('../../../utils/category.js');
 const statsCache = require('../../../utils/stats-cache.js');
@@ -38,6 +39,29 @@ Page({
     if (options.id) {
       this.loadRecord(options.id);
     }
+  },
+
+  onShow() {
+    // 从分类管理页返回时重新读取类目；仍有效的选择保留，类目被删则清空
+    if (!this._bookId) return;
+    const parents = categoryUtil.getCategoriesByType(this.data.type, this._bookId);
+    const hasCurrent = parents.some(p => p._id === this.data.currentParentId);
+    const currentParentId = hasCurrent ? this.data.currentParentId : (parents[0] ? parents[0]._id : '');
+    const currentParent = parents.find(p => p._id === currentParentId) || null;
+    const childStillExists = currentParent && this.data.selectedChild &&
+      currentParent.children.some(c => c._id === this.data.selectedChild);
+    const selectedChild = childStillExists ? this.data.selectedChild : null;
+    let selectedParent = null;
+    if (this.data.selectedParent) {
+      selectedParent = parents.find(p => p._id === this.data.selectedParent._id) || currentParent;
+    }
+    this.setData({
+      parents,
+      currentParentId,
+      currentChildren: currentParent ? currentParent.children : [],
+      selectedChild,
+      selectedParent
+    });
   },
 
   async loadRecord(id) {
@@ -127,64 +151,25 @@ Page({
     wx.navigateTo({ url: '/pages/accounting/category/index' });
   },
 
-  async chooseImage() {
-    const remain = MAX_IMAGES - this.data.images.length;
-    if (remain <= 0) {
-      wx.showToast({ title: '最多上传' + MAX_IMAGES + '张', icon: 'none' });
-      return;
-    }
-    try {
-      const res = await wx.chooseMedia({
-        count: remain,
-        mediaType: ['image'],
-        sourceType: ['album', 'camera'],
-        sizeType: ['compressed']
-      });
-      const savedPaths = [];
-      for (const item of res.tempFiles) {
-        try {
-          const saved = await wx.saveFile({ tempFilePath: item.tempFilePath });
-          savedPaths.push(saved.savedFilePath);
-        } catch (e) {
-          savedPaths.push(item.tempFilePath);
-        }
-      }
-      this.setData({
-        images: [...this.data.images, ...savedPaths]
-      });
-    } catch (e) {}
-  },
-
-  previewImage(e) {
-    const index = e.currentTarget.dataset.index;
-    wx.previewImage({
-      current: this.data.images[index],
-      urls: this.data.images
-    });
-  },
-
-  removeImage(e) {
-    const index = e.currentTarget.dataset.index;
-    const images = [...this.data.images];
-    images.splice(index, 1);
-    this.setData({ images });
+  onImagesChange(e) {
+    this.setData({ images: e.detail.images });
   },
 
   async save() {
     const { amount, selectedChild, selectedParent, type, dateStr, note, isEdit, editId, images } = this.data;
 
     if (!amount || parseFloat(amount) <= 0) {
-      wx.showToast({ title: '请输入金额', icon: 'none' });
+      ui.toast('请输入金额', 'none');
       return;
     }
     if (!selectedChild || !selectedParent) {
-      wx.showToast({ title: '请选择分类', icon: 'none' });
+      ui.toast('请选择分类', 'none');
       return;
     }
 
     const child = selectedParent.children.find(c => c._id === selectedChild);
     if (!child) {
-      wx.showToast({ title: '分类数据异常', icon: 'none' });
+      ui.toast('分类数据异常', 'none');
       return;
     }
 
@@ -200,6 +185,7 @@ Page({
       parentCategoryIcon: selectedParent.icon,
       note: note || '',
       images,
+      bizDate: dateStr,
       createdAt,
       bookId: this._bookId || bookUtil.getCurrentBookId()
     };
@@ -216,11 +202,11 @@ Page({
       }
       await db.update(db.COLLECTIONS.ACCOUNTING, editId, record);
       statsCache.updateRecord(oldRecord, record);
-      wx.showToast({ title: '已更新', icon: 'success' });
+      ui.toast('已更新');
     } else {
       await db.add(db.COLLECTIONS.ACCOUNTING, record);
       statsCache.addRecord(record);
-      wx.showToast({ title: '已保存', icon: 'success' });
+      ui.toast('已保存');
     }
 
     setTimeout(() => wx.navigateBack(), 500);
@@ -228,11 +214,7 @@ Page({
 
   async deleteRecord() {
     if (!this.data.isEdit) return;
-    const res = await wx.showModal({
-      title: '确认删除',
-      content: '删除后无法恢复',
-      confirmColor: '#E74C3C'
-    });
+    const res = await ui.confirmDeleteLegacy()
     if (res.confirm) {
       const oldRecord = await db.getById(db.COLLECTIONS.ACCOUNTING, this.data.editId);
       if (oldRecord && oldRecord.images) {
@@ -244,7 +226,7 @@ Page({
       }
       await db.remove(db.COLLECTIONS.ACCOUNTING, this.data.editId);
       statsCache.removeRecord(oldRecord);
-      wx.showToast({ title: '已删除', icon: 'success' });
+      ui.toast('已删除');
       setTimeout(() => wx.navigateBack(), 500);
     }
   }

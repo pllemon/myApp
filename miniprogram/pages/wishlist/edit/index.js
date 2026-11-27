@@ -1,4 +1,5 @@
 const db = require('../../../utils/db.js');
+const ui = require('../../../utils/interaction.js');
 const util = require('../../../utils/wishlist.js');
 const dateUtil = require('../../../utils/date.js');
 const theme = require('../../../utils/theme.js');
@@ -74,7 +75,8 @@ Page({
   },
 
   selectIcon(e) {
-    this.setData({ icon: e.currentTarget.dataset.icon });
+    const icon = e.detail ? e.detail.icon : e.currentTarget.dataset.icon;
+    this.setData({ icon });
   },
 
   selectCategory(e) {
@@ -102,27 +104,14 @@ Page({
     });
   },
 
-  async chooseImages() {
-    const paths = await imageUtil.chooseImages(this.data.images.length);
-    if (paths.length > 0) {
-      this.setData({ images: [...this.data.images, ...paths] });
-    }
-  },
-
-  previewImage(e) {
-    const idx = e.currentTarget.dataset.index;
-    imageUtil.preview(idx, this.data.images);
-  },
-
-  removeImage(e) {
-    const idx = e.currentTarget.dataset.index;
-    this.setData({ images: imageUtil.removeAt(this.data.images, idx) });
+  onImagesChange(e) {
+    this.setData({ images: e.detail.images });
   },
 
   async save() {
     const title = (this.data.title || '').trim();
     if (!title) {
-      wx.showToast({ title: '请输入愿望', icon: 'none' });
+      ui.toast('请输入愿望', 'none');
       return;
     }
     const budgetNum = parseFloat(this.data.budget);
@@ -146,32 +135,28 @@ Page({
       } else {
         await db.add(db.COLLECTIONS.WISHLIST, record);
       }
-      wx.showToast({ title: '已保存', icon: 'success' });
+      ui.toast('已保存');
       setTimeout(() => wx.navigateBack(), 500);
     } catch (e) {
       console.error('wishlist save error:', e);
-      wx.showToast({ title: '保存失败', icon: 'none' });
+      ui.toast('保存失败', 'none');
     }
   },
 
   remove() {
     if (!this.data.isEdit) return;
-    wx.showModal({
-      title: '确认删除',
-      content: '删除后不可恢复',
-      confirmColor: '#FF4D4F',
-      success: async (res) => {
+    ui.confirmDeleteWith({ title: "确认删除", content: "删除后不可恢复" }, async (res) => {
         if (!res.confirm) return;
         try {
           const old = await db.getById(db.COLLECTIONS.WISHLIST, this.data.id);
           if (old) imageUtil.cleanAllImages(old.images);
           await db.remove(db.COLLECTIONS.WISHLIST, this.data.id);
-          wx.showToast({ title: '已删除', icon: 'success' });
+          ui.toast('已删除');
           setTimeout(() => wx.navigateBack(), 500);
         } catch (e) {
           console.error('wishlist remove error:', e);
         }
       }
-    });
+    );
   }
 });

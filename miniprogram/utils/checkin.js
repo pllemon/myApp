@@ -2,31 +2,28 @@ const db = require('./db.js');
 const dateUtil = require('./date.js');
 
 const HABIT_PRESETS = [
-  { name: '早起', icon: '🌅', color: '#F5A623' },
-  { name: '早睡', icon: '🌙', color: '#9B59B6' },
-  { name: '喝水', icon: '💧', color: '#4A90D9' },
-  { name: '运动', icon: '💪', color: '#2ECC71' },
-  { name: '阅读', icon: '📚', color: '#E67E22' },
-  { name: '冥想', icon: '🧘', color: '#1ABC9C' },
-  { name: '写日记', icon: '✍️', color: '#9B59B6' },
-  { name: '学习', icon: '📖', color: '#3498DB' },
-  { name: '戒糖', icon: '🚫', color: '#E74C3C' },
-  { name: '拉伸', icon: '🤸', color: '#16A085' },
-  { name: '记账', icon: '💰', color: '#F39C12' },
-  { name: '打卡学习', icon: '🎯', color: '#34495E' }
+  { name: '早起', icon: 'sun', color: '#F5A623' },
+  { name: '早睡', icon: 'moon', color: '#9B59B6' },
+  { name: '喝水', icon: 'health', color: '#4A90D9' },
+  { name: '运动', icon: 'sport', color: '#2ECC71' },
+  { name: '阅读', icon: 'book', color: '#E67E22' },
+  { name: '冥想', icon: 'meditate', color: '#1ABC9C' },
+  { name: '写日记', icon: 'edit', color: '#9B59B6' },
+  { name: '学习', icon: 'book', color: '#3498DB' },
+  { name: '戒糖', icon: 'ban', color: '#E74C3C' },
+  { name: '拉伸', icon: 'sport', color: '#16A085' },
+  { name: '记账', icon: 'wallet', color: '#F39C12' },
+  { name: '打卡学习', icon: 'target', color: '#34495E' }
 ];
 
 const ICON_OPTIONS = [
-  '🌅', '🌙', '💧', '💪', '📚', '🧘', '✍️', '📖',
-  '🎯', '🏃', '🚶', '🧘‍♂️', '💻', '🎨', '🎵', '🍎',
-  '🚫', '☕', '🌱', '🏆', '💡', '⭐', '🔥', '💎'
+  'sun', 'moon', 'sport', 'book', 'meditate', 'edit',
+  'target', 'transport', 'work', 'fun', 'food',
+  'ban', 'coffee', 'plant', 'trophy', 'idea', 'star', 'fire', 'diamond'
 ];
 
-const COLOR_OPTIONS = [
-  '#4A90D9', '#2ECC71', '#F5A623', '#E74C3C', '#9B59B6',
-  '#1ABC9C', '#E67E22', '#3498DB', '#F39C12', '#16A085',
-  '#FF6B6B', '#64B5F6', '#8BC34A', '#FF8A65', '#BA68C8'
-];
+// 固定色板，不随主题切换；历史色值已全部保留
+const COLOR_OPTIONS = require('./color-palette.js').COLOR_VALUES;
 
 function getDaysBetween(dateStr1, dateStr2) {
   const d1 = new Date(dateStr1 + 'T00:00:00').getTime();

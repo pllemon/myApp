@@ -1,117 +1,126 @@
-<view class="container m-edit-page" style="{{themeStyle}}">
-  <view class="m-form-card">
-    <m-field label="封面/插图" block>
-      <view class="img-grid">
-        <view wx:for="{{images}}" wx:key="*this" class="img-item">
-          <image class="img-thumb" src="{{item}}" mode="aspectFill" data-index="{{index}}" bindtap="previewImage" />
-          <view class="img-remove" data-index="{{index}}" catchtap="removeImage">×</view>
-        </view>
-        <view wx:if="{{images.length < 9}}" class="img-add" bindtap="chooseImages">
-          <text class="img-add-icon">+</text>
-          <text class="img-add-text">添加图片</text>
-        </view>
-      </view>
-    </m-field>
+<view class="m2-page m2-edit" style="{{themeStyle}}">
+  <!-- 编辑 Hero -->
+  <view class="m2-edit-hero">
+    <view class="m2-edit-hero-icon" style="background: var(--primary-light)"><m-icon name="book" size="48" /></view>
+    <view>
+      <view class="m2-edit-title">{{isEdit ? '编辑书籍' : '添加书籍'}}</view>
+      <view class="m2-edit-desc">记录书名与阅读进度，留住每一次翻页</view>
+    </view>
+  </view>
 
-    <m-field label="书名" block>
-      <input class="m-title-input" placeholder="例如：人类简史" value="{{title}}" maxlength="60" bindinput="onTitleInput" focus="{{!isEdit}}" />
-    </m-field>
+  <view class="m2-form-card">
+    <view class="m2-form-title">封面 / 插图</view>
+    <m-image-picker images="{{images}}" bind:change="onImagesChange" />
+  </view>
 
-    <m-field label="分类" block>
-      <view class="m-chip-row">
+  <view class="m2-form-card">
+    <view class="m2-form-title">书籍信息</view>
+    <view class="m2-field">
+      <view class="m2-field-label">书名</view>
+      <input class="m2-field-value" placeholder="例如：人类简史" value="{{title}}" maxlength="60" bindinput="onTitleInput" focus="{{!isEdit}}" />
+    </view>
+    <view class="m2-field">
+      <view class="m2-field-label">分类</view>
+      <view class="m2-chip-row">
         <view
           wx:for="{{categoryOptions}}"
           wx:key="key"
-          class="chip {{category === item.key ? 'chip-active' : ''}}"
+          class="m2-chip {{category === item.key ? 'active' : ''}}"
           style="{{category === item.key ? 'color:' + item.color + ';border-color:' + item.color + ';background:' + item.soft : ''}}"
           data-key="{{item.key}}"
           bindtap="selectCategory"
         >{{item.label}}</view>
       </view>
-    </m-field>
-
-    <m-field label="阅读状态" block>
-      <view class="m-chip-row">
+    </view>
+    <view class="m2-field">
+      <view class="m2-field-label">阅读状态</view>
+      <view class="m2-chip-row">
         <view
           wx:for="{{statusOptions}}"
           wx:key="key"
-          class="chip {{status === item.key ? 'chip-active' : ''}}"
+          class="m2-chip {{status === item.key ? 'active' : ''}}"
           style="{{status === item.key ? 'color:' + item.color + ';border-color:' + item.color + ';background:' + item.soft : ''}}"
           data-key="{{item.key}}"
           bindtap="selectStatus"
         >{{item.label}}</view>
       </view>
-    </m-field>
+    </view>
+    <view class="m2-field">
+      <view class="m2-field-label">作者</view>
+      <input class="m2-field-value" placeholder="可选" value="{{author}}" maxlength="30" bindinput="onAuthorInput" />
+    </view>
+    <view class="m2-field">
+      <view class="m2-field-label">出版社</view>
+      <input class="m2-field-value" placeholder="可选" value="{{publisher}}" maxlength="30" bindinput="onPublisherInput" />
+    </view>
+  </view>
 
-    <m-field label="作者">
-      <input class="m-field-input" placeholder="可选" value="{{author}}" maxlength="30" bindinput="onAuthorInput" />
-    </m-field>
-
-    <m-field label="出版社">
-      <input class="m-field-input" placeholder="可选" value="{{publisher}}" maxlength="30" bindinput="onPublisherInput" />
-    </m-field>
-
-    <view class="m-form-row" wx:if="{{status !== 'plan'}}">
-      <view class="m-form-col">
-        <m-field label="开始日期">
-          <picker mode="date" value="{{startDate}}" bindchange="onStartDateChange">
-            <view class="m-form-picker-value {{startDate ? '' : 'date-placeholder'}}">{{startDate || '选择'}}</view>
-          </picker>
-          <view wx:if="{{startDate}}" class="date-clear-inline" catchtap="clearStartDate">×</view>
-        </m-field>
+  <view class="m2-form-card" wx:if="{{status !== 'plan'}}">
+    <view class="m2-form-title">阅读时间</view>
+    <view class="field-row">
+      <view class="m2-field">
+        <view class="m2-field-label">开始日期</view>
+        <picker mode="date" value="{{startDate}}" bindchange="onStartDateChange">
+          <view class="m2-field-value {{startDate ? '' : 'placeholder'}}">{{startDate || '选填'}}</view>
+        </picker>
+        <view wx:if="{{startDate}}" class="date-clear" catchtap="clearStartDate"><m-icon name="close" size="24" inline /> 清除</view>
       </view>
-      <view wx:if="{{status === 'finished'}}" class="m-form-col">
-        <m-field label="完成日期">
-          <picker mode="date" value="{{finishDate}}" bindchange="onFinishDateChange">
-            <view class="m-form-picker-value {{finishDate ? '' : 'date-placeholder'}}">{{finishDate || '今天'}}</view>
-          </picker>
-          <view wx:if="{{finishDate}}" class="date-clear-inline" catchtap="clearFinishDate">×</view>
-        </m-field>
+      <view wx:if="{{status === 'finished'}}" class="m2-field">
+        <view class="m2-field-label">完成日期</view>
+        <picker mode="date" value="{{finishDate}}" bindchange="onFinishDateChange">
+          <view class="m2-field-value {{finishDate ? '' : 'placeholder'}}">{{finishDate || '今天'}}</view>
+        </picker>
+        <view wx:if="{{finishDate}}" class="date-clear" catchtap="clearFinishDate"><m-icon name="close" size="24" inline /> 清除</view>
       </view>
     </view>
+  </view>
 
-    <view wx:if="{{status === 'reading'}}" class="m-form-row">
-      <m-field label="总页数" half>
-        <input class="m-field-input" type="number" placeholder="可选" value="{{totalPages}}" maxlength="5" bindinput="onTotalPagesInput" />
-      </m-field>
-      <m-field label="当前页" half>
-        <input class="m-field-input" type="number" placeholder="可选" value="{{currentPage}}" maxlength="5" bindinput="onCurrentPageInput" />
-      </m-field>
+  <view class="m2-form-card" wx:if="{{status === 'reading'}}">
+    <view class="m2-form-title">阅读进度</view>
+    <view class="field-row">
+      <view class="m2-field">
+        <view class="m2-field-label">总页数</view>
+        <input class="m2-field-value" type="number" placeholder="可选" value="{{totalPages}}" maxlength="5" bindinput="onTotalPagesInput" />
+      </view>
+      <view class="m2-field">
+        <view class="m2-field-label">当前页</view>
+        <input class="m2-field-value" type="number" placeholder="可选" value="{{currentPage}}" maxlength="5" bindinput="onCurrentPageInput" />
+      </view>
     </view>
+  </view>
 
-    <m-field wx:if="{{showProgressSlider}}" label="阅读进度 {{progress}}%" block>
-      <slider
-        min="0"
-        max="100"
-        step="5"
-        value="{{progress}}"
-        activeColor="var(--primary)"
-        bindchange="onProgressChange"
-      />
-    </m-field>
+  <view class="m2-form-card" wx:if="{{showProgressSlider}}">
+    <view class="m2-form-title">进度 · {{progress}}%</view>
+    <view class="m2-field">
+      <view class="m2-field-label">完成度</view>
+      <slider min="0" max="100" step="5" value="{{progress}}" activeColor="var(--primary)" bindchange="onProgressChange" />
+    </view>
+  </view>
 
-    <m-field wx:if="{{status === 'finished'}}" label="评分">
-      <view class="m-rating-row">
+  <view class="m2-form-card" wx:if="{{status === 'finished'}}">
+    <view class="m2-form-title">评分 · {{rating > 0 ? rating + ' / 5' : '未评分'}}</view>
+    <view class="m2-field">
+      <view class="m2-field-label">我的评分</view>
+      <view class="rating-row">
         <view
           wx:for="{{stars}}"
           wx:key="*this"
-          class="m-rating-star {{item <= rating ? 'star-on' : ''}}"
+          class="star-wrap {{item <= rating ? 'star-on' : ''}}"
           data-r="{{item}}"
           bindtap="selectRating"
-        >★</view>
-        <text class="m-rating-num" wx:if="{{rating > 0}}">{{rating}} / 5</text>
+        ><m-icon name="star" size="44" tone="system" /></view>
+        <text wx:if="{{rating > 0}}" class="rating-num">{{rating}} / 5</text>
       </view>
-    </m-field>
-
-    <m-field label="笔记/感想" block>
-      <textarea class="m-note-input" placeholder="记录你的阅读笔记（可选）" value="{{note}}" maxlength="500" bindinput="onNoteInput" auto-height />
-    </m-field>
+    </view>
   </view>
 
-  <m-save-bar
-    save-text="保存"
-    show-delete="{{isEdit}}"
-    bind:save="save"
-    bind:delete="remove"
-  />
+  <view class="m2-form-card">
+    <view class="m2-form-title">笔记 / 感想</view>
+    <textarea class="m2-field-value" placeholder="记录你的阅读笔记（可选）" value="{{note}}" maxlength="500" bindinput="onNoteInput" auto-height />
+  </view>
+
+  <view class="m2-footer">
+    <view class="m2-btn m2-btn-primary" bindtap="save">保存</view>
+    <view wx:if="{{isEdit}}" class="m2-btn m2-btn-danger" bindtap="remove">删除</view>
+  </view>
 </view>

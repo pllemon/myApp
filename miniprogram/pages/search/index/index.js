@@ -5,9 +5,16 @@ Page({
   data: {
     keyword: '',
     results: [],
+    resultGroups: [],
     showEmpty: false,
     searched: false,
     suggestions: ['工资', '咖啡', '朋友', '读书', '跑步', '生日']
+  },
+
+  observers: {
+    'results': function (results) {
+      this.setData({ resultGroups: this.groupResults(results) });
+    }
   },
 
   onLoad() {
@@ -56,5 +63,19 @@ Page({
   goItem(e) {
     const path = e.currentTarget.dataset.path;
     if (path) wx.navigateTo({ url: path });
+  },
+
+  groupResults(results) {
+    const groups = [];
+    const indexByModule = {};
+    (results || []).forEach(item => {
+      const key = item.module || '';
+      if (!Object.prototype.hasOwnProperty.call(indexByModule, key)) {
+        indexByModule[key] = groups.length;
+        groups.push({ module: key, label: item.moduleLabel || '', items: [] });
+      }
+      groups[indexByModule[key]].items.push(item);
+    });
+    return groups;
   }
 });

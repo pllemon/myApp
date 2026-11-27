@@ -1,4 +1,5 @@
 const db = require('../../../utils/db.js');
+const ui = require('../../../utils/interaction.js');
 const util = require('../../../utils/anniversary.js');
 const dateUtil = require('../../../utils/date.js');
 const theme = require('../../../utils/theme.js');
@@ -65,11 +66,12 @@ Page({
   },
 
   selectIcon(e) {
-    this.setData({ icon: e.currentTarget.dataset.icon });
+    const icon = e.detail ? e.detail.icon : e.currentTarget.dataset.icon;
+    this.setData({ icon });
   },
 
   selectColor(e) {
-    const c = e.currentTarget.dataset.color;
+    const c = e.detail.color;
     this.setData({ color: c, colorTranslucent: util.hexToRgba(c, 0.8) });
   },
 
@@ -81,31 +83,18 @@ Page({
     this.setData({ date: e.detail.value });
   },
 
-  async chooseImages() {
-    const paths = await imageUtil.chooseImages(this.data.images.length);
-    if (paths.length > 0) {
-      this.setData({ images: [...this.data.images, ...paths] });
-    }
-  },
-
-  previewImage(e) {
-    const idx = e.currentTarget.dataset.index;
-    imageUtil.preview(idx, this.data.images);
-  },
-
-  removeImage(e) {
-    const idx = e.currentTarget.dataset.index;
-    this.setData({ images: imageUtil.removeAt(this.data.images, idx) });
+  onImagesChange(e) {
+    this.setData({ images: e.detail.images });
   },
 
   async save() {
     const title = (this.data.title || '').trim();
     if (!title) {
-      wx.showToast({ title: '请输入纪念日名称', icon: 'none' });
+      ui.toast('请输入纪念日名称', 'none');
       return;
     }
     if (!this.data.date) {
-      wx.showToast({ title: '请选择日期', icon: 'none' });
+      ui.toast('请选择日期', 'none');
       return;
     }
     const record = {
@@ -125,32 +114,28 @@ Page({
       } else {
         await db.add(db.COLLECTIONS.ANNIVERSARY, record);
       }
-      wx.showToast({ title: '已保存', icon: 'success' });
+      ui.toast('已保存');
       setTimeout(() => wx.navigateBack(), 500);
     } catch (e) {
       console.error('anniversary save error:', e);
-      wx.showToast({ title: '保存失败', icon: 'none' });
+      ui.toast('保存失败', 'none');
     }
   },
 
   remove() {
     if (!this.data.isEdit) return;
-    wx.showModal({
-      title: '确认删除',
-      content: '删除后不可恢复',
-      confirmColor: '#FF4D4F',
-      success: async (res) => {
+    ui.confirmDeleteWith({ title: "确认删除", content: "删除后不可恢复" }, async (res) => {
         if (!res.confirm) return;
         try {
           const old = await db.getById(db.COLLECTIONS.ANNIVERSARY, this.data.id);
           if (old) imageUtil.cleanAllImages(old.images);
           await db.remove(db.COLLECTIONS.ANNIVERSARY, this.data.id);
-          wx.showToast({ title: '已删除', icon: 'success' });
+          ui.toast('已删除');
           setTimeout(() => wx.navigateBack(), 500);
         } catch (e) {
           console.error('anniversary remove error:', e);
         }
       }
-    });
+    );
   }
 });

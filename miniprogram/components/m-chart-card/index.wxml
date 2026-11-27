@@ -1,0 +1,19 @@
+<view class="m-chart-card {{flush ? 'is-flush' : ''}}">
+  <view wx:if="{{title || subtitle}}" class="m-chart-head">
+    <view class="m-chart-heading">
+      <text wx:if="{{title}}" class="m-chart-title">{{title}}</text>
+      <text wx:if="{{subtitle}}" class="m-chart-subtitle">{{subtitle}}</text>
+    </view>
+    <view class="m-chart-extra">
+      <slot name="extra" />
+    </view>
+  </view>
+
+  <view wx:if="{{empty}}" class="m-chart-empty">
+    <text class="m-chart-empty-icon">{{emptyIcon}}</text>
+    <text class="m-chart-empty-text">{{emptyText}}</text>
+  </view>
+  <view wx:else class="m-chart-body">
+    <slot />
+  </view>
+</view>

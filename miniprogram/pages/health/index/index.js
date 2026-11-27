@@ -1,28 +1,31 @@
+const tabState = require('../../../utils/tab-state.js');
+const ui = require('../../../utils/interaction.js');
 const db = require('../../../utils/db.js');
-const dateUtil = require('../../../utils/date.js');
 const healthUtil = require('../../../utils/health.js');
+const theme = require('../../../utils/theme.js');
 
 const TABS_ALL = [
-  { key: 'overview', label: '概览', icon: '📋' },
-  { key: 'height', label: '身高', icon: '📏' },
-  { key: 'weight', label: '体重', icon: '⚖️' },
-  { key: 'bp', label: '血压', icon: '💓' },
-  { key: 'heart_rate', label: '心率', icon: '❤️' },
-  { key: 'glucose', label: '血糖', icon: '🩸' },
-  { key: 'oxygen', label: '血氧', icon: '🫁' },
-  { key: 'temperature', label: '体温', icon: '🌡️' },
-  { key: 'water', label: '饮水', icon: '💧' },
-  { key: 'sleep', label: '睡眠', icon: '😴' },
-  { key: 'exercise', label: '运动', icon: '🏃' },
-  { key: 'uric_acid', label: '尿酸', icon: '💧' },
-  { key: 'cholesterol', label: '血脂', icon: '🧪' },
-  { key: 'diet', label: '饮食', icon: '🍽️' },
-  { key: 'medication', label: '用药', icon: '💊' },
-  { key: 'visit', label: '看诊', icon: '🏥' },
-  { key: 'period', label: '生理期', icon: '🌸' }
+  { key: 'overview', label: '概览', icon: 'note' },
+  { key: 'height', label: '身高', icon: 'ruler' },
+  { key: 'weight', label: '体重', icon: 'scale' },
+  { key: 'bp', label: '血压', icon: 'heart' },
+  { key: 'heart_rate', label: '心率', icon: 'heart' },
+  { key: 'glucose', label: '血糖', icon: 'health' },
+  { key: 'oxygen', label: '血氧', icon: 'health' },
+  { key: 'temperature', label: '体温', icon: 'temperature' },
+  { key: 'water', label: '饮水', icon: 'health' },
+  { key: 'sleep', label: '睡眠', icon: 'sleep' },
+  { key: 'exercise', label: '运动', icon: 'sport' },
+  { key: 'uric_acid', label: '尿酸', icon: 'test' },
+  { key: 'cholesterol', label: '血脂', icon: 'test' },
+  { key: 'diet', label: '饮食', icon: 'food' },
+  { key: 'medication', label: '用药', icon: 'medicine' },
+  { key: 'visit', label: '看诊', icon: 'hospital' },
+  { key: 'period', label: '生理期', icon: 'flower' }
 ];
 
 Page({
+  behaviors: [tabState.behavior],
   data: {
     profiles: [],
     activeProfileId: '',
@@ -47,6 +50,7 @@ Page({
     weights: [], weightGroups: [], weightCount: 0,
     weightFirst: null, weightLast: null, weightDiff: null,
     weightDays: 30, weightStats: null,
+    trendDelta: null,
 
     bps: [], bpGroups: [], bpCount: 0,
     bpLatest: null, bpStatus: null,
@@ -109,7 +113,7 @@ Page({
       this.setData({ profiles, activeProfileId: activeId });
       this.loadCurrent(activeId);
     } catch (err) {
-      wx.showToast({ title: '加载失败', icon: 'none' });
+      ui.toast('加载失败', 'none');
     }
   },
 
@@ -121,6 +125,7 @@ Page({
     const age = healthUtil.calcAge(profile.birthDate);
     const bmi = healthUtil.calcBMI(profile.height, profile.weight);
     const isFemale = profile.gender === 'female';
+    const targets = profile.targets || null;
 
     let tabs = TABS_ALL.slice();
     if (!isFemale) tabs = tabs.filter(t => t.key !== 'period');
@@ -177,7 +182,15 @@ Page({
       tm._reminderList = times;
     }
 
-    for (const v of visits) { v._dateLabel = dateUtil.friendlyTime(v.date); }
+    // 修复：看诊 date 是 'YYYY-MM-DD' 业务日期，friendlyTime 按毫秒时间戳算会得到 NaN
+    for (const v of visits) {
+      v._dateLabel = v.date || '';
+      v._title = v.title || '';
+      v._visitType = v.visitType || '';
+      v._department = v.department || '';
+      v._treatment = v.treatment || '';
+      v._costText = v.cost != null && v.cost !== '' ? '¥' + Number(v.cost).toFixed(2) : '';
+    }
     const visitGroups = healthUtil.groupByDate(visits, 'date');
 
     for (const p of periods) {
@@ -195,6 +208,12 @@ Page({
     }
     const weightGroups = healthUtil.groupByDate(weights.slice().reverse(), 'date');
     const weightStats = healthUtil.quickStats(weights, 'weight');
+    // 体重趋势环比：trendStats(values) 返回 { count, avg, change, trend }，change 为相对上一半周期的变化百分比
+    const weightTrend = healthUtil.trendStats && healthUtil.trendStats(weights.map(w => w.weight).filter(v => v != null && v !== ''));
+    const trendDelta = weightTrend && weightTrend.count > 0 ? {
+      text: (weightTrend.trend === 'up' ? '↑' : weightTrend.trend === 'down' ? '↓' : '·') + Math.abs(weightTrend.change) + '%',
+      color: weightTrend.trend === 'up' ? 'var(--danger)' : (weightTrend.trend === 'down' ? 'var(--success)' : 'inherit')
+    } : null;
 
     let heightFirst = null, heightLast = null, heightDiff = null;
     if (heights.length > 0) {
@@ -205,28 +224,38 @@ Page({
     const heightStats = healthUtil.calcStats(heights.map(h => h.height).filter(v => v));
 
     for (const b of bps) {
-      const st = healthUtil.judgeBP(b.systolic, b.diastolic);
+      const st = healthUtil.judgeBP(b.systolic, b.diastolic, targets);
       b._statusLabel = st.label; b._statusColor = st.color;
       if (b.pulse) {
         const pst = healthUtil.judgePulse(b.pulse);
         b._pulseLabel = pst.label; b._pulseColor = pst.color;
       }
+      b._sourceLabel = healthUtil.enumLabel(b.source, healthUtil.BP_SOURCE_OPTIONS);
+      const pos = healthUtil.enumLabel(b.bodyPosition, healthUtil.BODY_POSITION_OPTIONS);
+      const arm = healthUtil.enumLabel(b.arm, healthUtil.ARM_OPTIONS);
+      const meta = [pos, arm, b.isRepeat ? '复测' : ''].filter(Boolean).join(' · ');
+      b._measureMeta = meta;
     }
     const bpGroups = healthUtil.groupByDate(bps.slice().reverse(), 'date');
     const bpLatest = bps.length > 0 ? bps[bps.length - 1] : null;
-    const bpStatus = bpLatest ? healthUtil.judgeBP(bpLatest.systolic, bpLatest.diastolic) : null;
-    const bpStats = healthUtil.quickStats(bps, 'systolic', item => healthUtil.judgeBP(item.systolic, item.diastolic));
+    const bpStatus = bpLatest ? healthUtil.judgeBP(bpLatest.systolic, bpLatest.diastolic, targets) : null;
+    const bpStats = healthUtil.quickStats(bps, 'systolic', item => healthUtil.judgeBP(item.systolic, item.diastolic, targets));
 
+    const glucoseTargets = targets ? {
+      fastingMax: targets.glucoseFasting,
+      postprandialMax: targets.glucosePost
+    } : null;
     for (const g of glucoses) {
       const t = healthUtil.GLUCOSE_TYPES.find(x => x.value === g.type);
       g._typeLabel = t ? t.label : '';
-      const st = healthUtil.judgeGlucose(g.value, g.type);
+      g._mealLabel = healthUtil.enumLabel(g.mealType, healthUtil.MEAL_TYPE_OPTIONS);
+      const st = healthUtil.judgeGlucose(g.value, g.type, glucoseTargets);
       g._statusLabel = st.label; g._statusColor = st.color;
     }
     const glucoseGroups = healthUtil.groupByDate(glucoses.slice().reverse(), 'date');
     const glucoseLatest = glucoses.length > 0 ? glucoses[glucoses.length - 1] : null;
-    const glucoseStatus = glucoseLatest ? healthUtil.judgeGlucose(glucoseLatest.value, glucoseLatest.type) : null;
-    const glucoseStats = healthUtil.quickStats(glucoses, 'value', item => healthUtil.judgeGlucose(item.value, item.type));
+    const glucoseStatus = glucoseLatest ? healthUtil.judgeGlucose(glucoseLatest.value, glucoseLatest.type, glucoseTargets) : null;
+    const glucoseStats = healthUtil.quickStats(glucoses, 'value', item => healthUtil.judgeGlucose(item.value, item.type, glucoseTargets));
 
     for (const o of oxygens) {
       const st = healthUtil.judgeOxygen(o.oxygen, o.pulse);
@@ -237,20 +266,22 @@ Page({
     const oxygenStatus = oxygenLatest ? healthUtil.judgeOxygen(oxygenLatest.oxygen, oxygenLatest.pulse) : null;
     const oxygenStats = healthUtil.quickStats(oxygens, 'oxygen', item => healthUtil.judgeOxygen(item.oxygen, item.pulse));
 
+    const locMap = { oral: '口腔', ear: '耳温', forehead: '额温', underarm: '腋下', rectal: '直肠' };
     for (const t of temperatures) {
-      const st = healthUtil.judgeTemperature(t.temperature);
+      const st = healthUtil.judgeTemperature(t.temperature, t.location);
       t._statusLabel = st.label; t._statusColor = st.color;
-      const locMap = { oral: '口腔', ear: '耳温', forehead: '额温', underarm: '腋下', rectal: '直肠' };
       t._locLabel = locMap[t.location] || '';
     }
     const temperatureGroups = healthUtil.groupByDate(temperatures.slice().reverse(), 'date');
     const tempLatest = temperatures.length > 0 ? temperatures[temperatures.length - 1] : null;
-    const tempStatus = tempLatest ? healthUtil.judgeTemperature(tempLatest.temperature) : null;
-    const tempStats = healthUtil.quickStats(temperatures, 'temperature', item => healthUtil.judgeTemperature(item.temperature));
+    const tempStatus = tempLatest ? healthUtil.judgeTemperature(tempLatest.temperature, tempLatest.location) : null;
+    const tempStats = healthUtil.quickStats(temperatures, 'temperature', item => healthUtil.judgeTemperature(item.temperature, item.location));
 
     for (const u of uricAcids) {
       const st = healthUtil.judgeUricAcid(u.uricAcid, profile.gender);
       u._statusLabel = st.label; u._statusColor = st.color;
+      const ut = healthUtil.GLUCOSE_TYPES.find(x => x.value === (u.type || u.meal));
+      u._typeLabel = ut ? ut.label : '';
     }
     const uricGroups = healthUtil.groupByDate(uricAcids.slice().reverse(), 'date');
     const uricLatest = uricAcids.length > 0 ? uricAcids[uricAcids.length - 1] : null;
@@ -281,7 +312,7 @@ Page({
     for (const d of diets) {
       const meal = healthUtil.DIET_MEAL_TYPES.find(x => x.value === d.mealType);
       d._mealLabel = meal ? meal.label : '';
-      d._mealIcon = meal ? meal.icon : '🍽️';
+      d._mealIcon = meal ? meal.icon : 'food';
     }
     const dietGroups = healthUtil.groupByDate(diets.slice().reverse(), 'date');
     const todayKey = today;
@@ -292,21 +323,46 @@ Page({
 
     const sleepDurationValues = sleeps.map(s => parseFloat(s.duration)).filter(v => v);
     const sleepStats = healthUtil.calcStats(sleepDurationValues);
+    const exerciseDurationValues = exercises.map(e => parseFloat(e.duration)).filter(v => v);
+    const exerciseStats = healthUtil.calcStats(exerciseDurationValues);
 
     const latestPeriod = periods[0] || null;
     let cycleInfo = null, cycleStageText = '', cycleStageClass = '';
     if (isFemale && latestPeriod && latestPeriod.startDate && profile.cycleLength) {
       cycleInfo = healthUtil.calcCycleInfo(latestPeriod.startDate, profile.cycleLength);
       if (cycleInfo) {
-        if (cycleInfo.stage === 'period') { cycleStageText = '🩸 经期中'; cycleStageClass = 'period'; }
-        else if (cycleInfo.stage === 'ovulation') { cycleStageText = '🌟 排卵日'; cycleStageClass = 'ovulation'; }
-        else if (cycleInfo.stage === 'fertile') { cycleStageText = '💚 易孕期'; cycleStageClass = 'fertile'; }
-        else { cycleStageText = '💙 安全期'; cycleStageClass = 'safe'; }
+if (cycleInfo.stage === 'period') { cycleStageText = '经期中'; cycleStageClass = 'period'; }
+    else if (cycleInfo.stage === 'ovulation') { cycleStageText = '排卵日'; cycleStageClass = 'ovulation'; }
+    else if (cycleInfo.stage === 'fertile') { cycleStageText = '易孕期'; cycleStageClass = 'fertile'; }
+    else { cycleStageText = '安全期'; cycleStageClass = 'safe'; }
       }
     }
 
+    // P2 单位双制式：录入始终用公制存储，展示按档案偏好换算（不改动原始记录，避免污染编辑回显）
+    const imperial = (profile.unitSystem || 'metric') === 'imperial';
+    const units = imperial
+      ? { glucose: 'mg/dL', weight: 'lbs', height: 'in', temperature: '°C' }
+      : { glucose: 'mmol/L', weight: 'kg', height: 'cm', temperature: '°C' };
+    const conv = (v, from, to) => healthUtil.convertUnit(v, from, to);
+    const convertStats = (stats, from, to) => {
+      const out = Object.assign({}, stats);
+      ['avg', 'min', 'max'].forEach(k => { if (out[k] != null) out[k] = conv(out[k], from, to); });
+      return out;
+    };
+    const glucoseStatsView = convertStats(glucoseStats, 'mmol/L', units.glucose);
+    const weightStatsView = convertStats(weightStats, 'kg', units.weight);
+    const heightStatsView = convertStats(heightStats, 'cm', units.height);
+    const weightLastView = weightLast ? Object.assign({}, weightLast, { weight: conv(weightLast.weight, 'kg', units.weight) }) : null;
+    const glucoseLatestView = glucoseLatest ? Object.assign({}, glucoseLatest, { value: conv(glucoseLatest.value, 'mmol/L', units.glucose) }) : null;
+    const weightDiffView = weightDiff != null ? conv(Number(weightDiff), 'kg', units.weight) : null;
+    // 列表项展示值（原始记录保持公制，编辑回显不受影响）
+    weights.forEach(w => { w._displayValue = conv(w.weight, 'kg', units.weight); });
+    heights.forEach(h => { h._displayValue = conv(h.height, 'cm', units.height); });
+    glucoses.forEach(g => { g._displayValue = conv(g.value, 'mmol/L', units.glucose); });
+
     this.setData({
       current: profile,
+      units,
       genderLabel: g ? g.label : '', age,
       bmiValue: bmi ? bmi.value : '', bmiStatus: bmi ? bmi.status : '',
       isFemale, tabs, activeTab, enabledTabs: enabledTabsView,
@@ -314,12 +370,13 @@ Page({
       visits, visitGroups, visitCount: visits.length,
       periods, periodCount: periods.length,
       heights, heightGroups, heightCount: heights.length,
-      heightFirst, heightLast, heightDiff, heightStats,
+      heightFirst, heightLast, heightDiff, heightStats: heightStatsView,
       weights, weightGroups, weightCount: weights.length,
-      weightFirst, weightLast, weightDiff, weightStats,
+      weightFirst, weightLast: weightLastView, weightDiff: weightDiffView, weightStats: weightStatsView,
+      trendDelta,
       bps, bpGroups, bpCount: bps.length, bpLatest, bpStatus, bpStats,
       glucoses, glucoseGroups, glucoseCount: glucoses.length,
-      glucoseLatest, glucoseStatus, glucoseStats,
+      glucoseLatest: glucoseLatestView, glucoseStatus, glucoseStats: glucoseStatsView,
       oxygens, oxygenGroups, oxygenCount: oxygens.length,
       oxygenLatest, oxygenStatus, oxygenStats,
       temperatures, temperatureGroups, temperatureCount: temperatures.length,
@@ -333,7 +390,7 @@ Page({
       diets, dietGroups, dietCount: diets.length, dietToday, dietDaily,
       waters, waterCount: waters.length, waterToday, waterGoal: profile.waterGoal || 2000,
       sleeps, sleepCount: sleeps.length, sleepStats,
-      exercises, exerciseCount: exercises.length,
+      exercises, exerciseCount: exercises.length, exerciseStats,
       cycleInfo, cycleStageText, cycleStageClass
     });
 
@@ -347,19 +404,21 @@ Page({
 
   _drawCharts() {
     const tab = this.data.activeTab;
+    const p = theme.getChartPalette();
+    const fill = c => theme.hexToRgba(c, 0.15);
     const map = {
-      height: { id: 'heightChart', data: this.data.heights, df: 'date', vf: 'height', days: this.data.heightDays, lc: '#26A69A', fc: 'rgba(38,166,154,0.15)' },
-      weight: { id: 'weightChart', data: this.data.weights, df: 'date', vf: 'weight', days: this.data.weightDays, lc: '#E91E63', fc: 'rgba(233,30,99,0.15)' },
-      bp: { id: 'bpChart', data: this.data.bps, df: 'date', vf: i => i.systolic, days: this.data.bpDays, lc: '#E74C3C', fc: 'rgba(231,76,60,0.15)' },
-      glucose: { id: 'glucoseChart', data: this.data.glucoses, df: 'date', vf: 'value', days: this.data.glucoseDays, lc: '#F39C12', fc: 'rgba(243,156,18,0.15)' },
-      oxygen: { id: 'oxygenChart', data: this.data.oxygens, df: 'date', vf: 'oxygen', days: this.data.oxygenDays, lc: '#42A5F5', fc: 'rgba(66,165,245,0.15)' },
-      temperature: { id: 'tempChart', data: this.data.temperatures, df: 'date', vf: 'temperature', days: this.data.tempDays, lc: '#E67E22', fc: 'rgba(230,126,34,0.15)' },
-      uric_acid: { id: 'uricChart', data: this.data.uricAcids, df: 'date', vf: 'uricAcid', days: this.data.uricDays, lc: '#9B59B6', fc: 'rgba(155,89,182,0.15)' },
-      cholesterol: { id: 'cholChart', data: this.data.cholesterols, df: 'date', vf: 'total', days: this.data.cholDays, lc: '#34495E', fc: 'rgba(52,73,94,0.15)' },
-      heart_rate: { id: 'heartRateChart', data: this.data.heartRates, df: 'date', vf: 'rate', days: this.data.heartRateDays, lc: '#EF5350', fc: 'rgba(239,83,80,0.15)' },
-      diet: { id: 'dietChart', data: this.data.dietDaily, df: 'date', vf: 'value', days: this.data.dietDays, lc: '#FFA726', fc: 'rgba(255,167,38,0.15)' },
-      sleep: { id: 'sleepChart', data: this.data.sleeps, df: 'date', vf: 'duration', days: 14, lc: '#7E57C2', fc: 'rgba(126,87,194,0.15)' },
-      exercise: { id: 'exerciseChart', data: this.data.exercises, df: 'date', vf: 'duration', days: 14, lc: '#66BB6A', fc: 'rgba(102,187,106,0.15)' }
+      height: { id: 'heightChart', data: this.data.heights, df: 'date', vf: 'height', days: this.data.heightDays, lc: p.primary, fc: fill(p.primary) },
+      weight: { id: 'weightChart', data: this.data.weights, df: 'date', vf: 'weight', days: this.data.weightDays, lc: p.health, fc: fill(p.health) },
+      bp: { id: 'bpChart', data: this.data.bps, df: 'date', vf: i => i.systolic, days: this.data.bpDays, lc: p.danger, fc: fill(p.danger) },
+      glucose: { id: 'glucoseChart', data: this.data.glucoses, df: 'date', vf: 'value', days: this.data.glucoseDays, lc: p.warning, fc: fill(p.warning) },
+      oxygen: { id: 'oxygenChart', data: this.data.oxygens, df: 'date', vf: 'oxygen', days: this.data.oxygenDays, lc: p.series[4], fc: fill(p.series[4]) },
+      temperature: { id: 'tempChart', data: this.data.temperatures, df: 'date', vf: 'temperature', days: this.data.tempDays, lc: p.warningDark, fc: fill(p.warningDark) },
+      uric_acid: { id: 'uricChart', data: this.data.uricAcids, df: 'date', vf: 'uricAcid', days: this.data.uricDays, lc: p.series[3], fc: fill(p.series[3]) },
+      cholesterol: { id: 'cholChart', data: this.data.cholesterols, df: 'date', vf: 'total', days: this.data.cholDays, lc: p.primaryDark, fc: fill(p.primaryDark) },
+      heart_rate: { id: 'heartRateChart', data: this.data.heartRates, df: 'date', vf: 'rate', days: this.data.heartRateDays, lc: p.danger, fc: fill(p.danger) },
+      diet: { id: 'dietChart', data: this.data.dietDaily, df: 'date', vf: 'value', days: this.data.dietDays, lc: p.warning, fc: fill(p.warning) },
+      sleep: { id: 'sleepChart', data: this.data.sleeps, df: 'date', vf: 'duration', days: 14, lc: p.series[3], fc: fill(p.series[3]) },
+      exercise: { id: 'exerciseChart', data: this.data.exercises, df: 'date', vf: 'duration', days: 14, lc: p.success, fc: fill(p.success) }
     };
     if (map[tab]) {
       const m = map[tab];
@@ -404,7 +463,7 @@ Page({
   goProfileDetail() {
     const id = this.data.activeProfileId;
     if (!id) {
-      wx.showToast({ title: '请先选择健康档案', icon: 'none' });
+      ui.toast('请先选择健康档案', 'none');
       return;
     }
     wx.navigateTo({ url: `/pages/health/profile/detail?id=${id}` });
@@ -455,6 +514,30 @@ Page({
   goExercise() { wx.navigateTo({ url: `/pages/health/exercise/index?profileId=${this.data.activeProfileId}` }); },
 
   addWater() { wx.navigateTo({ url: `/pages/health/water/edit?profileId=${this.data.activeProfileId}` }); },
+
+  // 概览饮水卡快捷加入：按 water/edit.js 的记录结构写入今日 250ml，并刷新概览
+  async quickAddWater() {
+    const profileId = this.data.activeProfileId;
+    if (!profileId) { ui.toast('请先选择健康档案', 'none'); return; }
+    const d = new Date();
+    const date = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+    const time = String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');
+    try {
+      await db.add(db.COLLECTIONS.HEALTH_WATER, {
+        profileId,
+        date,
+        time,
+        amount: 250,
+        notes: '',
+        note: '',
+        updatedAt: Date.now()
+      });
+      ui.toast('已快捷加入 250ml');
+      this.loadCurrent(profileId);
+    } catch (err) {
+      ui.toast('加入失败', 'none');
+    }
+  },
   addSleep() { wx.navigateTo({ url: `/pages/health/sleep/edit?profileId=${this.data.activeProfileId}` }); },
   addExercise() { wx.navigateTo({ url: `/pages/health/exercise/edit?profileId=${this.data.activeProfileId}` }); },
 
@@ -471,20 +554,16 @@ Page({
   async deletePeriod(e) { await this._deleteHelper('生理期记录', db.COLLECTIONS.HEALTH_PERIOD, e.currentTarget.dataset.id); },
 
   async _deleteHelper(title, coll, id) {
-    const res = await wx.showModal({ title, content: '确认删除？', confirmColor: '#E74C3C' });
+    const res = await ui.confirmDeleteLegacy()
     if (!res.confirm) return;
     await db.remove(coll, id);
-    wx.showToast({ title: '已删除', icon: 'success' });
+    ui.toast('已删除');
     this.loadCurrent(this.data.activeProfileId);
   },
 
   async deleteProfile(e) {
     const { id, name } = e.currentTarget.dataset;
-    const res = await wx.showModal({
-      title: '删除档案',
-      content: `确定删除「${name}」的健康档案吗？所有关联记录也会一并删除。`,
-      confirmColor: '#E74C3C'
-    });
+    const res = await ui.confirmDeleteLegacy({ title: '删除档案', content: `确定删除「${name}」的健康档案吗？所有关联记录也会一并删除。` })
     if (!res.confirm) return;
 
     await db.remove(db.COLLECTIONS.HEALTH_PROFILE, id);
@@ -504,7 +583,7 @@ Page({
       )
     );
     await Promise.all(promises);
-    wx.showToast({ title: '已删除', icon: 'success' });
+    ui.toast('已删除');
     this.setData({ activeProfileId: '' });
     this.loadAll();
   },

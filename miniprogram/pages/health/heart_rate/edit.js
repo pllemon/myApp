@@ -13,7 +13,8 @@ Page({
     sceneLabel: '静息',
     sceneOptions: healthUtil.HEART_RATE_SCENES,
     notes: '',
-    preview: null
+    preview: null,
+    disclaimer: healthUtil.MEDICAL_DISCLAIMER
   },
 
   sceneLabelOf(scene) {
@@ -96,6 +97,8 @@ Page({
       wx.showToast({ title: '请输入心率', icon: 'none' });
       return;
     }
+    const err = healthUtil.validateFields([{ field: 'heartRate', value: rate, required: true }]);
+    if (err) { wx.showToast({ title: err.message, icon: 'none' }); return; }
 
     wx.showLoading({ title: '保存中', mask: true });
     try {
@@ -105,7 +108,9 @@ Page({
         time,
         rate: parseFloat(rate),
         scene,
-        notes: notes.trim()
+        notes: notes.trim(),
+        judgeVersion: healthUtil.JUDGE_VERSION,
+        updatedAt: Date.now()
       };
 
       if (isEdit) {

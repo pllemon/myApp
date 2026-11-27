@@ -5,16 +5,27 @@ Component({
     currentValue: { type: null, value: '' },
     activeBy: { type: String, value: 'value' },
     multiple: { type: Boolean, value: false },
+    // 仅对单选生效；多选需保持展开以连续勾选
     closeOnSelect: { type: Boolean, value: true }
   },
   data: {
     show: false,
-    _activeFlags: []
+    _activeFlags: [],
+    _items: []
   },
   observers: {
     'options, currentValue, multiple, activeBy': function() {
       const { options, currentValue, multiple, activeBy } = this.data;
-      const flags = (options || []).map((opt, i) => {
+      const list = options || [];
+      // options 既有字符串数组也有 {value,label} 对象数组，先归一化再渲染
+      const items = list.map((opt, i) => ({
+        key: 'opt_' + i,
+        label: typeof opt === 'object' && opt !== null
+          ? (opt.label != null ? opt.label : opt.value)
+          : opt,
+        index: i
+      }));
+      const flags = list.map((opt, i) => {
         if (multiple) {
           if (!Array.isArray(currentValue)) return false;
           const v = typeof opt === 'object' && opt !== null ? opt.value : opt;
@@ -24,7 +35,7 @@ Component({
         const v = typeof opt === 'object' && opt !== null ? opt.value : opt;
         return v === currentValue;
       });
-      this.setData({ _activeFlags: flags });
+      this.setData({ _items: items, _activeFlags: flags });
     }
   },
   methods: {

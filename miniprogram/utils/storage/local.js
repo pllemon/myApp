@@ -1,4 +1,22 @@
 const user = require('../user.js');
+const dateUtil = require('../date.js');
+
+// 排序取值：bizDate 统一走业务日期兜底（旧记录没有该字段时按 date/createdAt 回退）
+function sortValue(item, key) {
+  if (key === 'bizDate') return dateUtil.bizDateOf(item) || '';
+  return item[key];
+}
+
+function compareItems(a, b, sortBy) {
+  const av = sortValue(a, sortBy.key);
+  const bv = sortValue(b, sortBy.key);
+  if (typeof av === 'string' || typeof bv === 'string') {
+    return sortBy.order === 'desc'
+      ? String(bv || '').localeCompare(String(av || ''))
+      : String(av || '').localeCompare(String(bv || ''));
+  }
+  return sortBy.order === 'desc' ? (bv || 0) - (av || 0) : (av || 0) - (bv || 0);
+}
 
 function genId() {
   return 'id_' + Date.now().toString(36) + '_' + Math.random().toString(36).substr(2, 6);
@@ -52,27 +70,13 @@ function applyFilter(items, filter) {
 
 function list(key, sortBy) {
   let result = applyFilter(getCollection(key), null);
-  if (sortBy) {
-    result.sort((a, b) => {
-      if (sortBy.order === 'desc') {
-        return b[sortBy.key] - a[sortBy.key];
-      }
-      return a[sortBy.key] - b[sortBy.key];
-    });
-  }
+  if (sortBy) result.sort((a, b) => compareItems(a, b, sortBy));
   return Promise.resolve(result);
 }
 
 function query(key, filter, sortBy) {
   let result = applyFilter(getCollection(key), filter);
-  if (sortBy) {
-    result.sort((a, b) => {
-      if (sortBy.order === 'desc') {
-        return b[sortBy.key] - a[sortBy.key];
-      }
-      return a[sortBy.key] - b[sortBy.key];
-    });
-  }
+  if (sortBy) result.sort((a, b) => compareItems(a, b, sortBy));
   return Promise.resolve(result);
 }
 

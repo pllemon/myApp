@@ -1,34 +1,54 @@
-<view class="container m-edit-page">
-  <view class="m-form-card">
-    <view class="m-form-title">⚖️ 体重记录</view>
+<view class="m2-page m2-edit" style="{{themeStyle}}">
+  <view class="m2-edit-hero">
+    <view class="m2-edit-hero-icon" style="background: var(--primary-light)"><m-icon tone="health" healthKey="体重" size="44" /></view>
+    <view>
+      <view class="m2-edit-title">{{isEdit ? '编辑体重' : '新增体重'}}</view>
+      <view class="m2-edit-desc">记录体重与体脂，关注身体变化</view>
+    </view>
+  </view>
 
-    <m-field label="日期">
-      <picker mode="date" value="{{date}}" bindchange="onDateChange">
-        <view class="m-form-picker-value">{{date}}</view>
-      </picker>
-    </m-field>
-
-    <m-field label="体重 (kg)">
-      <input class="m-form-input" type="digit" value="{{weight}}" placeholder="例如 65.5" bindinput="onWeightInput" />
-    </m-field>
-
-    <m-field label="体脂率 (%)">
-      <input class="m-form-input" type="digit" value="{{bodyFat}}" placeholder="选填" bindinput="onBodyFatInput" />
-    </m-field>
-
-    <m-field wx:if="{{bmiPreview}}" label="BMI 预览">
-      <view class="m-form-picker-value">
-        <m-status-badge text="{{bmiPreview.label}}" color="{{bmiPreview.color}}" />
+  <view class="m2-form-card">
+    <view class="m2-form-title">体重数据</view>
+    <view class="m2-field-row">
+      <view class="m2-field half">
+        <view class="m2-field-label">日期</view>
+        <picker mode="date" value="{{date}}" bindchange="onDateChange">
+          <view class="m2-field-value">{{date}}</view>
+        </picker>
+        <view class="m2-field-arrow">›</view>
       </view>
-    </m-field>
+      <view class="m2-field half">
+        <view class="m2-field-label">时间</view>
+        <picker mode="time" value="{{time}}" bindchange="onTimeChange">
+          <view class="m2-field-value">{{time}}</view>
+        </picker>
+        <view class="m2-field-arrow">›</view>
+      </view>
+    </view>
+    <view class="m2-field">
+      <view class="m2-field-label">体重 (kg)</view>
+      <input class="m2-field-value" type="digit" value="{{weight}}" placeholder="例如 65.5，范围 20-300" bindinput="onWeightInput" />
+    </view>
+    <view class="m2-field">
+      <view class="m2-field-label">体脂率 (%)</view>
+      <input class="m2-field-value" type="digit" value="{{bodyFat}}" placeholder="选填，3-70" bindinput="onFatInput" />
+    </view>
+    <view class="m2-field" wx:if="{{bmiPreview}}">
+      <view class="m2-field-label">BMI (按档案身高)</view>
+      <view class="m2-field-value">{{bmiPreview.value}} · {{bmiPreview.status}}</view>
+    </view>
   </view>
 
-  <view class="m-form-card">
-    <view class="m-form-title">📝 备注</view>
-    <m-field block>
-      <textarea class="m-form-textarea" placeholder="选填" value="{{notes}}" bindinput="onNotesInput" auto-height maxlength="200" />
-    </m-field>
+  <view class="m2-form-card">
+    <view class="m2-form-title">备注</view>
+    <view class="m2-field textarea-field">
+      <view class="m2-field-label">备注</view>
+      <textarea class="m2-field-value" placeholder="选填" value="{{notes}}" bindinput="onNotesInput" auto-height maxlength="200" />
+    </view>
+    <view class="m-disclaimer">{{disclaimer}}</view>
   </view>
 
-  <m-save-bar save-text="{{isEdit ? '保存修改' : '保存记录'}}" bind:save="save" />
+  <view class="m2-footer">
+    <view class="m2-btn m2-btn-primary" bindtap="save">保存</view>
+  </view>
 </view>

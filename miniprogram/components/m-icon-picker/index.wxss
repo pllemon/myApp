@@ -1,0 +1,27 @@
+.m-icon-grid {
+  display: grid;
+  gap: var(--space-xs);
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.m-icon-cell {
+  height: 88rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 44rpx;
+  background: var(--surface-2);
+  border: 2rpx solid transparent;
+  border-radius: var(--radius-sm);
+  transition: background var(--duration-fast) var(--ease);
+}
+
+.m-icon-cell:active {
+  background: var(--surface-3);
+}
+
+.m-icon-cell.active {
+  background: var(--primary-light);
+  border-color: var(--primary);
+}

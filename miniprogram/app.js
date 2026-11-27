@@ -5,6 +5,25 @@ try { theme = require('./utils/theme.js'); } catch (e) { console.error('theme.js
 
 const config = require('./utils/config.js');
 
+// 全局主题注入：所有页面 onLoad/onShow 自动承接 themeStyle，
+// 避免逐页手写 style 绑定（64 个页面）。
+const nativePage = Page;
+Page = function (options) {
+  const origLoad = options.onLoad;
+  const origShow = options.onShow;
+
+  options.onLoad = function () {
+    if (theme && theme.applyToPage) theme.applyToPage(this);
+    if (origLoad) return origLoad.apply(this, arguments);
+  };
+  options.onShow = function () {
+    if (theme && theme.applyToPage) theme.applyToPage(this);
+    if (origShow) return origShow.apply(this, arguments);
+  };
+
+  return nativePage(options);
+};
+
 function initCloud() {
   if (!wx.cloud) {
     console.error('请使用 2.2.3 或以上的基础库以使用云能力');

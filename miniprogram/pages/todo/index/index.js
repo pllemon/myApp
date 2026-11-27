@@ -1,3 +1,5 @@
+const tabState = require('../../../utils/tab-state.js');
+const ui = require('../../../utils/interaction.js');
 const dateUtil = require('../../../utils/date.js');
 const todoUtil = require('../../../utils/todo.js');
 const db = require('../../../utils/db.js');
@@ -10,6 +12,8 @@ const FILTERS = [
 ];
 
 Page({
+  behaviors: [tabState.behavior],
+  noop() {},
   data: {
     filters: FILTERS,
     activeFilter: 'all',
@@ -23,7 +27,9 @@ Page({
     todayDone: 0,
     todayTotal: 0,
     showEmpty: false,
-    editingSubtask: null
+    editingSubtask: null,
+    showListManager: false,
+    newListName: ''
   },
 
   onLoad() {},
@@ -65,11 +71,17 @@ Page({
       all.forEach(t => (t.tags || []).forEach(tg => tagSet.add(tg)));
       const availableTags = Array.from(tagSet).sort();
 
+      // 清单计数：供管理弹层展示"该清单下有多少待办"
+      const listCounts = {};
+      all.forEach(t => { if (t.listId) listCounts[t.listId] = (listCounts[t.listId] || 0) + 1; });
+      const listsWithCount = this.data.lists.map(l => ({ ...l, todoCount: listCounts[l._id] || 0 }));
+
       const decorated = filtered.map(t => this.decorate(t, today));
       decorated.sort(this.sortTasks);
 
       this.setData({
         list: decorated,
+        lists: listsWithCount,
         todayDone: all.filter(t => t.completed && t.dueDate === today).length,
         todayTotal: all.filter(t => t.dueDate === today).length,
         availableTags,
@@ -110,6 +122,7 @@ Page({
       soon,
       dueLabel,
       dueClass,
+      repeatLabel: todoUtil.REPEAT_LABELS[t.repeat] || '',
       listName,
       subtaskDone: sp.done,
       subtaskTotal: sp.total,
@@ -147,7 +160,10 @@ Page({
     const todo = this.data.list.find(t => t._id === id);
     if (!todo) return;
     try {
-      await todoUtil.toggleComplete(todo);
+      const patch = await todoUtil.toggleComplete(todo);
+      if (patch && patch.cycleCount && patch.dueDate) {
+        ui.toast('下次：' + patch.dueDate.slice(5), 'none');
+      }
       this.loadList();
     } catch (err) {
       console.error('toggleComplete error:', err);
@@ -174,9 +190,9 @@ Page({
     }
   },
 
-  goEdit(e) {
+  goDetail(e) {
     const { id } = e.currentTarget.dataset;
-    wx.navigateTo({ url: '/pages/todo/edit/index?id=' + (id || '') });
+    wx.navigateTo({ url: '/pages/todo/detail/index?id=' + (id || '') });
   },
 
   goNew() {
@@ -185,6 +201,97 @@ Page({
 
   goPomodoro() {
     wx.navigateTo({ url: '/pages/todo/pomodoro/index' });
+  },
+
+  /* ===== 清单管理（新增 / 重命名 / 删除） ===== */
+
+  toggleListManager() {
+    this.setData({ showListManager: !this.data.showListManager, newListName: '' });
+  },
+
+  onNewListInput(e) {
+    this.setData({ newListName: e.detail.value });
+  },
+
+  async addList() {
+    const name = (this.data.newListName || '').trim();
+    if (!name) {
+      ui.toast('请输入清单名称', 'none');
+      return;
+    }
+    if (this.data.lists.some(l => l.name === name)) {
+      ui.toast('清单名称已存在', 'none');
+      return;
+    }
+    const idx = this.data.lists.length;
+    try {
+      await todoUtil.saveList({
+        name,
+        icon: todoUtil.LIST_ICONS[idx % todoUtil.LIST_ICONS.length],
+        color: todoUtil.LIST_COLORS[idx % todoUtil.LIST_COLORS.length]
+      });
+      this.setData({ newListName: '' });
+      await this.loadLists();
+      ui.toast('清单已创建');
+    } catch (e) {
+      console.error('addList error:', e);
+      ui.toast('创建失败', 'none');
+    }
+  },
+
+  async renameList(e) {
+    const { id, name } = e.currentTarget.dataset;
+    const newName = await ui.promptInput({
+      title: '重命名清单',
+      value: name,
+      placeholder: '请输入新名称',
+      required: true,
+      emptyTip: '名称不能为空'
+    });
+    if (newName === null) return;
+    if (this.data.lists.some(l => l.name === newName && l._id !== id)) {
+      ui.toast('清单名称已存在', 'none');
+      return;
+    }
+    try {
+      await todoUtil.saveList({ _id: id, name: newName });
+      const patch = {};
+      if (this.data.listFilterId === id) patch.listFilterName = newName;
+      this.setData(patch);
+      await this.loadLists();
+      ui.toast('已重命名');
+    } catch (err) {
+      console.error('renameList error:', err);
+      ui.toast('重命名失败', 'none');
+    }
+  },
+
+  deleteList(e) {
+    const { id, name } = e.currentTarget.dataset;
+    const list = this.data.lists.find(l => l._id === id);
+    if (list && list.builtin) {
+      ui.toast('内置清单不可删除', 'none');
+      return;
+    }
+    const count = list ? (list.todoCount || 0) : 0;
+    ui.confirmDeleteWith({ title: '删除清单', content: count > 0 ? `删除「${name}」会一并删除其中 ${count} 个待办，且无法恢复。` : `确定删除清单「${name}」吗？` }, async res => {
+        if (!res.confirm) return;
+        try {
+          await todoUtil.removeList(id);
+          const patch = {};
+          if (this.data.listFilterId === id) {
+            patch.listFilterId = '';
+            patch.listFilterName = '全部';
+          }
+          this.setData(patch);
+          await this.loadLists();
+          ui.toast('清单已删除');
+        } catch (err) {
+          console.error('deleteList error:', err);
+          ui.toast('删除失败', 'none');
+        }
+      }
+    );
   },
 
   toggleTagFilter(e) {

@@ -1,4 +1,7 @@
 const db = require('../../../utils/db.js');
+const dateUtil = require('../../../utils/date.js');
+
+const countKey = () => '__pomodoro_count_' + dateUtil.today();
 
 const MODES = [
   { key: 'work', label: '专注', seconds: 25 * 60, color: '#FF6B6B' },
@@ -30,10 +33,13 @@ Page({
   onLoad(options) {
     const mode = this.getMode();
     this._baseRemaining = mode.seconds;
+    let completedCount = 0;
+    try { completedCount = wx.getStorageSync(countKey()) || 0; } catch (e) {}
     this.setData({
       ringColor: mode.color,
       totalSeconds: mode.seconds,
-      display: formatTime(mode.seconds)
+      display: formatTime(mode.seconds),
+      completedCount
     });
     if (options && options.id) {
       this.loadTodo(options.id);
@@ -112,11 +118,12 @@ Page({
     clearInterval(this._timer);
     this._timer = null;
     const count = this.data.completedCount + 1;
+    try { wx.setStorageSync(countKey(), count); } catch (e) {}
     this.setData({ status: 'finished', completedCount: count });
     try { wx.vibrateShort({ type: 'medium' }); } catch (e) {}
     if (this.data.hasTodo && this.data.mode === 'work') {
       wx.showModal({
-        title: '🎉 番茄完成',
+        title: '番茄完成',
         content: '是否将该待办标记为已完成？',
         confirmText: '标记完成',
         cancelText: '继续',
@@ -131,7 +138,7 @@ Page({
         }
       });
     } else {
-      wx.showToast({ title: '🎉 完成一个番茄', icon: 'none' });
+      wx.showToast({ title: '完成一个番茄', icon: 'none' });
     }
   },
 

@@ -1,0 +1,62 @@
+<view class="m2-page" style="{{themeStyle}}">
+  <!-- 月份切换 -->
+  <view class="m2-card month-nav">
+    <view class="mn-btn" bindtap="prevMonth">‹</view>
+    <view class="mn-title">{{monthLabel}} · {{bookName}}</view>
+    <view class="mn-btn" bindtap="nextMonth">›</view>
+  </view>
+
+  <!-- 总预算 -->
+  <view class="m2-form-card">
+    <view class="m2-form-title">本月总预算</view>
+    <view class="total-input-row">
+      <text class="m2-amount-unit">¥</text>
+      <input
+        class="m2-amount amount-input"
+        type="digit"
+        placeholder="留空表示不设总预算"
+        value="{{totalLimit}}"
+        bindinput="onTotalInput"
+      />
+    </view>
+    <view class="budget-progress" wx:if="{{totalLimit}}">
+      <view class="m2-row-between bp-meta">
+        <text>已支出 ¥{{totalSpent}}</text>
+        <text class="{{totalExceeded ? 'm-text-danger' : totalWarning ? 'm-text-warning' : 'm-text-primary'}}">{{totalPercent}}%</text>
+      </view>
+      <view class="m-progress-bar bp-track">
+        <view class="m-progress-fill {{totalExceeded ? 'fill-danger' : totalWarning ? 'fill-warning' : 'fill-primary'}}" style="width: {{totalFill}}%;"></view>
+      </view>
+      <view class="bp-hint danger" wx:if="{{totalExceeded}}">已超出总预算 ¥{{totalExceedAmount}}</view>
+      <view class="bp-hint" wx:elif="{{totalWarning}}">已使用超过 80%，注意控制支出</view>
+    </view>
+  </view>
+
+  <!-- 分类预算 -->
+  <view class="m2-form-card">
+    <view class="m2-form-title">分类预算</view>
+    <view class="m2-row-sub cat-tip">按一级分类设置，留空表示不限制</view>
+    <view class="m2-row cat-row" wx:for="{{categories}}" wx:key="_id">
+      <view class="m2-row-icon cat-icon"><m-icon value="{{item.icon}}" flatKey="{{item.name}}" size="36" tone="flat" /></view>
+      <view class="m2-row-body cat-info">
+        <view class="m2-row-title">{{item.name}}</view>
+        <view class="m2-row-sub">已花 ¥{{item.spent}}</view>
+      </view>
+      <input
+        class="cat-input"
+        type="digit"
+        placeholder="不限"
+        value="{{item.limit}}"
+        data-index="{{index}}"
+        bindinput="onCatInput"
+      />
+      <text class="cat-unit">元</text>
+    </view>
+  </view>
+
+  <!-- 底部操作 -->
+  <view class="m2-footer">
+    <view class="m2-btn m2-btn-primary" bindtap="save">保存</view>
+    <view wx:if="{{hasAny}}" class="m2-btn m2-btn-danger" bindtap="clearAll">清空</view>
+  </view>
+</view>

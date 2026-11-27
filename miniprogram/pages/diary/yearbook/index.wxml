@@ -1,0 +1,102 @@
+<view class="m2-page" style="{{themeStyle}}">
+  <view wx:if="{{loading}}" class="m2-wrap skeleton-wrap">
+    <view class="m2-skeleton sk-hero"></view>
+    <view class="m2-skeleton sk-card"></view>
+    <view class="m2-skeleton sk-card"></view>
+  </view>
+
+  <block wx:else>
+    <view class="year-nav">
+      <view class="year-nav-btn" bindtap="prevYear"><m-icon name="chevronRight" size="40" class="cal-prev" /></view>
+      <view class="year-nav-title">{{year}} 年的回忆</view>
+      <view class="year-nav-btn" bindtap="nextYear"><m-icon name="chevronRight" size="40" /></view>
+    </view>
+
+    <m-empty
+      wx:if="{{!loading && total === 0}}"
+      title="这一年还没有日记"
+      desc="换一年看看，或回到列表写一篇"
+    />
+
+    <block wx:if="{{total > 0}}">
+      <view class="m2-hero">
+        <view class="m2-hero-head">
+          <view>
+            <view class="m2-hero-title">年度回忆</view>
+            <view class="m2-hero-sub">{{year}} 年的记录</view>
+          </view>
+        </view>
+        <view class="m2-hero-value">{{total}}<text class="m2-hero-unit">篇</text></view>
+        <view class="m2-hero-note">这一年的记录</view>
+        <view class="m2-hero-stats">
+          <view class="m2-hero-stat">
+            <view class="m2-hero-stat-value">{{wordCount}}</view>
+            <view class="m2-hero-stat-label">总字数</view>
+          </view>
+          <view class="m2-hero-stat">
+            <view class="m2-hero-stat-value">{{activeDays}}</view>
+            <view class="m2-hero-stat-label">记录天数</view>
+          </view>
+          <view class="m2-hero-stat">
+            <view class="m2-hero-stat-value">{{maxStreak}}</view>
+            <view class="m2-hero-stat-label">最长连续</view>
+          </view>
+        </view>
+      </view>
+
+      <view class="m2-card">
+        <view class="m2-card-head">
+          <view class="m2-card-title">月度分布</view>
+          <view class="m2-card-action">共 {{total}} 篇</view>
+        </view>
+        <view class="month-bar-chart">
+          <view wx:for="{{monthly}}" wx:key="month" class="mbc-col">
+            <view class="mbc-bar-wrap">
+              <view class="mbc-bar" style="height: {{item.height}}%;"></view>
+            </view>
+            <text class="mbc-label">{{item.month}}</text>
+          </view>
+        </view>
+      </view>
+
+      <view class="m2-card" wx:if="{{moods.length > 0}}">
+        <view class="m2-card-head"><view class="m2-card-title">心情分布</view></view>
+        <view class="m2-chip-row">
+          <view wx:for="{{moods}}" wx:key="emoji" class="m2-chip">
+            <m-icon value="{{item.emoji}}" size="28" tone="category" inline />
+            <text class="sc-label">{{item.label}}</text>
+            <text class="sc-count">{{item.count}}</text>
+          </view>
+        </view>
+      </view>
+
+      <view class="m2-card" wx:if="{{topTags.length > 0}}">
+        <view class="m2-card-head"><view class="m2-card-title">高频标签</view></view>
+        <view class="m2-chip-row">
+          <view wx:for="{{topTags}}" wx:key="name" class="m2-chip">
+            <text class="sc-label">#{{item.name}}</text>
+            <text class="sc-count">{{item.count}}</text>
+          </view>
+        </view>
+      </view>
+
+      <view class="m2-card">
+        <view class="m2-card-head"><view class="m2-card-title">每月精选</view></view>
+        <view
+          wx:for="{{highlights}}"
+          wx:key="_id"
+          class="m2-row highlight-row"
+          data-id="{{item._id}}"
+          bindtap="goDetail"
+        >
+          <view class="m2-row-icon hl-month">{{item.month}}月</view>
+          <view class="m2-row-body">
+            <view class="m2-row-title">{{item.title || '无标题'}} <text class="hl-date">{{item.date}}</text></view>
+            <view class="m2-row-sub">{{item._summary}}</view>
+          </view>
+          <view class="m2-row-arrow"><m-icon name="chevronRight" size="28" inline /></view>
+        </view>
+      </view>
+    </block>
+  </block>
+</view>

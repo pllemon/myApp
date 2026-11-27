@@ -1,0 +1,37 @@
+.m-color-picker {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16rpx;
+}
+
+.m-color-cell {
+  width: 56rpx;
+  height: 56rpx;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 4rpx solid transparent;
+  box-sizing: border-box;
+  /* 固定细边，浅色块在白底上也能看清；与主题无关 */
+  box-shadow: 0 0 0 1rpx rgba(0, 0, 0, 0.08);
+  transition: transform var(--duration-fast) var(--ease);
+}
+
+/* 选中态固定为「白内环 + 深灰外环」，九套主题下表现一致 */
+.m-color-cell.is-active {
+  border-color: #FFFFFF;
+  box-shadow: 0 0 0 3rpx #2F2F2F;
+  transform: scale(1.06);
+}
+
+.m-color-check {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.m-color-picker.is-lg .m-color-cell {
+  width: 72rpx;
+  height: 72rpx;
+}

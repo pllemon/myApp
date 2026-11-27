@@ -1,22 +1,16 @@
 const db = require('./db.js');
 
-const BOOK_ICONS = ['💰','💳','🏦','💼','🏠','🚗','🎒','👨‍👩‍👧','🐱','🐶','🎮','📚','✈️','🎁','🛒'];
+// 账本图标候选：直接用 FLAT 字典中文名（选择器 tone=flat 命中即彩色），
+// 去掉了旧的空串、零宽连接符、变体符与语义重复项（wallet/card 同为银行卡、pets 重复）。
+const BOOK_ICONS = ['银行卡', '工资', '房租', '网购', '旅游', '宠物', '游戏', '书店', '送礼', '电影', '健身', '咖啡', '鲜花', '理财', '手机'];
 
-const BOOK_COLORS = [
-  { label: '天蓝', value: '#4A90D9' },
-  { label: '橙色', value: '#F5A623' },
-  { label: '翠绿', value: '#27AE60' },
-  { label: '玫红', value: '#E74C3C' },
-  { label: '紫色', value: '#8E44AD' },
-  { label: '青色', value: '#1ABC9C' },
-  { label: '深灰', value: '#34495E' },
-  { label: '粉色', value: '#FF6B81' }
-];
+// 固定色板，不随主题切换；历史色值已全部保留并补充中文名
+const BOOK_COLORS = require('./color-palette.js').COLOR_OPTIONS;
 
 const STORAGE_KEY_CURRENT_BOOK = 'current_book_id';
 const DEFAULT_BOOK = {
   name: '默认账本',
-  icon: '💰',
+  icon: 'wallet',
   color: '#4A90D9',
   initialBalance: 0,
   note: ''
@@ -117,16 +111,20 @@ async function deleteBook(id) {
     setCurrentBookId(remain[0]._id);
   }
 
-  const allColls = [
-    db.COLLECTIONS.ACCOUNTING,
-    db.COLLECTIONS.ACCOUNTING_CATEGORY
-  ];
-  for (const coll of allColls) {
-    const list = await db.query(coll, { bookId: id });
-    for (const item of list) {
-      await db.remove(coll, item._id);
-    }
+  const statsCache = require('./stats-cache.js');
+  const records = await db.query(db.COLLECTIONS.ACCOUNTING, { bookId: id });
+  for (const item of records) {
+    await db.remove(db.COLLECTIONS.ACCOUNTING, item._id);
+    statsCache.removeRecord(item);
   }
+
+  // 分类实际存放在 wx storage 的 __accounting_categories_<bookId>，
+  // 旧代码清的是恒为空的 ACCOUNTING_CATEGORY 集合，导致删账本后分类残留。
+  const categoryUtil = require('./category.js');
+  categoryUtil.removeCategories(id);
+
+  const budgetUtil = require('./budget.js');
+  await budgetUtil.removeBookBudgets(id);
 }
 
 function invalidate() {

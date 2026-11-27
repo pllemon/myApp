@@ -1,0 +1,18 @@
+<view class="m-day-group {{dense ? 'is-dense' : ''}} {{variant === 'subtle' ? 'is-subtle' : ''}} {{sticky ? 'is-sticky' : ''}} {{bare ? 'is-bare' : ''}}">
+  <view class="m-day-header">
+    <view class="m-day-heading">
+      <view wx:if="{{dot}}" class="m-day-dot"></view>
+      <text class="m-day-label">{{label}}</text>
+      <text wx:if="{{weekday}}" class="m-day-weekday">{{weekday}}</text>
+    </view>
+    <view class="m-day-meta">
+      <text wx:if="{{count > 0}}" class="m-day-count">{{count}} 条</text>
+      <text wx:if="{{expense > 0}}" class="m-day-expense">-¥{{_expenseText}}</text>
+      <text wx:if="{{expense > 0 && income > 0}}" class="m-day-sep"> / </text>
+      <text wx:if="{{income > 0}}" class="m-day-income">+¥{{_incomeText}}</text>
+    </view>
+  </view>
+  <view class="m-day-content">
+    <slot />
+  </view>
+</view>

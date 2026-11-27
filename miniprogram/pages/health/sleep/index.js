@@ -1,7 +1,9 @@
 const db = require('../../../utils/db.js');
+const ui = require('../../../utils/interaction.js');
 const healthUtil = require('../../../utils/health.js');
 
-const QUALITY_LABELS = ['', '😫 极差', '😕 较差', '😐 一般', '😊 不错', '😴 极好'];
+const QUALITY_LABELS = ['', '极差', '较差', '一般', '不错', '极好'];
+const theme = require('../../../utils/theme.js');
 
 Page({
   data: {
@@ -27,6 +29,7 @@ Page({
   async onShow() {
     if (!this.data.profileId) return;
     await this.loadData();
+    this.drawChart();
   },
 
   async loadData() {
@@ -59,19 +62,20 @@ Page({
   },
 
   drawChart() {
+    const p = theme.getChartPalette();
     const ctx = wx.createCanvasContext('sleepChart');
     const rangeDays = this.data.ranges[this.data.chartRangeIdx].days;
     const points = healthUtil.buildChartPoints(this.data.records, 'date', 'duration', rangeDays);
     healthUtil.drawLineChart(ctx, points, {
       width: 345,
       height: 160,
-      lineColor: '#7E57C2',
-      fillColor: 'rgba(126, 87, 194, 0.15)'
+      lineColor: p.series[3],
+      fillColor: theme.hexToRgba(p.series[3], 0.15)
     });
     ctx.draw();
   },
 
-  onReady() { this.drawChart(); },
+
   onRangesChange() { this.drawChart(); },
 
   goEdit(e) {
@@ -81,20 +85,23 @@ Page({
     });
   },
 
+  async onItemLongPress(e) {
+    const action = await ui.showItemActions();
+    if (action === 'edit') this.goEdit(e);
+    if (action === 'delete') await this.deleteItem(e);
+  },
+
   async deleteItem(e) {
     const id = e.currentTarget.dataset.id;
-    wx.showModal({
-      title: '确认删除',
-      content: '删除后不可恢复',
-      success: async (res) => {
+    ui.confirmDeleteWith({ title: "确认删除", content: "删除后不可恢复" }, async (res) => {
         if (res.confirm) {
           await db.remove(db.COLLECTIONS.HEALTH_SLEEP, id);
-          wx.showToast({ title: '已删除', icon: 'success' });
+          ui.toast('已删除');
           await this.loadData();
           this.drawChart();
         }
       }
-    });
+    );
   },
 
   goNew() {

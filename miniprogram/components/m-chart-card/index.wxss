@@ -1,0 +1,70 @@
+.m-chart-card {
+  background: var(--surface);
+  border-radius: var(--radius-md);
+  padding: var(--space-md) var(--space-sm);
+  margin-bottom: var(--space-md);
+  box-shadow: var(--shadow-sm);
+  box-sizing: border-box;
+}
+
+.m-chart-card.is-flush {
+  padding: 0;
+}
+
+.m-chart-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-sm);
+}
+
+.is-flush .m-chart-head {
+  padding: var(--space-md) var(--space-sm) 0;
+}
+
+.m-chart-heading {
+  flex: 1;
+  min-width: 0;
+}
+
+.m-chart-title {
+  display: block;
+  font-size: 30rpx;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.m-chart-subtitle {
+  display: block;
+  margin-top: var(--space-xs);
+  font-size: var(--font-sm);
+  color: var(--text-3);
+}
+
+.m-chart-extra {
+  flex-shrink: 0;
+}
+
+.m-chart-body {
+  width: 100%;
+}
+
+.m-chart-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-xl) 0;
+}
+
+.m-chart-empty-icon {
+  font-size: 56rpx;
+  line-height: 1.4;
+}
+
+.m-chart-empty-text {
+  margin-top: var(--space-xs);
+  font-size: var(--font-md);
+  color: var(--text-3);
+}

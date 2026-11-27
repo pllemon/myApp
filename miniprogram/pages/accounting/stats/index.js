@@ -1,6 +1,8 @@
 const db = require('../../../utils/db.js');
 const bookUtil = require('../../../utils/book.js');
+const dateUtil = require('../../../utils/date.js');
 const chartUtil = require('../../../utils/chart.js');
+const theme = require('../../../utils/theme.js');
 
 Page({
   data: {
@@ -25,8 +27,17 @@ Page({
 
   async loadStats() {
     this.setData({ loading: true });
+    const p = theme.getChartPalette();
     const bookId = bookUtil.getCurrentBookId();
-    const records = await db.query(db.COLLECTIONS.ACCOUNTING, { bookId });
+    let records;
+    try {
+      records = await db.query(db.COLLECTIONS.ACCOUNTING, { bookId });
+    } catch (e) {
+      console.error('loadStats error:', e);
+      this.setData({ loading: false });
+      wx.showToast({ title: '加载失败', icon: 'none' });
+      return;
+    }
 
     let totalExpense = 0, totalIncome = 0;
     const monthMap = {};
@@ -38,9 +49,9 @@ Page({
 
     records.forEach(r => {
       if (r.type !== 'expense' && r.type !== 'income') return;
-      const d = new Date(r.createdAt);
-      const y = d.getFullYear();
-      const m = d.getMonth() + 1;
+      const biz = dateUtil.bizDateOf(r);
+      if (!biz) return;
+      const [y, m] = biz.slice(0, 7).split('-').map(Number);
       const key = `${y}-${m}`;
       if (!monthMap[key]) monthMap[key] = { year: y, month: m, expense: 0, income: 0 };
       if (r.type === 'expense') {
@@ -48,8 +59,11 @@ Page({
         monthMap[key].expense += r.amount || 0;
         if (y === currentYear && m === currentMonth) {
           currentMonthExpense += r.amount || 0;
-          const catKey = r.categoryName || r.category || '其他';
-          categoryExpenseMap[catKey] = (categoryExpenseMap[catKey] || 0) + (r.amount || 0);
+          const catName = r.categoryName || r.category || '其他';
+          const catId = r.categoryId || r.parentCategoryId || '';
+          const catKey = catId || catName;
+          if (!categoryExpenseMap[catKey]) categoryExpenseMap[catKey] = { name: catName, id: catId, value: 0 };
+          categoryExpenseMap[catKey].value += (r.amount || 0);
         }
       } else if (r.type === 'income') {
         totalIncome += r.amount || 0;
@@ -85,7 +99,7 @@ Page({
       }));
 
     const pieData = Object.entries(categoryExpenseMap)
-      .map(([name, value]) => ({ name, value, color: chartUtil.getCategoryColor(name) }))
+      .map(([id, item]) => ({ id, name: item.name, value: item.value, color: chartUtil.getCategoryColor(item.name) }))
       .sort((a, b) => b.value - a.value)
       .slice(0, 8);
     const categoryLegend = pieData;
@@ -101,15 +115,15 @@ Page({
         label: `${m}月`,
         value1: md.expense,
         value2: md.income,
-        color1: '#FF4D4F',
-        color2: '#7ED321'
+        color1: p.danger,
+        color2: p.success
       });
     }
 
     const trendData = barMonths.map(b => ({
       label: b.label,
       value: b.value2 - b.value1,
-      color: '#4A90D9'
+      color: p.primary
     }));
 
     this.setData({
@@ -121,6 +135,8 @@ Page({
       years,
       chartData: { pieData, barData: barMonths, trendData },
       categoryLegend,
+      currentYear,
+      currentMonth,
       chartsReady: true,
       loading: false
     }, () => {
@@ -129,6 +145,7 @@ Page({
   },
 
   drawCharts() {
+    const p = theme.getChartPalette();
     const { pieData, barData, trendData } = this.data.chartData;
     const sysInfo = wx.getSystemInfoSync();
     const pixelRatio = sysInfo.pixelRatio || 2;
@@ -142,7 +159,7 @@ Page({
 
     const barCanvas = wx.createCanvasContext('barChart', this);
     barCanvas.clearRect(0, 0, 340, 200);
-    barCanvas.fillStyle = '#E8E8E8';
+    barCanvas.fillStyle = p.grid;
     barCanvas.fillRect(20, 10, 300, 2);
     if (barData.length > 0) {
       chartUtil.drawBar(barCanvas, barData, { x: 20, y: 20, width: 300, height: 150 });
@@ -151,7 +168,7 @@ Page({
 
     const trendCanvas = wx.createCanvasContext('trendChart', this);
     trendCanvas.clearRect(0, 0, 340, 200);
-    trendCanvas.fillStyle = '#E8E8E8';
+    trendCanvas.fillStyle = p.grid;
     trendCanvas.fillRect(20, 10, 300, 2);
     if (trendData.length > 0) {
       chartUtil.drawTrend(trendCanvas, trendData, { x: 20, y: 20, width: 300, height: 150 });
@@ -170,5 +187,42 @@ Page({
     wx.navigateTo({
       url: `/pages/accounting/stats/month?year=${year}&month=${month}`
     });
+  },
+
+  goCategoryDetail(e) {
+    this.navigateToCategory(e.currentTarget.dataset.id);
+  },
+
+  navigateToCategory(id) {
+    if (!id) return;
+    wx.navigateTo({
+      url: `/pages/accounting/stats/month?year=${this.data.currentYear}&month=${this.data.currentMonth}&categoryId=${id}`
+    });
+  },
+
+  // 点击环形图扇区：把画布坐标换算成角度，命中分类后下钻到月明细
+  onPieTap(e) {
+    const pieData = this.data.chartData && this.data.chartData.pieData;
+    if (!pieData || pieData.length === 0) return;
+    const dx = (e.detail.x || 0) - 130;
+    const dy = (e.detail.y || 0) - 130;
+    const dist = Math.sqrt(dx * dx + dy * dy);
+    // 环形区域：内半径 52、外半径 100（与 drawPie 的 donutWidth 一致）
+    if (dist < 52 || dist > 100) return;
+
+    let angle = Math.atan2(dy, dx); // 与 canvas arc 同为顺时针角度体系
+    if (angle < -Math.PI / 2) angle += Math.PI * 2;
+    const rel = angle + Math.PI / 2; // 从 12 点方向起算 [0, 2π)
+
+    const total = pieData.reduce((s, d) => s + (d.value || 0), 0);
+    if (total <= 0) return;
+    let acc = 0;
+    for (const d of pieData) {
+      acc += (d.value / total) * Math.PI * 2;
+      if (rel < acc) {
+        this.navigateToCategory(d.id);
+        return;
+      }
+    }
   }
 });

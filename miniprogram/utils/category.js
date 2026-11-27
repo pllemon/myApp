@@ -8,146 +8,146 @@ const DEFAULT_CATEGORIES = [
     _id: 'default_food',
     type: 'expense',
     name: '餐饮',
-    icon: '🍜',
+    icon: 'food',
     isDefault: true,
     children: [
-      { _id: 'default_food_takeout', name: '外卖', icon: '🥡' },
-      { _id: 'default_food_dinein', name: '堂食', icon: '🍽️' },
-      { _id: 'default_food_fruit', name: '水果', icon: '🍎' },
-      { _id: 'default_food_snack', name: '零食', icon: '🍪' },
-      { _id: 'default_food_drink', name: '饮品', icon: '🥤' }
+      { _id: 'default_food_takeout', name: '外卖', icon: 'food' },
+      { _id: 'default_food_dinein', name: '堂食', icon: 'food' },
+      { _id: 'default_food_fruit', name: '水果', icon: 'food' },
+      { _id: 'default_food_snack', name: '零食', icon: 'food' },
+      { _id: 'default_food_drink', name: '饮品', icon: 'food' }
     ]
   },
   {
     _id: 'default_transport',
     type: 'expense',
     name: '交通',
-    icon: '🚌',
+    icon: 'transport',
     isDefault: true,
     children: [
-      { _id: 'default_transport_bus', name: '公交地铁', icon: '🚇' },
-      { _id: 'default_transport_taxi', name: '打车', icon: '🚕' },
-      { _id: 'default_transport_fuel', name: '加油', icon: '⛽' },
-      { _id: 'default_transport_train', name: '火车机票', icon: '✈️' }
+      { _id: 'default_transport_bus', name: '公交地铁', icon: 'transport' },
+      { _id: 'default_transport_taxi', name: '打车', icon: 'transport' },
+      { _id: 'default_transport_fuel', name: '加油', icon: 'transport' },
+      { _id: 'default_transport_train', name: '火车机票', icon: 'travel' }
     ]
   },
   {
     _id: 'default_shopping',
     type: 'expense',
     name: '购物',
-    icon: '🛒',
+    icon: 'shopping',
     isDefault: true,
     children: [
-      { _id: 'default_shopping_clothes', name: '服饰', icon: '👕' },
-      { _id: 'default_shopping_electronic', name: '数码', icon: '📱' },
-      { _id: 'default_shopping_grocery', name: '日用百货', icon: '🧴' },
-      { _id: 'default_shopping_other', name: '其他', icon: '🛍️' }
+      { _id: 'default_shopping_clothes', name: '服饰', icon: 'shopping' },
+      { _id: 'default_shopping_electronic', name: '数码', icon: 'shopping' },
+      { _id: 'default_shopping_grocery', name: '日用百货', icon: 'shopping' },
+      { _id: 'default_shopping_other', name: '其他', icon: 'shopping' }
     ]
   },
   {
     _id: 'default_entertainment',
     type: 'expense',
     name: '娱乐',
-    icon: '🎮',
+    icon: 'fun',
     isDefault: true,
     children: [
-      { _id: 'default_entertainment_game', name: '游戏', icon: '🎮' },
-      { _id: 'default_entertainment_movie', name: '电影演出', icon: '🎬' },
-      { _id: 'default_entertainment_sport', name: '运动健身', icon: '⚽' },
-      { _id: 'default_entertainment_travel', name: '旅行', icon: '🏖️' }
+      { _id: 'default_entertainment_game', name: '游戏', icon: 'fun' },
+      { _id: 'default_entertainment_movie', name: '电影演出', icon: 'movie' },
+      { _id: 'default_entertainment_sport', name: '运动健身', icon: 'sport' },
+      { _id: 'default_entertainment_travel', name: '旅行', icon: 'travel' }
     ]
   },
   {
     _id: 'default_housing',
     type: 'expense',
     name: '居家',
-    icon: '🏠',
+    icon: 'home',
     isDefault: true,
     children: [
-      { _id: 'default_housing_rent', name: '房租', icon: '🏠' },
-      { _id: 'default_housing_utilities', name: '水电燃气', icon: '💡' },
-      { _id: 'default_housing_net', name: '网费话费', icon: '📶' },
-      { _id: 'default_housing_repair', name: '维修', icon: '🔧' }
+      { _id: 'default_housing_rent', name: '房租', icon: 'home' },
+      { _id: 'default_housing_utilities', name: '水电燃气', icon: 'idea' },
+      { _id: 'default_housing_net', name: '网费话费', icon: 'wifi' },
+      { _id: 'default_housing_repair', name: '维修', icon: 'repair' }
     ]
   },
   {
     _id: 'default_medical',
     type: 'expense',
     name: '医疗',
-    icon: '💊',
+    icon: 'medicine',
     isDefault: true,
     children: [
-      { _id: 'default_medical_hospital', name: '医院', icon: '🏥' },
-      { _id: 'default_medical_medicine', name: '药品', icon: '💊' },
-      { _id: 'default_medical_checkup', name: '体检', icon: '📋' }
+      { _id: 'default_medical_hospital', name: '医院', icon: 'hospital' },
+      { _id: 'default_medical_medicine', name: '药品', icon: 'medicine' },
+      { _id: 'default_medical_checkup', name: '体检', icon: 'note' }
     ]
   },
   {
     _id: 'default_education',
     type: 'expense',
     name: '学习',
-    icon: '📚',
+    icon: 'book',
     isDefault: true,
     children: [
-      { _id: 'default_education_book', name: '书籍', icon: '📚' },
-      { _id: 'default_education_course', name: '课程', icon: '🎓' },
-      { _id: 'default_education_tool', name: '学习用品', icon: '✏️' }
+      { _id: 'default_education_book', name: '书籍', icon: 'book' },
+      { _id: 'default_education_course', name: '课程', icon: 'education' },
+      { _id: 'default_education_tool', name: '学习用品', icon: 'edit' }
     ]
   },
   {
     _id: 'default_expense_other',
     type: 'expense',
     name: '其他',
-    icon: '📌',
+    icon: 'pin',
     isDefault: true,
     children: [
-      { _id: 'default_expense_other_default', name: '其他', icon: '📌' }
+      { _id: 'default_expense_other_default', name: '其他', icon: 'pin' }
     ]
   },
   {
     _id: 'default_salary',
     type: 'income',
     name: '工资',
-    icon: '💰',
+    icon: 'wallet',
     isDefault: true,
     children: [
-      { _id: 'default_salary_main', name: '基本工资', icon: '💰' },
-      { _id: 'default_salary_bonus', name: '绩效奖金', icon: '🎁' }
+      { _id: 'default_salary_main', name: '基本工资', icon: 'wallet' },
+      { _id: 'default_salary_bonus', name: '绩效奖金', icon: 'gift' }
     ]
   },
   {
     _id: 'default_investment',
     type: 'income',
     name: '理财',
-    icon: '📈',
+    icon: 'chart',
     isDefault: true,
     children: [
-      { _id: 'default_investment_interest', name: '利息', icon: '💵' },
-      { _id: 'default_investment_stock', name: '股票基金', icon: '📈' },
-      { _id: 'default_investment_rental', name: '租金', icon: '🏘️' }
+      { _id: 'default_investment_interest', name: '利息', icon: 'wallet' },
+      { _id: 'default_investment_stock', name: '股票基金', icon: 'chart' },
+      { _id: 'default_investment_rental', name: '租金', icon: 'home' }
     ]
   },
   {
     _id: 'default_parttime',
     type: 'income',
     name: '兼职',
-    icon: '💼',
+    icon: 'work',
     isDefault: true,
     children: [
-      { _id: 'default_parttime_online', name: '线上兼职', icon: '💻' },
-      { _id: 'default_parttime_offline', name: '线下兼职', icon: '🏢' }
+      { _id: 'default_parttime_online', name: '线上兼职', icon: 'work' },
+      { _id: 'default_parttime_offline', name: '线下兼职', icon: 'office' }
     ]
   },
   {
     _id: 'default_income_other',
     type: 'income',
     name: '其他',
-    icon: '📌',
+    icon: 'pin',
     isDefault: true,
     children: [
-      { _id: 'default_income_other_gift', name: '红包礼金', icon: '🧧' },
-      { _id: 'default_income_other_refund', name: '退款返现', icon: '💳' },
-      { _id: 'default_income_other_default', name: '其他', icon: '📌' }
+      { _id: 'default_income_other_gift', name: '红包礼金', icon: 'gift' },
+      { _id: 'default_income_other_refund', name: '退款返现', icon: 'card' },
+      { _id: 'default_income_other_default', name: '其他', icon: 'pin' }
     ]
   }
 ];
@@ -178,6 +178,12 @@ function saveCategories(list, bookId) {
   } catch (e) {}
 }
 
+function removeCategories(bookId) {
+  try {
+    wx.removeStorageSync(_storageKey(bookId));
+  } catch (e) {}
+}
+
 function getCategoriesByType(type, bookId) {
   return loadCategories(bookId).filter(c => c.type === type);
 }
@@ -205,9 +211,9 @@ function addParent(type, name, icon, bookId) {
     _id: uid(),
     type,
     name,
-    icon: icon || '📁',
+    icon: icon || 'folder',
     isDefault: false,
-    children: [{ _id: uid(), name, icon: icon || '📁' }]
+    children: [{ _id: uid(), name, icon: icon || 'folder' }]
   };
   list.push(parent);
   saveCategories(list, bookId);
@@ -235,7 +241,7 @@ function addChild(parentId, name, icon, bookId) {
   const list = loadCategories(bookId);
   const parent = list.find(c => c._id === parentId);
   if (parent) {
-    const child = { _id: uid(), name, icon: icon || '📌' };
+    const child = { _id: uid(), name, icon: icon || 'pin' };
     parent.children = parent.children || [];
     parent.children.push(child);
     saveCategories(list, bookId);
@@ -295,6 +301,7 @@ module.exports = {
   DEFAULT_CATEGORIES,
   loadCategories,
   saveCategories,
+  removeCategories,
   getCategoriesByType,
   getChildById,
   getParentById,

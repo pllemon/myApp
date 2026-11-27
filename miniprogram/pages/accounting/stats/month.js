@@ -6,6 +6,7 @@ Page({
   data: {
     year: 2026,
     month: 1,
+    categoryId: '',
     title: '',
     summary: { expense: '0.00', income: '0.00', balance: '0.00' },
     groupedByDay: []
@@ -14,23 +15,32 @@ Page({
   onLoad(options) {
     const year = parseInt(options.year, 10);
     const month = parseInt(options.month, 10);
+    const categoryId = options.categoryId || '';
     this._bookId = bookUtil.getCurrentBookId();
     this.setData({
       year,
       month,
-      title: `${year}年${month}月明细`
+      categoryId,
+      title: `${year}年${month}月明细` + (categoryId ? ' · 分类筛选' : '')
     });
     wx.setNavigationBarTitle({ title: `${year}年${month}月` });
     this.loadRecords();
   },
 
+  onShow() {
+    this.loadRecords();
+  },
+
   async loadRecords() {
     const { year, month } = this.data;
-    const start = new Date(year, month - 1, 1).getTime();
-    const end = new Date(year, month, 0, 23, 59, 59).getTime();
+    const monthKey = year + '-' + (month < 10 ? '0' + month : month);
 
     const all = await db.query(db.COLLECTIONS.ACCOUNTING, { bookId: this._bookId });
-    const records = all.filter(r => r.createdAt >= start && r.createdAt <= end);
+    const records = all.filter(r => {
+      if (dateUtil.bizMonthOf(r) !== monthKey) return false;
+      if (!this.data.categoryId) return true;
+      return r.categoryId === this.data.categoryId || r.parentCategoryId === this.data.categoryId;
+    });
 
     let expense = 0, income = 0;
     const dayMap = {};
@@ -38,8 +48,8 @@ Page({
       if (r.type === 'expense') expense += r.amount || 0;
       if (r.type === 'income') income += r.amount || 0;
 
-      const d = new Date(r.createdAt);
-      const dateKey = dateUtil.formatDate(r.createdAt, 'YYYY-MM-DD');
+      const dateKey = dateUtil.bizDateOf(r);
+      const d = new Date(dateKey + 'T00:00:00');
       if (!dayMap[dateKey]) {
         dayMap[dateKey] = {
           date: dateKey,

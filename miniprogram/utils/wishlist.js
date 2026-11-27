@@ -1,17 +1,17 @@
 const db = require('./db.js');
 
 const CATEGORIES = {
-  travel: { label: '旅行', icon: '✈️', color: '#4A90D9' },
-  study: { label: '学习', icon: '📚', color: '#9B59B6' },
-  career: { label: '事业', icon: '💼', color: '#1ABC9C' },
-  health: { label: '健康', icon: '💪', color: '#52C41A' },
-  life: { label: '生活', icon: '🏡', color: '#FF9F43' },
-  other: { label: '其他', icon: '✨', color: '#FF6B6B' }
+  travel: { label: '旅行', icon: 'travel', color: '#4A90D9' },
+  study: { label: '学习', icon: 'book', color: '#9B59B6' },
+  career: { label: '事业', icon: 'work', color: '#1ABC9C' },
+  health: { label: '健康', icon: 'sport', color: '#52C41A' },
+  life: { label: '生活', icon: 'home', color: '#FF9F43' },
+  other: { label: '其他', icon: 'star', color: '#FF6B6B' }
 };
 
 const CATEGORY_LIST = Object.keys(CATEGORIES);
 
-const ICONS = ['✈️', '📚', '💼', '💪', '🏡', '🎮', '🎸', '🎨', '🍜', '☕', '🌱', '💰', '🎁', '⭐', '🚗', '📷'];
+const ICONS = ['travel', 'book', 'work', 'sport', 'home', 'fun', 'food', 'coffee', 'plant', 'wallet', 'gift', 'star'];
 
 function hexToRgba(hex, alpha) {
   const h = (hex || '#4A90D9').replace('#', '');

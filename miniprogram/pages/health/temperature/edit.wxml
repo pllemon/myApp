@@ -1,40 +1,54 @@
-<view class="container m-edit-page">
-  <view class="m-form-card">
-    <view class="m-form-title">🌡️ 体温记录</view>
+<view class="m2-page m2-edit" style="{{themeStyle}}">
+  <view class="m2-edit-hero">
+    <view class="m2-edit-hero-icon" style="background: var(--primary-light)"><m-icon tone="health" healthKey="体温" size="44" /></view>
+    <view>
+      <view class="m2-edit-title">{{isEdit ? '编辑体温' : '新增体温'}}</view>
+      <view class="m2-edit-desc">记录体温数据，自动按测量部位判读</view>
+    </view>
+  </view>
 
-    <m-field label="日期">
-      <picker mode="date" value="{{date}}" bindchange="onDateChange">
-        <view class="m-form-picker-value">{{date}}</view>
-      </picker>
-    </m-field>
-
-    <m-field label="时间">
-      <picker mode="time" value="{{time}}" bindchange="onTimeChange">
-        <view class="m-form-picker-value">{{time}}</view>
-      </picker>
-    </m-field>
-
-    <m-field label="体温 (℃)">
-      <input class="m-form-input" type="digit" value="{{temperature}}" placeholder="例如 36.5" bindinput="onTemperatureInput" />
-    </m-field>
-
-    <m-option-picker label="测量部位" options="{{locationOptions}}" currentValue="{{locationIdx}}" activeBy="index" bind:change="onLocationChange">
-      {{locationOptions[locationIdx].label}}
-    </m-option-picker>
-
-    <m-field wx:if="{{preview}}" label="状态预览">
-      <view class="m-form-picker-value">
-        <m-status-badge text="{{preview.label}}" color="{{preview.color}}" />
+  <view class="m2-form-card">
+    <view class="m2-form-title">体温数据</view>
+    <view class="m2-field-row">
+      <view class="m2-field half">
+        <view class="m2-field-label">日期</view>
+        <picker mode="date" value="{{date}}" bindchange="onDateChange">
+          <view class="m2-field-value">{{date}}</view>
+        </picker>
+        <view class="m2-field-arrow">›</view>
       </view>
-    </m-field>
+      <view class="m2-field half">
+        <view class="m2-field-label">时间</view>
+        <picker mode="time" value="{{time}}" bindchange="onTimeChange">
+          <view class="m2-field-value">{{time}}</view>
+        </picker>
+        <view class="m2-field-arrow">›</view>
+      </view>
+    </view>
+    <view class="m2-field">
+      <view class="m2-field-label">体温 (℃)</view>
+      <input class="m2-field-value" type="digit" value="{{temperature}}" placeholder="例如 36.5，范围 34-43" bindinput="onTempInput" />
+    </view>
+    <m-option-picker label="测量部位" options="{{locationOptions}}" currentValue="{{locationIdx}}" activeBy="index" bind:change="onLocationChange">
+      {{locationLabel}}
+    </m-option-picker>
+    <view class="m2-field" wx:if="{{preview}}">
+      <view class="m2-field-label">状态预览</view>
+      <view class="m2-field-value"><m-status-badge text="{{preview.label}}" color="{{preview.color}}" /></view>
+    </view>
+    <view wx:if="{{preview && preview.basis}}" class="m-judge-meta">按腋温等效判读（{{preview.basis}}，{{preview.version}}）</view>
   </view>
 
-  <view class="m-form-card">
-    <view class="m-form-title">📝 备注</view>
-    <m-field block>
-      <textarea class="m-form-textarea" placeholder="选填" value="{{notes}}" bindinput="onNotesInput" auto-height maxlength="200" />
-    </m-field>
+  <view class="m2-form-card">
+    <view class="m2-form-title">备注</view>
+    <view class="m2-field textarea-field">
+      <view class="m2-field-label">备注</view>
+      <textarea class="m2-field-value" placeholder="选填" value="{{notes}}" bindinput="onNotesInput" auto-height maxlength="200" />
+    </view>
+    <view class="m-disclaimer">{{disclaimer}}</view>
   </view>
 
-  <m-save-bar save-text="{{isEdit ? '保存修改' : '保存记录'}}" bind:save="save" />
+  <view class="m2-footer">
+    <view class="m2-btn m2-btn-primary" bindtap="save">保存</view>
+  </view>
 </view>

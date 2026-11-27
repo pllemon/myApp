@@ -1,8 +1,12 @@
+const tabState = require('../../../utils/tab-state.js');
+const ui = require('../../../utils/interaction.js');
 const db = require('../../../utils/db.js');
 const dateUtil = require('../../../utils/date.js');
 const checkinUtil = require('../../../utils/checkin.js');
+const imageUtil = require('../../../utils/image.js');
 
 Page({
+  behaviors: [tabState.behavior],
   data: {
     today: '',
     greeting: '',
@@ -79,7 +83,7 @@ Page({
         showDone: Object.keys(checkedIds).length > 0
       });
     } catch (err) {
-      wx.showToast({ title: '加载失败', icon: 'none' });
+      ui.toast('加载失败', 'none');
     }
     wx.hideLoading();
   },
@@ -96,7 +100,7 @@ Page({
       const habit = this.data.habits.find(h => h._id === id);
       const newStreak = (habit && habit._streaks.current || 0) + 1;
       wx.showToast({
-        title: newStreak >= 7 ? `🔥 连续 ${newStreak} 天！` : '✅ 打卡成功',
+        title: newStreak >= 7 ? `连续 ${newStreak} 天！` : '打卡成功',
         icon: 'none',
         duration: 1200
       });
@@ -119,19 +123,24 @@ Page({
     wx.navigateTo({ url });
   },
 
+  async onHabitLongPress(e) {
+    const action = await ui.showItemActions();
+    if (action === 'edit') this.goEdit(e);
+    if (action === 'delete') await this.deleteHabit(e);
+  },
+
   async deleteHabit(e) {
     const { id, name } = e.currentTarget.dataset;
-    const res = await wx.showModal({
-      title: '删除习惯',
-      content: `确定删除「${name}」吗？所有打卡记录也会一并删除。`,
-      confirmColor: '#E74C3C'
-    });
+    const res = await ui.confirmDeleteLegacy({ title: '删除习惯', content: `确定删除「${name}」吗？所有打卡记录也会一并删除。` })
     if (!res.confirm) return;
 
     await db.remove(db.COLLECTIONS.CHECKIN_HABIT, id);
     const records = await db.query(db.COLLECTIONS.CHECKIN_RECORD, { habitId: id });
+    records.forEach(r => {
+      if (r.images) imageUtil.cleanAllImages(r.images);
+    });
     await Promise.all(records.map(r => db.remove(db.COLLECTIONS.CHECKIN_RECORD, r._id)));
-    wx.showToast({ title: '已删除', icon: 'success' });
+    ui.toast('已删除');
     this.loadAll();
   }
 });

@@ -5,7 +5,7 @@ Page({
   data: {
     id: '',
     isEdit: false,
-    avatar: '👤',
+    avatar: 'user',
     showAvatars: false,
     avatarPresets: healthUtil.AVATAR_PRESETS,
     name: '',
@@ -26,7 +26,19 @@ Page({
     lastPeriodStart: '',
     cycleLength: 28,
     tabOptions: healthUtil.HEALTH_TAB_OPTIONS,
-    enabledTabs: []
+    enabledTabs: [],
+    // P2：单位偏好与目标区间
+    unitSystem: 'metric',
+    unitOptions: [{ value: 'metric', label: '公制（mmol/L·kg·cm）' }, { value: 'imperial', label: '英制（mg/dL·lbs·in）' }],
+    glucoseUnitLabel: 'mmol/L',
+    weightUnitLabel: 'kg',
+    targetBpSys: '',
+    targetBpDia: '',
+    targetGlucoseFasting: '',
+    targetGlucosePost: '',
+    targetWeight: '',
+    emergencyName: '',
+    emergencyPhone: ''
   },
 
   onLoad(options) {
@@ -51,7 +63,7 @@ Page({
           enabledTabs = healthUtil.HEALTH_TAB_OPTIONS.map(t => t.key);
         }
         this.setData({
-          avatar: p.avatar || '👤',
+          avatar: p.avatar || 'user',
           name: p.name || '',
           gender: p.gender || 'male',
           birthDate: p.birthDate || '',
@@ -64,14 +76,31 @@ Page({
           showPeriodSection: p.gender === 'female',
           lastPeriodStart: p.lastPeriodStart || '',
           cycleLength: p.cycleLength || 28,
-          enabledTabs
+          enabledTabs,
+          unitSystem: p.unitSystem || 'metric',
+          targetBpSys: p.targets && p.targets.bpSys != null ? p.targets.bpSys : '',
+          targetBpDia: p.targets && p.targets.bpDia != null ? p.targets.bpDia : '',
+          targetGlucoseFasting: p.targets && p.targets.glucoseFasting != null ? p.targets.glucoseFasting : '',
+          targetGlucosePost: p.targets && p.targets.glucosePost != null ? p.targets.glucosePost : '',
+          targetWeight: p.targets && p.targets.weight != null ? p.targets.weight : '',
+          emergencyName: p.emergencyContact && p.emergencyContact.name || '',
+          emergencyPhone: p.emergencyContact && p.emergencyContact.phone || ''
         });
+        this.updateUnitLabels();
         this.calcDerived();
       }
     } catch (err) {
       wx.showToast({ title: '加载失败', icon: 'none' });
     }
     wx.hideLoading();
+  },
+
+  updateUnitLabels() {
+    const imperial = this.data.unitSystem === 'imperial';
+    this.setData({
+      glucoseUnitLabel: imperial ? 'mg/dL' : 'mmol/L',
+      weightUnitLabel: imperial ? 'lbs' : 'kg'
+    });
   },
 
   calcDerived() {
@@ -129,6 +158,17 @@ Page({
     this.setData({ bloodType: e.detail.value });
   },
 
+  onUnitSystemChange(e) {
+    this.setData({ unitSystem: e.detail.value });
+    this.updateUnitLabels();
+  },
+  onTargetInput(e) {
+    const field = e.currentTarget.dataset.field;
+    this.setData({ [field]: e.detail.value });
+  },
+  onEmergencyNameInput(e) { this.setData({ emergencyName: e.detail.value }); },
+  onEmergencyPhoneInput(e) { this.setData({ emergencyPhone: e.detail.value }); },
+
   onLastPeriodChange(e) {
     this.setData({ lastPeriodStart: e.detail.value });
   },
@@ -148,7 +188,7 @@ Page({
   },
 
   async save() {
-    const { name, avatar, gender, birthDate, height, weight, bloodType, allergies, medicalHistory, notes, lastPeriodStart, cycleLength, enabledTabs, id, isEdit } = this.data;
+    const { name, avatar, gender, birthDate, height, weight, bloodType, allergies, medicalHistory, notes, lastPeriodStart, cycleLength, enabledTabs, unitSystem, targetBpSys, targetBpDia, targetGlucoseFasting, targetGlucosePost, targetWeight, emergencyName, emergencyPhone, id, isEdit } = this.data;
 
     if (!name.trim()) {
       wx.showToast({ title: '请输入姓名', icon: 'none' });
@@ -170,7 +210,20 @@ Page({
         notes: notes.trim(),
         lastPeriodStart: gender === 'female' ? lastPeriodStart : '',
         cycleLength: gender === 'female' ? cycleLength : null,
-        enabledTabs: (enabledTabs || []).slice()
+        enabledTabs: (enabledTabs || []).slice(),
+        unitSystem: unitSystem || 'metric',
+        targets: {
+          bpSys: targetBpSys !== '' ? Number(targetBpSys) : null,
+          bpDia: targetBpDia !== '' ? Number(targetBpDia) : null,
+          glucoseFasting: targetGlucoseFasting !== '' ? Number(targetGlucoseFasting) : null,
+          glucosePost: targetGlucosePost !== '' ? Number(targetGlucosePost) : null,
+          weight: targetWeight !== '' ? Number(targetWeight) : null
+        },
+        emergencyContact: {
+          name: emergencyName.trim(),
+          phone: emergencyPhone.trim()
+        },
+        updatedAt: Date.now()
       };
 
       if (isEdit) {

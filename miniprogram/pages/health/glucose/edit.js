@@ -1,6 +1,10 @@
 const db = require('../../../utils/db.js');
 const healthUtil = require('../../../utils/health.js');
 
+const TYPES = healthUtil.GLUCOSE_TYPES;
+const MEAL_TYPES = healthUtil.MEAL_TYPE_OPTIONS;
+const SPECIMENS = healthUtil.SPECIMEN_OPTIONS;
+
 Page({
   data: {
     profileId: '',
@@ -11,9 +15,16 @@ Page({
     value: '',
     type: 'fasting',
     typeLabel: '空腹',
-    typeOptions: healthUtil.GLUCOSE_TYPES,
+    typeOptions: TYPES,
+    mealType: '',
+    mealTypeLabel: '',
+    mealTypeOptions: MEAL_TYPES,
+    specimenSource: '',
+    specimenLabel: '',
+    specimenOptions: SPECIMENS,
     notes: '',
-    preview: null
+    preview: null,
+    disclaimer: healthUtil.MEDICAL_DISCLAIMER
   },
 
   onLoad(options) {
@@ -46,15 +57,23 @@ Page({
     try {
       const r = await db.getById(db.COLLECTIONS.HEALTH_GLUCOSE, id);
       if (r) {
-        const typeLabel = (healthUtil.GLUCOSE_TYPES.find(t => t.value === r.type) || {}).value || 'fasting';
+        // 修复：原来用 .value 当展示文案，回显成英文 fasting；改用 .label
+        const typeItem = healthUtil.normalizeEnum(r.type, TYPES) || TYPES[0];
+        const meal = healthUtil.normalizeEnum(r.mealType, MEAL_TYPES);
+        const specimen = healthUtil.normalizeEnum(r.specimenSource, SPECIMENS);
         this.setData({
           date: r.date || this.formatToday(),
           time: r.time || this.formatNow(),
           value: r.value || '',
-          type: typeLabel,
+          type: typeItem.value,
+          typeLabel: typeItem.label,
+          mealType: meal ? meal.value : '',
+          mealTypeLabel: meal ? meal.label : '',
+          specimenSource: specimen ? specimen.value : '',
+          specimenLabel: specimen ? specimen.label : '',
           notes: r.notes || ''
         });
-        this.updatePreview(r.value, typeLabel);
+        this.updatePreview(r.value, typeItem.value);
       }
     } catch (err) {
       wx.showToast({ title: '加载失败', icon: 'none' });
@@ -64,8 +83,7 @@ Page({
 
   updatePreview(v, type) {
     if (v) {
-      const p = healthUtil.judgeGlucose(parseFloat(v), type);
-      this.setData({ preview: p });
+      this.setData({ preview: healthUtil.judgeGlucose(parseFloat(v), type) });
     } else {
       this.setData({ preview: null });
     }
@@ -81,32 +99,40 @@ Page({
   onNotesInput(e) { this.setData({ notes: e.detail.value }); },
 
   onTypeChange(e) {
-    const { option } = e.detail;
+    const option = e.detail.option || {};
     this.setData({ type: option.value, typeLabel: option.label });
     this.updatePreview(this.data.value, option.value);
   },
+  onMealTypeChange(e) { this.setData({ mealType: e.detail.value, mealTypeLabel: e.detail.option.label }); },
+  onSpecimenChange(e) { this.setData({ specimenSource: e.detail.value, specimenLabel: e.detail.option.label }); },
 
   async save() {
-    const { date, time, value, type, notes, profileId, id, isEdit } = this.data;
-
-    if (!value) {
+    const d = this.data;
+    if (!d.value) {
       wx.showToast({ title: '请输入血糖值', icon: 'none' });
       return;
     }
+    const err = healthUtil.validateFields([{ field: 'glucose', value: d.value, required: true }]);
+    if (err) { wx.showToast({ title: err.message, icon: 'none' }); return; }
 
     wx.showLoading({ title: '保存中', mask: true });
     try {
       const record = {
-        profileId,
-        date,
-        time,
-        value: parseFloat(value),
-        type,
-        notes: notes.trim()
+        profileId: d.profileId,
+        date: d.date,
+        time: d.time,
+        value: parseFloat(d.value),
+        unit: 'mmol/L',
+        type: d.type,
+        mealType: d.mealType,
+        specimenSource: d.specimenSource,
+        notes: d.notes.trim(),
+        judgeVersion: healthUtil.JUDGE_VERSION,
+        updatedAt: Date.now()
       };
 
-      if (isEdit) {
-        await db.update(db.COLLECTIONS.HEALTH_GLUCOSE, id, record);
+      if (d.isEdit) {
+        await db.update(db.COLLECTIONS.HEALTH_GLUCOSE, d.id, record);
       } else {
         await db.add(db.COLLECTIONS.HEALTH_GLUCOSE, record);
       }

@@ -1,56 +1,61 @@
-<view class="container tabbar-page">
-  <view class="header">
-    <view class="greeting-row">
-      <view class="greeting">{{greeting}}</view>
-      <view class="today">{{today}}</view>
+<view class="m2-page with-tabbar" style="{{themeStyle}}">
+  <view class="m2-hero">
+    <view class="m2-hero-head">
+      <view>
+        <view class="m2-hero-title">{{greeting}}</view>
+        <view class="m2-hero-sub">{{today}}</view>
+      </view>
+      <view class="m2-hero-action" bindtap="goCalendar"><m-icon name="calendar" size="26" inline /> 日历</view>
     </view>
-    <view class="progress-card">
-      <view class="progress-info">
-        <text class="progress-text">今日已打卡</text>
-        <text class="progress-num">{{checkedCount}}/{{totalCount}}</text>
-      </view>
-      <view class="progress-bar">
-        <view class="progress-fill" style="width: {{totalCount > 0 ? (checkedCount / totalCount * 100) : 0}}%;"></view>
-      </view>
-      <view wx:if="{{totalCount > 0 && checkedCount === totalCount}}" class="all-done">
-        🎉 今天全部完成，太棒了！
-      </view>
+    <view class="m2-hero-value">{{checkedCount}}<text class="m2-hero-unit">/{{totalCount}}</text></view>
+    <view class="m2-hero-note">今日已打卡</view>
+    <view class="hero-progress">
+      <view class="hero-progress-fill" style="width: {{totalCount > 0 ? (checkedCount / totalCount * 100) : 0}}%;"></view>
+    </view>
+    <view wx:if="{{totalCount > 0 && checkedCount === totalCount}}" class="hero-all-done">
+      <m-icon name="check" size="28" inline /> 今天全部完成，太棒了！
     </view>
   </view>
 
   <view class="section-header">
-    <view class="section-title">我的习惯</view>
-    <view class="section-action" bindtap="goCalendar">📅 日历</view>
+    <view class="m2-group-title">我的习惯</view>
+    <view class="m2-card-action" bindtap="goCalendar"><m-icon name="calendar" size="26" inline /> 日历</view>
   </view>
 
-  <m-empty wx:if="{{habits.length === 0}}" icon="✨" title="还没有习惯" desc="点击下方 + 添加你想养成的好习惯吧" />
+  <m-empty
+    wx:if="{{habits.length === 0}}"
+    title="还没有习惯"
+    desc="点击下方 + 添加你想养成的好习惯吧"
+    action="去添加"
+    bindaction="goCreate"
+  />
 
-  <view 
-    wx:for="{{habits}}" 
-    wx:key="_id" 
-    class="habit-card {{item._checkedToday ? 'checked' : ''}}"
+  <view
+    wx:for="{{habits}}"
+    wx:key="_id"
+    class="m2-card habit-card {{item._checkedToday ? 'checked' : ''}}"
     style="border-left-color: {{item.color}};"
   >
-    <view 
+    <view
       class="check-btn {{item._checkedToday ? 'checked' : ''}}"
-      style="background-color: {{item._checkedToday ? item.color : '#fff'}}; border-color: {{item.color}};"
+      style="background-color: {{item._checkedToday ? item.color : 'var(--surface)'}}; border-color: {{item.color}};"
       data-id="{{item._id}}"
       data-name="{{item.name}}"
       bindtap="toggleCheckin"
     >
-      <text wx:if="{{item._checkedToday}}">✓</text>
-      <text wx:else class="check-plus">+</text>
+      <m-icon wx:if="{{item._checkedToday}}" name="check" size="40" color="#FFFFFF" />
+      <m-icon wx:else class="check-plus" name="add" size="40" />
     </view>
 
-    <view class="habit-main" data-id="{{item._id}}" bindlongpress="goEdit">
+    <view class="habit-main" data-id="{{item._id}}" bindlongpress="onHabitLongPress">
       <view class="habit-name-row">
-        <text class="habit-icon">{{item.icon}}</text>
+        <view class="habit-icon"><m-icon value="{{item.icon}}" size="36" /></view>
         <text class="habit-name">{{item.name}}</text>
       </view>
       <view class="habit-meta">
         <view class="streak-row">
-          <text wx:if="{{item._streaks.current > 0}}" class="streak">🔥 连续 {{item._streaks.current}} 天</text>
-          <text class="longest">🏆 最长 {{item._streaks.longest}} 天</text>
+          <text wx:if="{{item._streaks.current > 0}}" class="streak"><m-icon name="fire" size="28" tone="category" inline />连续 {{item._streaks.current}} 天</text>
+          <text class="longest"><m-icon name="trophy" size="28" tone="category" inline />最长 {{item._streaks.longest}} 天</text>
           <text class="total">累计 {{item._totalDays}} 天</text>
         </view>
         <view wx:if="{{item.targetDays}}" class="target-row">
@@ -63,13 +68,11 @@
     </view>
 
     <view class="habit-actions">
-      <view class="act-btn" data-id="{{item._id}}" bindtap="goCalendar">📅</view>
-      <view class="act-btn" data-id="{{item._id}}" data-name="{{item.name}}" catchtap="deleteHabit">🗑️</view>
+      <view class="act-btn" data-id="{{item._id}}" bindtap="goCalendar"><m-icon name="calendar" size="36" /></view>
+      <view class="act-btn" data-id="{{item._id}}" data-name="{{item.name}}" catchtap="deleteHabit"><m-icon name="trash" size="36" /></view>
     </view>
   </view>
 
-  <view class="bottom-space"></view>
+  <view class="m2-fab" bindtap="goCreate"><m-icon name="add" size="48" color="#FFFFFF" /></view>
 </view>
-
-<view class="m-fab" bindtap="goCreate">+</view>
 <m-tab-bar id="tabbar" />

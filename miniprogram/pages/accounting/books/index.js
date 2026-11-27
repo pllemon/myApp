@@ -1,4 +1,5 @@
 const bookUtil = require('../../../utils/book.js');
+const ui = require('../../../utils/interaction.js');
 const db = require('../../../utils/db.js');
 
 Page({
@@ -28,7 +29,7 @@ Page({
     if (id === this.data.currentId) return;
     await bookUtil.switchBook(id);
     this.setData({ currentId: id });
-    wx.showToast({ title: '已切换', icon: 'success' });
+    ui.toast('已切换');
     setTimeout(() => wx.navigateBack(), 500);
   },
 
@@ -47,23 +48,19 @@ Page({
     if (!book) return;
 
     if (this.data.books.length <= 1) {
-      wx.showToast({ title: '至少保留一个账本', icon: 'none' });
+      ui.toast('至少保留一个账本', 'none');
       return;
     }
 
-    const res = await wx.showModal({
-      title: '删除账本',
-      content: `账本「${book.name}」及其所有记账记录将被永久删除，确定吗？`,
-      confirmColor: '#E74C3C'
-    });
+    const res = await ui.confirmDeleteLegacy({ title: '删除账本', content: `账本「${book.name}」及其所有记账记录将被永久删除，确定吗？` })
     if (!res.confirm) return;
 
     try {
       await bookUtil.deleteBook(id);
-      wx.showToast({ title: '已删除', icon: 'success' });
+      ui.toast('已删除');
       this.loadBooks();
     } catch (e) {
-      wx.showToast({ title: e.message || '删除失败', icon: 'none' });
+      ui.toast(e.message || '删除失败', 'none');
     }
   }
 });

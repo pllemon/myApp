@@ -1,40 +1,57 @@
-<view class="container m-edit-page">
-  <view class="m-form-card">
-    <view class="m-form-title">💨 血氧记录</view>
+<view class="m2-page m2-edit" style="{{themeStyle}}">
+  <view class="m2-edit-hero">
+    <view class="m2-edit-hero-icon" style="background: var(--primary-light)"><m-icon tone="health" healthKey="血氧" size="44" /></view>
+    <view>
+      <view class="m2-edit-title">{{isEdit ? '编辑血氧' : '新增血氧'}}</view>
+      <view class="m2-edit-desc">记录血氧与脉搏，随时掌握状态</view>
+    </view>
+  </view>
 
-    <m-field label="日期">
-      <picker mode="date" value="{{date}}" bindchange="onDateChange">
-        <view class="m-form-picker-value">{{date}}</view>
-      </picker>
-    </m-field>
-
-    <m-field label="时间">
-      <picker mode="time" value="{{time}}" bindchange="onTimeChange">
-        <view class="m-form-picker-value">{{time}}</view>
-      </picker>
-    </m-field>
-
-    <m-field label="血氧 (%)">
-      <input class="m-form-input" type="number" value="{{oxygen}}" placeholder="正常值 95-100" bindinput="onOxygenInput" />
-    </m-field>
-
-    <m-field label="脉搏 (次/分)">
-      <input class="m-form-input" type="number" value="{{pulse}}" placeholder="选填" bindinput="onPulseInput" />
-    </m-field>
-
-    <m-field wx:if="{{preview}}" label="状态预览">
-      <view class="m-form-picker-value">
-        <m-status-badge text="{{preview.label}}" color="{{preview.color}}" />
+  <view class="m2-form-card">
+    <view class="m2-form-title">血氧数据</view>
+    <view class="m2-field-row">
+      <view class="m2-field half">
+        <view class="m2-field-label">日期</view>
+        <picker mode="date" value="{{date}}" bindchange="onDateChange">
+          <view class="m2-field-value">{{date}}</view>
+        </picker>
+        <view class="m2-field-arrow">›</view>
       </view>
-    </m-field>
+      <view class="m2-field half">
+        <view class="m2-field-label">时间</view>
+        <picker mode="time" value="{{time}}" bindchange="onTimeChange">
+          <view class="m2-field-value">{{time}}</view>
+        </picker>
+        <view class="m2-field-arrow">›</view>
+      </view>
+    </view>
+    <view class="m2-field">
+      <view class="m2-field-label">血氧 (%)</view>
+      <input class="m2-field-value" type="number" value="{{oxygen}}" placeholder="正常值 95-100，范围 0-100" bindinput="onOxygenInput" />
+    </view>
+    <view class="m2-field">
+      <view class="m2-field-label">脉搏 (次/分)</view>
+      <input class="m2-field-value" type="number" value="{{pulse}}" placeholder="选填，30-250" bindinput="onPulseInput" />
+    </view>
+    <m-option-picker label="采集场景" options="{{sceneOptions}}" currentValue="{{scene}}" bind:change="onSceneChange">{{sceneLabel}}</m-option-picker>
+    <m-option-picker label="设备来源" options="{{sourceOptions}}" currentValue="{{source}}" bind:change="onSourceChange">{{sourceLabel}}</m-option-picker>
+    <view class="m2-field" wx:if="{{preview}}">
+      <view class="m2-field-label">状态预览</view>
+      <view class="m2-field-value"><m-status-badge text="{{preview.label}}" color="{{preview.color}}" /></view>
+    </view>
+    <view wx:if="{{preview && preview.basis}}" class="m-judge-meta">判定参考：{{preview.basis}}（{{preview.version}}）</view>
   </view>
 
-  <view class="m-form-card">
-    <view class="m-form-title">📝 备注</view>
-    <m-field block>
-      <textarea class="m-form-textarea" placeholder="选填" value="{{notes}}" bindinput="onNotesInput" auto-height maxlength="200" />
-    </m-field>
+  <view class="m2-form-card">
+    <view class="m2-form-title">备注</view>
+    <view class="m2-field textarea-field">
+      <view class="m2-field-label">备注</view>
+      <textarea class="m2-field-value" placeholder="选填" value="{{notes}}" bindinput="onNotesInput" auto-height maxlength="200" />
+    </view>
+    <view class="m-disclaimer">{{disclaimer}}</view>
   </view>
 
-  <m-save-bar save-text="{{isEdit ? '保存修改' : '保存记录'}}" bind:save="save" />
+  <view class="m2-footer">
+    <view class="m2-btn m2-btn-primary" bindtap="save">保存</view>
+  </view>
 </view>

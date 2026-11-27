@@ -84,9 +84,9 @@ Page({
     }
   },
 
-  goEdit(e) {
+  goDetail(e) {
     const id = e.currentTarget.dataset.id;
-    wx.navigateTo({ url: '/pages/wishlist/edit/index?id=' + (id || '') });
+    wx.navigateTo({ url: '/pages/wishlist/detail/index?id=' + (id || '') });
   },
 
   goNew() {

@@ -1,0 +1,19 @@
+.m-icon {
+  display: block;
+  flex-shrink: 0;
+}
+
+.m-icon-inline {
+  display: inline-block;
+  vertical-align: -0.2em;
+  margin-right: 6rpx;
+}
+
+.m-icon-chip {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--icon-radius, 24rpx);
+  flex-shrink: 0;
+  box-shadow: var(--shadow-sm, 0 2rpx 10rpx rgba(0,0,0,0.035));
+}

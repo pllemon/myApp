@@ -63,18 +63,16 @@ function exportAll() {
   if (config.STORAGE_MODE !== 'local') {
     return Promise.reject(new Error('仅本地模式支持导出'));
   }
-  const all = {};
-  Object.values(COLLECTIONS).forEach(key => {
-    all[key] = wx.getStorageSync(key) || [];
-  });
-  return Promise.resolve(all);
+  // 兼容旧接口：返回全部 storage 数据（含 __ 前缀配置），不再只返回集合。
+  const backup = require('./backup.js').buildBackup();
+  return Promise.resolve(backup.data);
 }
 
 function importAll(data) {
   if (config.STORAGE_MODE !== 'local') {
     return Promise.reject(new Error('仅本地模式支持导入'));
   }
-  Object.keys(data).forEach(key => {
+  Object.keys(data || {}).forEach(key => {
     wx.setStorageSync(key, data[key]);
   });
   return Promise.resolve(true);

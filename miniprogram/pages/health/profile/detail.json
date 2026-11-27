@@ -1,4 +1,6 @@
 {
   "navigationBarTitleText": "档案详情",
-  "usingComponents": {}
+  "usingComponents": {
+    "m-modal": "/components/m-modal/index"
+  }
 }

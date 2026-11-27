@@ -10,7 +10,8 @@ function currentRoute() {
 Component({
   data: {
     list: [],
-    selected: -1
+    selected: -1,
+    visible: false
   },
 
   lifetimes: {
@@ -31,61 +32,18 @@ Component({
       const route = currentRoute();
       let selected = -1;
       const list = config.list.map((item, i) => {
-        const active = item.pagePath === route;
-        if (active) selected = i;
-        return {
-          ...item,
-          showBadge: item.showBadge && item.badgeCount > 0,
-          showDot: item.showDot,
-          selected: active
-        };
+        if (item.pagePath === route) selected = i;
+        return item;
       });
       this.setData({
         list,
         selected,
+        visible: selected >= 0,
         color: config.color,
         selectedColor: config.selectedColor,
         bgColor: config.bgColor,
         borderColor: config.borderColor
       });
-    },
-
-    setSelected(index) {
-      const list = this.data.list.map((item, i) => ({
-        ...item,
-        selected: i === index
-      }));
-      this.setData({ list, selected: index });
-    },
-
-    showBadge(pagePath, count) {
-      const list = this.data.list.map(item => {
-        if (item.pagePath === pagePath) {
-          return { ...item, showBadge: true, badgeCount: count, showDot: false };
-        }
-        return item;
-      });
-      this.setData({ list });
-    },
-
-    showDot(pagePath) {
-      const list = this.data.list.map(item => {
-        if (item.pagePath === pagePath) {
-          return { ...item, showDot: true, showBadge: false };
-        }
-        return item;
-      });
-      this.setData({ list });
-    },
-
-    hideBadge(pagePath) {
-      const list = this.data.list.map(item => {
-        if (item.pagePath === pagePath) {
-          return { ...item, showBadge: false, showDot: false, badgeCount: 0 };
-        }
-        return item;
-      });
-      this.setData({ list });
     },
 
     switchTab(e) {

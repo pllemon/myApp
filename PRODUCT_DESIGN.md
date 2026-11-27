@@ -157,8 +157,6 @@
 | 主题配置 | `utils/theme.js` → `__theme_config` | 4 套预设主题，运行时切换 |
 | 通用设置 | 集合 `settings`（`COLLECTIONS.SETTINGS`） | 预留扩展 |
 
-> 成就徽章不落库，由 `pages/profile/achievements` 基于各模块真实数据实时计算解锁状态。
-
 #### 4.2 记账集合（accounting）
 
 收入与支出 **合并存储** 在同一集合，用 `type` 字段区分：
@@ -569,7 +567,6 @@ db.switchMode('cloud');  // 或 'local'
 | | 运动记录 | pages/health/exercise/ | ✅ 骨架完成 |
 | 📊 统计 | 数据洞察 | pages/stats/index/ | ✅ 已实现（月度收支 / 近 7 天柱状图 / 打卡 / 待办完成率） |
 | 📋 我的 | 个人中心 | pages/profile/index/ | ✅ 已实现（昵称编辑 / 累计概览 / 菜单入口，TabBar） |
-| | 成就徽章 | pages/profile/achievements/ | ✅ 已实现（8 枚徽章，基于真实数据实时计算） |
 | | 设置 | pages/profile/settings/ | ✅ 已实现（4 套主题切换 / 存储模式切换 / 数据导出 / 清除） |
 
 - 云函数通用 CRUD 入口（quickstartFunctions）
@@ -627,7 +624,6 @@ myApp/
 │       │   ├── index.js/json/wxml/wxss  #   数据洞察
 │       └── profile/                     # 📋 个人中心模块
 │           ├── index.js/json/wxml/wxss  #   个人中心（TabBar）
-│           ├── achievements.js/json/wxml/wxss # 成就徽章
 │           └── settings.js/json/wxml/wxss # 设置
 ├── project.config.json
 ├── project.private.config.json

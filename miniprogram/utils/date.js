@@ -62,6 +62,28 @@ function dayRange(dateStr) {
   };
 }
 
+// 统一的业务日期读取入口。createdAt 是写入时间，补记旧数据时会与业务日错位；
+// 新记录一律写 bizDate，历史记录按各模块已有的业务日期字段兜底，最后才退回 createdAt。
+function bizDateOf(record) {
+  if (!record) return '';
+  const fields = ['bizDate', 'date', 'dueDate', 'targetDate', 'watchedDate', 'finishDate'];
+  for (const f of fields) {
+    if (record[f]) return String(record[f]).slice(0, 10);
+  }
+  if (record.createdAt) return formatDate(record.createdAt, 'YYYY-MM-DD');
+  return '';
+}
+
+function bizMonthOf(record) {
+  const d = bizDateOf(record);
+  return d ? d.slice(0, 7) : '';
+}
+
+function isBizToday(record, todayStr) {
+  const d = bizDateOf(record);
+  return !!d && d === (todayStr || today());
+}
+
 function friendlyTime(ts) {
   const diff = Date.now() - ts;
   if (diff < 60000) return '刚刚';
@@ -82,5 +104,8 @@ module.exports = {
   currentMonth,
   monthRange,
   dayRange,
+  bizDateOf,
+  bizMonthOf,
+  isBizToday,
   friendlyTime
 };

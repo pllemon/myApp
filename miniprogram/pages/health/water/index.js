@@ -1,4 +1,5 @@
 const db = require('../../../utils/db.js');
+const ui = require('../../../utils/interaction.js');
 const healthUtil = require('../../../utils/health.js');
 
 const QUICK_AMOUNTS = [100, 200, 300, 500];
@@ -56,34 +57,31 @@ Page({
     });
   },
 
-  onGoalEdit() {
-    wx.showModal({
+  async onGoalEdit() {
+    const input = await ui.promptInput({
       title: '每日饮水目标',
-      content: '当前 ' + this.data.goal + 'ml',
-      editable: true,
-      placeholderText: '输入目标毫升数',
-      success: async (res) => {
-        if (!res.confirm) return;
-        const n = parseInt(res.content, 10);
-        if (!n || n <= 0) {
-          wx.showToast({ title: '请输入有效数字', icon: 'none' });
-          return;
-        }
-        if (!this.data.profileId) {
-          wx.showToast({ title: '档案未加载', icon: 'none' });
-          return;
-        }
-        await db.update(db.COLLECTIONS.HEALTH_PROFILE, this.data.profileId, { waterGoal: n });
-        this.setData({ goal: n });
-        wx.showToast({ title: '目标已更新', icon: 'success' });
-      }
+      value: String(this.data.goal || ''),
+      placeholder: '输入目标毫升数',
+      required: true,
+      emptyTip: '请输入有效数字',
+      validator: v => /^\d+$/.test(v) && Number(v) > 0,
+      invalidTip: '请输入有效数字'
     });
+    if (input === null) return;
+    const n = Number(input);
+    if (!this.data.profileId) {
+      ui.toast('档案未加载', 'none');
+      return;
+    }
+    await db.update(db.COLLECTIONS.HEALTH_PROFILE, this.data.profileId, { waterGoal: n });
+    this.setData({ goal: n });
+    ui.toast('目标已更新');
   },
 
   async onAddQuick(e) {
     const val = Number(e.currentTarget.dataset.val);
     if (!val || !this.data.profileId) {
-      wx.showToast({ title: '档案未加载', icon: 'none' });
+      ui.toast('档案未加载', 'none');
       return;
     }
     const now = new Date();
@@ -96,10 +94,10 @@ Page({
         amount: val,
         note: '快捷添加'
       });
-      wx.showToast({ title: '+' + val + 'ml 已记录', icon: 'success' });
+      ui.toast('+' + val + 'ml 已记录');
       await this.loadData();
     } catch (err) {
-      wx.showToast({ title: '记录失败', icon: 'none' });
+      ui.toast('记录失败', 'none');
     }
   },
 
@@ -110,19 +108,22 @@ Page({
     });
   },
 
+  async onItemLongPress(e) {
+    const action = await ui.showItemActions();
+    if (action === 'edit') this.goEdit(e);
+    if (action === 'delete') await this.deleteItem(e);
+  },
+
   async deleteItem(e) {
     const id = e.currentTarget.dataset.id;
-    wx.showModal({
-      title: '确认删除',
-      content: '删除后不可恢复',
-      success: async (res) => {
+    ui.confirmDeleteWith({ title: "确认删除", content: "删除后不可恢复" }, async (res) => {
         if (res.confirm) {
           await db.remove(db.COLLECTIONS.HEALTH_WATER, id);
-          wx.showToast({ title: '已删除', icon: 'success' });
+          ui.toast('已删除');
           await this.loadData();
         }
       }
-    });
+    );
   },
 
   goNew() {

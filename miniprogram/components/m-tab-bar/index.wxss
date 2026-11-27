@@ -5,8 +5,8 @@
   right: 0;
   height: 100rpx;
   padding-bottom: env(safe-area-inset-bottom);
-  background: #ffffff;
-  border-top: 1rpx solid #eeeeee;
+  background: var(--surface);
+  border-top: 1rpx solid var(--divider);
   display: flex;
   z-index: 999;
 }
@@ -30,41 +30,12 @@
   justify-content: center;
 }
 
-.tab-icon {
-  font-size: 44rpx;
-  line-height: 1;
-}
-
 .tab-text {
   font-size: 22rpx;
-  color: #999999;
+  color: var(--text-3);
   margin-top: 4rpx;
 }
 
 .tab-item.active .tab-text {
   font-weight: 600;
-}
-
-.tab-badge {
-  position: absolute;
-  top: -8rpx;
-  right: -16rpx;
-  min-width: 32rpx;
-  height: 32rpx;
-  line-height: 32rpx;
-  font-size: 20rpx;
-  color: #ffffff;
-  border-radius: 16rpx;
-  padding: 0 8rpx;
-  text-align: center;
-}
-
-.tab-dot {
-  position: absolute;
-  top: -4rpx;
-  right: -12rpx;
-  width: 16rpx;
-  height: 16rpx;
-  background: #ff4d4f;
-  border-radius: 8rpx;
 }

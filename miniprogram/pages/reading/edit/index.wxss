@@ -1,31 +1,9 @@
-.m-form-label:first-child { margin-top: 0; }
-
-
-
-
-.chip {
-  padding: 14rpx 28rpx;
-  font-size: 26rpx;
-  border-radius: 40rpx;
-  border: 2rpx solid var(--divider);
-  color: var(--text-secondary);
-  background: var(--bg-card);
-}
-
-.date-row-inline {
-  display: flex;
-  align-items: center;
-  padding: 12rpx 0;
-  border-bottom: 1rpx solid var(--divider);
-}
-.date-inline {
-  font-size: 28rpx;
-  color: var(--text);
-}
-.date-clear-inline {
-  font-size: 32rpx;
-  color: var(--text-secondary);
-  margin-left: 12rpx;
-}
-
-.m-rating-star.star-on { color: #F5A623; }
+/* 阅读编辑独有：双列字段 / 清除按钮 / 星级评分（字段、chip、底部按钮走 m2-* 全局类） */
+.field-row { display: flex; gap: 16rpx; }
+.field-row .m2-field { flex: 1; min-width: 0; }
+.date-clear { font-size: 24rpx; color: var(--danger); padding: 0 8rpx; }
+.m2-field slider { flex: 1; }
+.rating-row { display: flex; align-items: center; flex: 1; }
+.star-wrap { opacity: .3; }
+.star-wrap.star-on { opacity: 1; }
+.rating-num { font-size: 24rpx; color: var(--text-3); margin-left: 12rpx; }
